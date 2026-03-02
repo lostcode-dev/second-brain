@@ -13,6 +13,11 @@ export default defineNuxtConfig({
     enabled: true
   },
 
+  runtimeConfig: {
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY
+  },
+
   css: ['~/assets/css/main.css'],
 
   routeRules: {
