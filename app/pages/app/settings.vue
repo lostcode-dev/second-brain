@@ -11,6 +11,10 @@ const links = [[{
   to: '/app/settings',
   exact: true
 }, {
+  label: 'Subscription',
+  icon: 'i-lucide-credit-card',
+  to: '/app/settings/subscription'
+}, {
   label: 'Members',
   icon: 'i-lucide-users',
   to: '/app/settings/members'

@@ -4,8 +4,11 @@ import { requireAuthUser } from '../../utils/require-auth'
 type SubscriptionRow = {
   status: string
   price_id: string | null
+  quantity: number | null
+  current_period_start: string | null
   current_period_end: string | null
   cancel_at_period_end: boolean | null
+  canceled_at: string | null
 }
 
 export default eventHandler(async (event) => {
@@ -14,7 +17,7 @@ export default eventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from('subscriptions')
-    .select('status, price_id, current_period_end, cancel_at_period_end')
+    .select('status, price_id, quantity, current_period_start, current_period_end, cancel_at_period_end, canceled_at')
     .eq('user_id', user.id)
     .order('current_period_end', { ascending: false, nullsFirst: false })
     .limit(1)
