@@ -1,11 +1,23 @@
 <script setup lang="ts">
 import { formatTimeAgo } from '@vueuse/core'
-import { useNotifications } from '~/composables/useNotifications'
+
+import { useNotifications, type AppNotification } from '~/composables/useNotifications'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
 
 const toast = useToast()
-const notifications = useNotifications()
+const notifications = useNotifications() as {
+  items: Ref<AppNotification[]>
+  pending: Ref<boolean>
+  unreadCount: ComputedRef<number>
+  refresh: () => Promise<void>
+  markRead: (id: number) => Promise<void>
+  markAllRead: () => Promise<void>
+  ensureReady: () => Promise<void>
+}
+
+import { computed } from 'vue'
+const notificationsList = computed(() => notifications.pending.value ? [] : notifications.items.value)
 
 watch(isNotificationsSlideoverOpen, async (open) => {
   if (!open)
@@ -63,43 +75,52 @@ async function onOpen(notificationId: number) {
         <USkeleton class="h-12 w-full" />
         <USkeleton class="h-12 w-full" />
       </div>
-
-      <NuxtLink
-        v-else
-        v-for="notification in notifications.items"
-        :key="notification.id"
-        :to="notification.linkPath || '/app'"
-        class="px-3 py-2.5 rounded-md hover:bg-elevated/50 flex items-center gap-3 relative -mx-3 first:-mt-3 last:-mb-3"
-        @click="onOpen(notification.id)"
-      >
-        <UChip
-          color="error"
-          :show="!!notification.unread"
-          inset
+      <template v-else>
+        <NuxtLink
+          v-for="notification in notificationsList"
+          :key="notification.id"
+          :to="notification.linkPath || '/app'"
+          class="px-3 py-2.5 rounded-md hover:bg-elevated/50 flex items-center gap-3 relative -mx-3 first:-mt-3 last:-mb-3"
+          @click="onOpen(notification.id)"
         >
-          <UAvatar
-            v-bind="notification.sender.avatar"
-            :alt="notification.sender.name"
-            size="md"
-          />
-        </UChip>
-
-        <div class="text-sm flex-1">
-          <p class="flex items-center justify-between">
-            <span class="text-highlighted font-medium">{{ notification.sender.name }}</span>
-
-            <time
-              :datetime="notification.date"
-              class="text-muted text-xs"
-              v-text="formatTimeAgo(new Date(notification.date))"
-            />
-          </p>
-
-          <p class="text-dimmed">
-            {{ notification.body }}
-          </p>
-        </div>
-      </NuxtLink>
+          <UChip
+            color="error"
+            :show="!!notification.unread"
+            inset
+          >
+            <template v-if="notification.type === 'system'">
+              <UAvatar
+                src="/icon.png"
+                alt="Second Brain"
+                size="md"
+              />
+            </template>
+            <template v-else>
+              <UAvatar
+                v-bind="notification.sender.avatar"
+                :alt="notification.sender.name"
+                size="md"
+              />
+            </template>
+          </UChip>
+          <div class="text-sm flex-1">
+            <p class="flex items-center justify-between">
+              <span class="text-highlighted font-medium">
+                <template v-if="notification.type === 'system'">Second Brain</template>
+                <template v-else>{{ notification.sender.name }}</template>
+              </span>
+              <time
+                :datetime="notification.date"
+                class="text-muted text-xs"
+                v-text="formatTimeAgo(new Date(notification.date))"
+              />
+            </p>
+            <p class="text-dimmed">
+              {{ notification.body }}
+            </p>
+          </div>
+        </NuxtLink>
+      </template>
     </template>
   </USlideover>
 </template>
