@@ -149,15 +149,6 @@ Whenever possible, prefer using **project aliases** instead of long relative pat
 
 Improve code readability, avoid `../../..` paths, and make refactors and structural changes easier and safer.
 
-## Checklist antes de finalizar
-
-- UI usa componentes Nuxt UI e tokens existentes.
-- Loading total/parcial com skeleton implementado.
-- Toast de sucesso/erro após ações.
-- Form com Zod + erro abaixo do input.
-- Para muito dado: paginação/filtros server-side.
-- Integrações externas só em `server/api/**`.
-
 ### Enums and Type Safety (TypeScript Rule)
 
 Always use **TypeScript enums** for fixed sets of values and ensure that **all code is fully typed with TypeScript**.
@@ -186,9 +177,18 @@ enum UserRole {
   Admin = 'admin',
   User = 'user',
   Guest = 'guest',
-}```
+}``
 
 ## Goal
 
 Guarantee type safety, consistency, and maintainability across the codebase, reduce runtime errors, and make refactoring safer and more predictable.
 
+
+## Checklist antes de finalizar
+
+- UI usa componentes Nuxt UI e tokens existentes.
+- Loading total/parcial com skeleton implementado.
+- Toast de sucesso/erro após ações.
+- Form com Zod + erro abaixo do input.
+- Para muito dado: paginação/filtros server-side.
+- Integrações externas só em `server/api/**`.

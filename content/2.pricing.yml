@@ -24,40 +24,38 @@ plans:
       - Busca rápida
       - Check-in diário
       - Rastreamento básico de hábitos
-  - title: Pro
-    description: Para monitorar hábitos com profundidade e criar consistência.
+  - title: Duo
+    description: Para duas pessoas organizarem juntas, com contas separadas.
     price:
-      month: R$ 39
-      year: R$ 390
+      month: R$ 29
+      year: R$ 290
     stripePriceId:
       month: ''
       year: ''
     highlight: true
     scale: true
     button:
-      label: Assinar Pro
+      label: Assinar Duo
     features:
       - Tudo do Pessoal
-      - Métricas semanais e mensais
-      - Heatmap de consistência
-      - Revisão semanal guiada
-      - Hábitos quantitativos (minutos, páginas, vezes)
-      - Regras flexíveis (dias de descanso / metas mínimas)
-  - title: Equipe
-    description: Para compartilhar contexto e manter alinhamento.
+      - 2 contas incluídas
+      - Organização independente por pessoa
+      - Uso em múltiplos dispositivos
+      - Suporte padrão
+  - title: Família
+    description: Para a família inteira manter rotinas e contexto em dia.
     price:
-      month: R$ 79
-      year: R$ 790
+      month: R$ 49
+      year: R$ 490
+    stripePriceId:
+      month: ''
+      year: ''
     button:
-      label: Falar com a gente
-      color: neutral
-      variant: subtle
+      label: Assinar Família
     features:
-      - Tudo do Pro
-      - Espaços compartilhados
-      - Permissões por membro
-      - Padrões de organização por equipe
-      - Histórico e auditoria básica
+      - Tudo do Duo
+      - Até 6 contas incluídas
+      - Espaços e tags por pessoa
       - Suporte prioritário
 logos:
   title: Confiável para o dia a dia
@@ -78,7 +76,7 @@ faq:
     - label: Posso cancelar quando quiser?
       content: Sim. Você pode cancelar a qualquer momento e manter o controle sobre seus dados.
     - label: Posso mudar de plano depois?
-      content: Pode. Comece no Pessoal e evolua para o Pro/Equipe conforme sua necessidade.
+      content: Pode. Comece no Pessoal e evolua para o Duo/Família conforme sua necessidade.
     - label: Como funcionam hábitos no Second Brain?
       content: Hábitos são conectados a contexto (notas/reflexões). O foco é consistência e tendência, não perfeição.
     - label: Vocês oferecem suporte?
