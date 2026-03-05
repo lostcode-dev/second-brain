@@ -17,6 +17,14 @@ const links = [
       },
     },
     {
+      label: "Life OS",
+      icon: "i-lucide-brain",
+      to: "/app/dashboard",
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
       label: "Caixa de entrada",
       icon: "i-lucide-inbox",
       to: "/app/inbox",
