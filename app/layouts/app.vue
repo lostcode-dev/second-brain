@@ -110,9 +110,12 @@ const links = [
   ],
   [
     {
-      label: 'Enviar feedback',
+      label: 'Feedback',
       icon: 'i-lucide-message-circle',
-      to: '/docs/getting-started'
+      to: '/app/feedback',
+      onSelect: () => {
+        open.value = false
+      }
     },
     {
       label: 'Ajuda',
