@@ -1,7 +1,111 @@
 <script setup lang="ts">
+import type { Goal } from '~/types/goals'
+import { GoalStatus } from '~/types/goals'
+
 definePageMeta({
   layout: 'app'
 })
+
+const {
+  listData,
+  listFetchStatus,
+  listPage,
+  listPageSize,
+  listSearch,
+  listStatus,
+  listTimeCategory,
+  listLifeCategory,
+  insights,
+  insightsStatus,
+  refreshInsights,
+  refreshList,
+  completeGoal,
+  restoreGoal,
+  fetchGoal,
+  timeCategoryOptions,
+  lifeCategoryOptions,
+  statusOptions
+} = useGoals()
+
+// ─── Active tab ───────────────────────────────────────────────────────────────
+const activeTab = ref('active')
+
+const tabs = [
+  { label: 'Ativas', value: 'active', icon: 'i-lucide-target' },
+  { label: 'Todas', value: 'all', icon: 'i-lucide-list' },
+  { label: 'Insights', value: 'insights', icon: 'i-lucide-bar-chart-3' }
+]
+
+watch(activeTab, (tab) => {
+  if (tab === 'active') {
+    listStatus.value = GoalStatus.Active
+  } else if (tab === 'all') {
+    listStatus.value = ''
+  }
+  if (tab === 'insights') {
+    refreshInsights()
+  }
+  listPage.value = 1
+}, { immediate: true })
+
+// ─── Modals ───────────────────────────────────────────────────────────────────
+const createModalOpen = ref(false)
+const editModalOpen = ref(false)
+const archiveModalOpen = ref(false)
+const detailSlideoverOpen = ref(false)
+const selectedGoal = ref<Goal | null>(null)
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
+async function onSelectGoal(goalId: string) {
+  const goal = await fetchGoal(goalId)
+  if (goal) {
+    selectedGoal.value = goal
+    detailSlideoverOpen.value = true
+  }
+}
+
+function onEditGoal(goal: Goal) {
+  selectedGoal.value = goal
+  editModalOpen.value = true
+}
+
+function onArchiveGoal(goal: Goal) {
+  selectedGoal.value = goal
+  archiveModalOpen.value = true
+}
+
+async function onCompleteGoal(goal: Goal) {
+  await completeGoal(goal.id, goal.title)
+}
+
+async function onRestoreGoal(goal: Goal) {
+  await restoreGoal(goal.id)
+}
+
+function onGoalArchived() {
+  detailSlideoverOpen.value = false
+  selectedGoal.value = null
+}
+
+function onGoalUpdated() {
+  refreshList()
+}
+
+// ─── Filter options ───────────────────────────────────────────────────────────
+const timeCategoryFilterOptions = computed(() => [
+  { label: 'Todos', value: '' },
+  ...timeCategoryOptions
+])
+
+const lifeCategoryFilterOptions = computed(() => [
+  { label: 'Todas', value: '' },
+  ...lifeCategoryOptions
+])
+
+const statusFilterOptions = computed(() => [
+  { label: 'Todas', value: '' },
+  ...statusOptions
+])
 </script>
 
 <template>
@@ -11,21 +115,130 @@ definePageMeta({
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
+
+        <template #right>
+          <UButton
+            label="Nova meta"
+            icon="i-lucide-plus"
+            @click="createModalOpen = true"
+          />
+        </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <div class="flex h-full flex-1 flex-col items-center justify-center gap-4">
-        <UIcon name="i-lucide-calendar-check" class="size-16 text-dimmed" />
-        <div class="text-center">
-          <p class="font-medium text-highlighted">
-            Acompanhe suas metas aqui
-          </p>
-          <p class="text-sm text-muted">
-            Em breve: criação de metas, acompanhamento de progresso e revisão semanal.
-          </p>
+      <div class="space-y-6">
+        <!-- Tabs -->
+        <UTabs
+          :items="tabs"
+          :model-value="activeTab"
+          @update:model-value="activeTab = $event as string"
+        />
+
+        <!-- ACTIVE TAB -->
+        <div v-if="activeTab === 'active'" class="space-y-4">
+          <GoalsGoalsList
+            :goals="listData?.data ?? []"
+            :total="listData?.total ?? 0"
+            :page="listPage"
+            :page-size="listPageSize"
+            :loading="listFetchStatus === 'pending'"
+            @update:page="listPage = $event"
+            @select="onSelectGoal"
+            @edit="onEditGoal"
+            @archive="onArchiveGoal"
+            @complete="onCompleteGoal"
+            @restore="onRestoreGoal"
+          />
+        </div>
+
+        <!-- ALL GOALS TAB -->
+        <div v-if="activeTab === 'all'" class="space-y-4">
+          <!-- Filters -->
+          <div class="flex flex-wrap items-center gap-2">
+            <UInput
+              v-model="listSearch"
+              icon="i-lucide-search"
+              placeholder="Buscar metas..."
+              class="max-w-xs"
+            />
+            <USelect
+              v-model="listTimeCategory"
+              :items="timeCategoryFilterOptions"
+              value-key="value"
+              placeholder="Prazo"
+              class="min-w-32"
+            />
+            <USelect
+              v-model="listLifeCategory"
+              :items="lifeCategoryFilterOptions"
+              value-key="value"
+              placeholder="Área"
+              class="min-w-32"
+            />
+            <USelect
+              v-model="listStatus"
+              :items="statusFilterOptions"
+              value-key="value"
+              placeholder="Status"
+              class="min-w-32"
+            />
+          </div>
+
+          <GoalsGoalsList
+            :goals="listData?.data ?? []"
+            :total="listData?.total ?? 0"
+            :page="listPage"
+            :page-size="listPageSize"
+            :loading="listFetchStatus === 'pending'"
+            @update:page="listPage = $event"
+            @select="onSelectGoal"
+            @edit="onEditGoal"
+            @archive="onArchiveGoal"
+            @complete="onCompleteGoal"
+            @restore="onRestoreGoal"
+          />
+        </div>
+
+        <!-- INSIGHTS TAB -->
+        <div v-if="activeTab === 'insights'">
+          <GoalsInsightsPanel
+            :insights="insights ?? null"
+            :loading="insightsStatus === 'pending'"
+          />
         </div>
       </div>
     </template>
   </UDashboardPanel>
+
+  <!-- Modals -->
+  <GoalsCreateModal
+    :open="createModalOpen"
+    @update:open="createModalOpen = $event"
+  />
+
+  <GoalsEditModal
+    v-if="selectedGoal"
+    :open="editModalOpen"
+    :goal="selectedGoal"
+    @update:open="editModalOpen = $event"
+  />
+
+  <GoalsArchiveModal
+    v-if="selectedGoal"
+    :open="archiveModalOpen"
+    :goal="selectedGoal"
+    @update:open="archiveModalOpen = $event"
+    @archived="onGoalArchived"
+  />
+
+  <GoalsDetailSlideover
+    v-if="selectedGoal"
+    :open="detailSlideoverOpen"
+    :goal="selectedGoal"
+    @update:open="detailSlideoverOpen = $event"
+    @edit="editModalOpen = true"
+    @archive="archiveModalOpen = true"
+    @updated="onGoalUpdated"
+  />
 </template>
