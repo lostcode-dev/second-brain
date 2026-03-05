@@ -58,6 +58,14 @@ const links = [
       },
     },
     {
+      label: "Agendamentos",
+      icon: "i-lucide-calendar-check",
+      to: "/app/appointments",
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
       label: "Configurações",
       to: "/app/settings",
       icon: "i-lucide-settings",
