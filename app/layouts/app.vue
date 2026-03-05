@@ -78,20 +78,6 @@ const links = [
           }
         },
         {
-          label: 'Faturamento',
-          to: '/app/settings/billing',
-          onSelect: () => {
-            open.value = false
-          }
-        },
-        {
-          label: 'Membros',
-          to: '/app/settings/members',
-          onSelect: () => {
-            open.value = false
-          }
-        },
-        {
           label: 'Notificações',
           to: '/app/settings/notifications',
           onSelect: () => {
@@ -110,7 +96,7 @@ const links = [
   ],
   [
     {
-      label: 'Feedback',
+      label: 'Enviar feedback',
       icon: 'i-lucide-message-circle',
       to: '/app/feedback',
       onSelect: () => {

@@ -281,7 +281,7 @@ Deno.serve(async (req) => {
             body: event.type === 'invoice.paid'
               ? 'Pagamento confirmado. Sua fatura está disponível.'
               : 'Falha no pagamento. Atualize sua forma de pagamento.',
-            link_path: '/app/settings/billing',
+            link_path: '/app/settings/subscription',
             metadata: {
               stripe_invoice_id: invoice.id,
               stripe_subscription_id: typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id

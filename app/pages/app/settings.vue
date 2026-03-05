@@ -6,32 +6,24 @@ definePageMeta({
 })
 
 const links = [[{
-  label: 'General',
+  label: 'Geral',
   icon: 'i-lucide-user',
   to: '/app/settings',
   exact: true
 }, {
-  label: 'Subscription',
+  label: 'Assinatura',
   icon: 'i-lucide-credit-card',
   to: '/app/settings/subscription'
 }, {
-  label: 'Members',
-  icon: 'i-lucide-users',
-  to: '/app/settings/members'
-}, {
-  label: 'Notifications',
+  label: 'Notificações',
   icon: 'i-lucide-bell',
   to: '/app/settings/notifications'
 }, {
-  label: 'Security',
+  label: 'Segurança',
   icon: 'i-lucide-shield',
   to: '/app/settings/security'
-}, {
-  label: 'Billing',
-  icon: 'i-lucide-receipt',
-  to: '/app/settings/billing'
 }], [{
-  label: 'Documentation',
+  label: 'Documentação',
   icon: 'i-lucide-book-open',
   to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
   target: '_blank'
@@ -41,7 +33,7 @@ const links = [[{
 <template>
   <UDashboardPanel id="settings" :ui="{ body: 'lg:py-12' }">
     <template #header>
-      <UDashboardNavbar title="Settings">
+      <UDashboardNavbar title="Configurações">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>

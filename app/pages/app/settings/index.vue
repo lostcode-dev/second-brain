@@ -6,44 +6,80 @@ definePageMeta({
   layout: 'app'
 })
 
-const fileRef = ref<HTMLInputElement>()
+const toast = useToast()
+const { fetchUser } = useAuth()
+
+type ProfileResponse = {
+  id: string
+  email: string | null
+  name: string
+  avatar_url: string
+}
 
 const profileSchema = z.object({
-  name: z.string().min(2, 'Muito curto'),
+  name: z.string().min(2, 'Deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
-  username: z.string().min(2, 'Muito curto'),
-  avatar: z.string().optional(),
-  bio: z.string().optional()
+  avatar_url: z.string().optional()
 })
 
 type ProfileSchema = z.output<typeof profileSchema>
 
+const { data: profileData, status } = await useAsyncData(
+  'user-profile',
+  () => $fetch<ProfileResponse>('/api/auth/profile')
+)
+
 const profile = reactive<Partial<ProfileSchema>>({
-  name: 'Benjamin Canac',
-  email: 'ben@nuxtlabs.com',
-  username: 'benjamincanac',
-  avatar: undefined,
-  bio: undefined
+  name: profileData.value?.name || '',
+  email: profileData.value?.email || '',
+  avatar_url: profileData.value?.avatar_url || undefined
 })
-const toast = useToast()
-async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
-  toast.add({
-    title: 'Salvo com sucesso',
-    description: 'Suas configurações foram atualizadas.',
-    icon: 'i-lucide-check',
-    color: 'success'
-  })
-  console.log(event.data)
+
+watch(profileData, (newData) => {
+  if (newData) {
+    profile.name = newData.name
+    profile.email = newData.email || ''
+    profile.avatar_url = newData.avatar_url || undefined
+  }
+})
+
+const isSaving = ref(false)
+
+async function onSubmit(_event: FormSubmitEvent<ProfileSchema>) {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    await $fetch('/api/auth/profile', {
+      method: 'PUT',
+      body: {
+        name: profile.name,
+        avatar_url: profile.avatar_url || ''
+      }
+    })
+
+    await fetchUser()
+
+    toast.add({
+      title: 'Perfil atualizado',
+      description: 'Suas informações foram salvas com sucesso.',
+      color: 'success'
+    })
+  } catch (error: unknown) {
+    const err = error as { data?: { statusMessage?: string }, statusMessage?: string }
+    const message = err?.data?.statusMessage || err?.statusMessage || 'Não foi possível salvar o perfil'
+    toast.add({ title: 'Erro', description: message, color: 'error' })
+  } finally {
+    isSaving.value = false
+  }
 }
+
+const fileRef = ref<HTMLInputElement>()
 
 function onFileChange(e: Event) {
   const input = e.target as HTMLInputElement
-
-  if (!input.files?.length) {
-    return
-  }
-
-  profile.avatar = URL.createObjectURL(input.files[0]!)
+  if (!input.files?.length) return
+  profile.avatar_url = URL.createObjectURL(input.files[0]!)
 }
 
 function onFileClick() {
@@ -70,11 +106,22 @@ function onFileClick() {
         label="Salvar alterações"
         color="neutral"
         type="submit"
+        :loading="isSaving"
         class="w-fit lg:ms-auto"
       />
     </UPageCard>
 
-    <UPageCard variant="subtle">
+    <div v-if="status === 'pending'" class="space-y-4">
+      <USkeleton class="h-14 w-full" />
+      <USkeleton class="h-14 w-full" />
+      <USkeleton class="h-14 w-full" />
+      <USkeleton class="h-14 w-full" />
+    </div>
+
+    <UPageCard
+      v-else
+      variant="subtle"
+    >
       <UFormField
         name="name"
         label="Nome"
@@ -99,32 +146,19 @@ function onFileClick() {
           v-model="profile.email"
           type="email"
           autocomplete="off"
+          disabled
         />
       </UFormField>
       <USeparator />
       <UFormField
-        name="username"
-        label="Usuário"
-        description="Seu identificador único."
-        required
-        class="flex max-sm:flex-col justify-between items-start gap-4"
-      >
-        <UInput
-          v-model="profile.username"
-          type="username"
-          autocomplete="off"
-        />
-      </UFormField>
-      <USeparator />
-      <UFormField
-        name="avatar"
+        name="avatar_url"
         label="Avatar"
         description="JPG, GIF ou PNG. Máx. 1MB."
         class="flex max-sm:flex-col justify-between sm:items-center gap-4"
       >
         <div class="flex flex-wrap items-center gap-3">
           <UAvatar
-            :src="profile.avatar"
+            :src="profile.avatar_url"
             :alt="profile.name"
             size="lg"
           />
@@ -141,21 +175,6 @@ function onFileClick() {
             @change="onFileChange"
           >
         </div>
-      </UFormField>
-      <USeparator />
-      <UFormField
-        name="bio"
-        label="Bio"
-        description="Uma descrição curta. Links viram clicáveis automaticamente."
-        class="flex max-sm:flex-col justify-between items-start gap-4"
-        :ui="{ container: 'w-full' }"
-      >
-        <UTextarea
-          v-model="profile.bio"
-          :rows="5"
-          autoresize
-          class="w-full"
-        />
       </UFormField>
     </UPageCard>
   </UForm>
