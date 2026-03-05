@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { getSupabaseAnonClient } from '../../utils/supabase-anon'
+import { getSupabaseAdminClient } from '../../utils/supabase'
 import { setAuthCookies } from '../../utils/auth-cookies'
 import { setAuthUserCookie, toAuthUser } from '../../utils/auth-user'
 
@@ -38,6 +39,38 @@ export default eventHandler(async (event) => {
       statusCode: 400,
       statusMessage: error.message
     })
+  }
+
+  if (data.user) {
+    const supabaseAdmin = getSupabaseAdminClient()
+
+    const [userPreferencesResult, notificationPreferencesResult] = await Promise.all([
+      supabaseAdmin
+        .from('user_preferences')
+        .upsert({
+          user_id: data.user.id,
+          primary_color: 'green',
+          neutral_color: 'slate',
+          color_mode: 'dark'
+        }, { onConflict: 'user_id' }),
+      supabaseAdmin
+        .from('notification_preferences')
+        .upsert({
+          user_id: data.user.id,
+          channel_email: true,
+          channel_desktop: false,
+          digest_weekly: false,
+          product_updates: true,
+          important_updates: true
+        }, { onConflict: 'user_id' })
+    ])
+
+    if (userPreferencesResult.error || notificationPreferencesResult.error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Não foi possível inicializar as preferências do usuário'
+      })
+    }
   }
 
   if (data.session) {

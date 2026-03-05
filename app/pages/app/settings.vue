@@ -1,33 +1,35 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui'
+import type { NavigationMenuItem } from "@nuxt/ui";
 
 definePageMeta({
-  layout: 'app'
-})
+  layout: "app",
+});
 
-const links = [[{
-  label: 'Geral',
-  icon: 'i-lucide-user',
-  to: '/app/settings',
-  exact: true
-}, {
-  label: 'Assinatura',
-  icon: 'i-lucide-credit-card',
-  to: '/app/settings/subscription'
-}, {
-  label: 'Notificações',
-  icon: 'i-lucide-bell',
-  to: '/app/settings/notifications'
-}, {
-  label: 'Segurança',
-  icon: 'i-lucide-shield',
-  to: '/app/settings/security'
-}], [{
-  label: 'Documentação',
-  icon: 'i-lucide-book-open',
-  to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-  target: '_blank'
-}]] satisfies NavigationMenuItem[][]
+const links = [
+  [
+    {
+      label: "Geral",
+      icon: "i-lucide-user",
+      to: "/app/settings",
+      exact: true,
+    },
+    {
+      label: "Assinatura",
+      icon: "i-lucide-credit-card",
+      to: "/app/settings/subscription",
+    },
+    {
+      label: "Notificações",
+      icon: "i-lucide-bell",
+      to: "/app/settings/notifications",
+    },
+    {
+      label: "Segurança",
+      icon: "i-lucide-shield",
+      to: "/app/settings/security",
+    },
+  ],
+] satisfies NavigationMenuItem[][];
 </script>
 
 <template>
@@ -50,7 +52,9 @@ const links = [[{
     </template>
 
     <template #body>
-      <div class="flex flex-col gap-4 sm:gap-6 lg:gap-12 w-full lg:max-w-2xl mx-auto">
+      <div
+        class="flex flex-col gap-4 sm:gap-6 lg:gap-12 w-full lg:max-w-2xl mx-auto"
+      >
         <NuxtPage />
       </div>
     </template>

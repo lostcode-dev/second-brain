@@ -4,6 +4,7 @@ import type { Session } from '@supabase/supabase-js'
 import { clearOauthCodeVerifier, getOauthCodeVerifier } from '../../../utils/oauth-cookies'
 import { setAuthCookies } from '../../../utils/auth-cookies'
 import { getSupabaseAnonClient } from '../../../utils/supabase-anon'
+import { getSupabaseAdminClient } from '../../../utils/supabase'
 import { setAuthUserCookie, toAuthUser } from '../../../utils/auth-user'
 
 const querySchema = z.object({
@@ -73,10 +74,18 @@ export default eventHandler(async (event) => {
       code_verifier: codeVerifier,
       redirect_to: redirectTo
     }
-  }).catch((error: any) => {
+  }).catch((error: unknown) => {
+    const maybeError = error as { data?: unknown, message?: unknown } | null
+    const data = (maybeError && typeof maybeError === 'object' ? maybeError.data : undefined) as unknown
+    const message = (maybeError && typeof maybeError === 'object' ? maybeError.message : undefined) as unknown
+    const dataRecord = data && typeof data === 'object' ? data as Record<string, unknown> : null
+
+    const msg = typeof dataRecord?.msg === 'string' ? dataRecord.msg : undefined
+    const errorDescription = typeof dataRecord?.error_description === 'string' ? dataRecord.error_description : undefined
+
     throw createError({
       statusCode: 400,
-      statusMessage: error?.data?.msg || error?.data?.error_description || error?.message || 'OAuth exchange failed'
+      statusMessage: msg || errorDescription || (typeof message === 'string' ? message : undefined) || 'OAuth exchange failed'
     })
   })
 
@@ -95,6 +104,36 @@ export default eventHandler(async (event) => {
   const supabase = getSupabaseAnonClient()
   const { data: userData } = await supabase.auth.getUser(tokenResponse.access_token)
   if (userData.user) {
+    const supabaseAdmin = getSupabaseAdminClient()
+
+    const [userPreferencesResult, notificationPreferencesResult] = await Promise.all([
+      supabaseAdmin
+        .from('user_preferences')
+        .upsert({
+          user_id: userData.user.id,
+          primary_color: 'green',
+          neutral_color: 'slate',
+          color_mode: 'dark'
+        }, { onConflict: 'user_id' }),
+      supabaseAdmin
+        .from('notification_preferences')
+        .upsert({
+          user_id: userData.user.id,
+          channel_email: true,
+          channel_desktop: false,
+          digest_weekly: false,
+          product_updates: true,
+          important_updates: true
+        }, { onConflict: 'user_id' })
+    ])
+
+    if (userPreferencesResult.error || notificationPreferencesResult.error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Não foi possível inicializar as preferências do usuário'
+      })
+    }
+
     setAuthUserCookie(event, {
       user: toAuthUser(userData.user),
       expiresAt,
