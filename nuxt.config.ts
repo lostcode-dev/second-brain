@@ -13,6 +13,8 @@ export default defineNuxtConfig({
     enabled: true
   },
 
+  css: ['~/assets/css/main.css'],
+
   runtimeConfig: {
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
@@ -22,8 +24,6 @@ export default defineNuxtConfig({
     stripeAllowedPriceIds: process.env.STRIPE_ALLOWED_PRICE_IDS,
     stripeBillingPortalConfigurationId: process.env.STRIPE_BILLING_PORTAL_CONFIGURATION_ID
   },
-
-  css: ['~/assets/css/main.css'],
 
   routeRules: {
     '/docs': { redirect: '/docs/getting-started', prerender: false },
@@ -52,4 +52,3 @@ export default defineNuxtConfig({
     }
   }
 })
-

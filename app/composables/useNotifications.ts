@@ -44,8 +44,7 @@ const _useNotifications = (): UseNotificationsState => {
       const data = await $fetch<ListResponse>('/api/notifications')
       items.value = data
       hasLoaded.value = true
-    }
-    finally {
+    } finally {
       pending.value = false
     }
   }

@@ -3,7 +3,7 @@ import * as z from 'zod'
 import type { FormError } from '@nuxt/ui'
 
 definePageMeta({
-  layout: 'app',
+  layout: 'app'
 })
 
 const passwordSchema = z.object({

@@ -15,7 +15,7 @@ const toast = useToast()
 const table = useTemplateRef('table')
 
 definePageMeta({
-  layout: 'app',
+  layout: 'app'
 })
 
 const columnFilters = ref([{

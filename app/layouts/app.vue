@@ -29,6 +29,13 @@ const links = [[{
     open.value = false
   }
 }, {
+  label: 'Hábitos',
+  icon: 'i-lucide-calendar-check',
+  to: '/app/habits',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
   label: 'Configurações',
   to: '/app/settings',
   icon: 'i-lucide-settings',

@@ -32,7 +32,7 @@ const { data: page, status } = await useAsyncData(
         <template #content>
           <UCard>
             <template #header>
-             Assinatura necessária
+              Assinatura necessária
             </template>
 
             <div v-if="status === 'pending'" class="space-y-3">

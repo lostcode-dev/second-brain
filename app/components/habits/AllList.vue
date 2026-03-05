@@ -1,0 +1,153 @@
+<script setup lang="ts">
+import type { Habit } from '~/types/habits'
+import { HabitDifficulty, HabitFrequency } from '~/types/habits'
+
+const _props = defineProps<{
+  habits: Habit[]
+  total: number
+  page: number
+  pageSize: number
+  loading: boolean
+}>()
+
+const emit = defineEmits<{
+  'update:page': [value: number]
+  'select': [habitId: string]
+  'edit': [habit: Habit]
+  'archive': [habit: Habit]
+}>()
+
+const difficultyLabel: Record<string, string> = {
+  [HabitDifficulty.Tiny]: 'Pequeno',
+  [HabitDifficulty.Normal]: 'Normal',
+  [HabitDifficulty.Hard]: 'Difícil'
+}
+
+const difficultyColor: Record<string, 'success' | 'warning' | 'error'> = {
+  [HabitDifficulty.Tiny]: 'success',
+  [HabitDifficulty.Normal]: 'warning',
+  [HabitDifficulty.Hard]: 'error'
+}
+
+const frequencyLabel: Record<string, string> = {
+  [HabitFrequency.Daily]: 'Diário',
+  [HabitFrequency.Weekly]: 'Semanal',
+  [HabitFrequency.Custom]: 'Personalizado'
+}
+
+function getRowItems(habit: Habit) {
+  return [
+    {
+      label: 'Editar',
+      icon: 'i-lucide-pencil',
+      onSelect: () => emit('edit', habit)
+    },
+    {
+      type: 'separator' as const
+    },
+    {
+      label: 'Arquivar',
+      icon: 'i-lucide-archive',
+      color: 'error' as const,
+      onSelect: () => emit('archive', habit)
+    }
+  ]
+}
+</script>
+
+<template>
+  <div class="space-y-4">
+    <!-- Loading skeletons -->
+    <template v-if="loading">
+      <UCard v-for="i in 6" :key="i">
+        <div class="flex items-center gap-3">
+          <div class="flex-1 space-y-2">
+            <USkeleton class="h-4 w-2/3" />
+            <USkeleton class="h-3 w-1/3" />
+          </div>
+          <USkeleton class="h-5 w-16 rounded-full" />
+          <USkeleton class="h-5 w-14 rounded-full" />
+        </div>
+      </UCard>
+    </template>
+
+    <!-- Habits list -->
+    <template v-else-if="habits.length > 0">
+      <UCard
+        v-for="habit in habits"
+        :key="habit.id"
+        class="cursor-pointer transition-colors hover:bg-elevated/50"
+        @click="emit('select', habit.id)"
+      >
+        <div class="flex items-center gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-highlighted truncate">
+              {{ habit.name }}
+            </p>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span v-if="habit.identity" class="text-xs text-muted">
+                {{ habit.identity.name }}
+              </span>
+              <span class="text-xs text-muted">
+                {{ frequencyLabel[habit.frequency] }}
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <UBadge
+              :label="difficultyLabel[habit.difficulty]"
+              :color="difficultyColor[habit.difficulty]"
+              variant="subtle"
+              size="xs"
+            />
+
+            <div
+              v-if="habit.streak && habit.streak.currentStreak > 0"
+              class="flex items-center gap-1 text-xs text-muted"
+            >
+              <UIcon name="i-lucide-flame" class="size-3.5 text-orange-500" />
+              <span>{{ habit.streak.currentStreak }}d</span>
+            </div>
+
+            <UDropdownMenu
+              :items="getRowItems(habit)"
+              :content="{ align: 'end' }"
+            >
+              <UButton
+                icon="i-lucide-ellipsis-vertical"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                @click.stop
+              />
+            </UDropdownMenu>
+          </div>
+        </div>
+      </UCard>
+    </template>
+
+    <!-- Empty state -->
+    <div v-else class="flex flex-col items-center justify-center gap-4 py-12">
+      <UIcon name="i-lucide-inbox" class="size-12 text-dimmed" />
+      <div class="text-center">
+        <p class="font-medium text-highlighted">
+          Nenhum hábito encontrado
+        </p>
+        <p class="text-sm text-muted">
+          Ajuste os filtros ou crie um novo hábito.
+        </p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="total > pageSize" class="flex justify-center pt-2">
+      <UPagination
+        :default-page="page"
+        :items-per-page="pageSize"
+        :total="total"
+        @update:page="emit('update:page', $event)"
+      />
+    </div>
+  </div>
+</template>

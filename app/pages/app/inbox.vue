@@ -4,7 +4,7 @@ import { breakpointsTailwind } from '@vueuse/core'
 import type { Mail } from '~/types'
 
 definePageMeta({
-  layout: 'app',
+  layout: 'app'
 })
 
 const tabItems = [{

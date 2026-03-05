@@ -60,8 +60,7 @@ export function getAuthUserCookie(event: H3Event): AuthUserCookiePayload | null 
 
   try {
     return JSON.parse(decodeURIComponent(raw)) as AuthUserCookiePayload
-  }
-  catch {
+  } catch {
     return null
   }
 }

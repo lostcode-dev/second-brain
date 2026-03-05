@@ -14,7 +14,6 @@ useSeoMeta({
 })
 
 defineOgImageComponent('Saas')
-
 </script>
 
 <template>

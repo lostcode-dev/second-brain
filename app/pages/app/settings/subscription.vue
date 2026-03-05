@@ -47,12 +47,10 @@ async function cancelAtPeriodEnd(_event: MouseEvent) {
 
       await new Promise(resolve => setTimeout(resolve, 1000))
     }
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível cancelar a assinatura'
     toast.add({ title: 'Erro', description: message, color: 'error' })
-  }
-  finally {
+  } finally {
     isCancelling.value = false
   }
 }
@@ -62,8 +60,7 @@ function formatDate(date: string | null) {
     return '-'
   try {
     return new Date(date).toLocaleDateString('pt-BR')
-  }
-  catch {
+  } catch {
     return date
   }
 }
@@ -72,8 +69,7 @@ async function openPortal() {
   try {
     const { url } = await $fetch<{ url: string }>('/api/billing/portal', { method: 'POST' })
     await navigateTo(url, { external: true })
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível abrir o portal'
     toast.add({ title: 'Erro', description: message, color: 'error' })
   }
@@ -128,7 +124,9 @@ async function openPortal() {
 
     <div v-else class="space-y-4">
       <div v-if="!data?.subscription" class="space-y-3">
-        <p class="text-sm text-muted">Você ainda não possui uma assinatura registrada.</p>
+        <p class="text-sm text-muted">
+          Você ainda não possui uma assinatura registrada.
+        </p>
         <UButton label="Ver planos" color="neutral" to="/pricing" />
       </div>
 
@@ -168,7 +166,7 @@ async function openPortal() {
           <span class="text-sm font-medium">{{ data.subscription.cancel_at_period_end ? 'Sim' : 'Não' }}</span>
         </div>
 
-        <div class="flex items-center justify-between" v-if="data.subscription.canceled_at">
+        <div v-if="data.subscription.canceled_at" class="flex items-center justify-between">
           <span class="text-sm text-muted">Cancelada em</span>
           <span class="text-sm font-medium">{{ formatDate(data.subscription.canceled_at) }}</span>
         </div>

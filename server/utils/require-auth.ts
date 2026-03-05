@@ -45,4 +45,3 @@ export async function requireAuthUser(event: H3Event) {
     statusMessage: 'Unauthorized'
   })
 }
-

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import { useAuth } from '~/composables/useAuth';
+import { useAuth } from '~/composables/useAuth'
 
 defineProps<{
   collapsed?: boolean
@@ -43,8 +43,7 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
     try {
       const { url } = await $fetch<{ url: string }>('/api/billing/portal', { method: 'POST' })
       await navigateTo(url, { external: true })
-    }
-    catch (error: any) {
+    } catch (error: any) {
       const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível abrir o portal'
       toast.add({ title: 'Erro', description: message, color: 'error' })
     }
@@ -138,8 +137,7 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
       await auth.logout()
       toast.add({ title: 'Sessão encerrada', color: 'success' })
       await router.push('/login')
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível sair', color: 'error' })
     }
   }

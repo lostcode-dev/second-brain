@@ -68,8 +68,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
     })
 
     await router.push('/app')
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível entrar'
     toast.add({
       title: 'Erro',

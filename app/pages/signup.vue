@@ -79,8 +79,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       color: 'success'
     })
     await router.push('/app')
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível criar a conta'
     toast.add({
       title: 'Erro',

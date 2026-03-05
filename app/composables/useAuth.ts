@@ -26,8 +26,7 @@ export function useAuth() {
     try {
       const parsed = JSON.parse(decodeURIComponent(raw)) as AuthUserCookiePayload
       return { user: parsed.user, ready: true }
-    }
-    catch {
+    } catch {
       return { user: null, ready: false }
     }
   })
@@ -58,8 +57,7 @@ export function useAuth() {
           await fetchUser()
 
         return
-      }
-      catch {
+      } catch {
         // ignore
       }
     }

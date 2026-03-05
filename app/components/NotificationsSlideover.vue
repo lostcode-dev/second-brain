@@ -3,6 +3,8 @@ import { formatTimeAgo } from '@vueuse/core'
 
 import { useNotifications, type AppNotification } from '~/composables/useNotifications'
 
+import { computed } from 'vue'
+
 const { isNotificationsSlideoverOpen } = useDashboard()
 
 const toast = useToast()
@@ -15,8 +17,6 @@ const notifications = useNotifications() as {
   markAllRead: () => Promise<void>
   ensureReady: () => Promise<void>
 }
-
-import { computed } from 'vue'
 const notificationsList = computed(() => notifications.pending.value ? [] : notifications.items.value)
 
 watch(isNotificationsSlideoverOpen, async (open) => {
@@ -24,8 +24,7 @@ watch(isNotificationsSlideoverOpen, async (open) => {
     return
   try {
     await notifications.ensureReady()
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível carregar as notificações'
     toast.add({ title: 'Erro', description: message, color: 'error' })
   }
@@ -34,8 +33,7 @@ watch(isNotificationsSlideoverOpen, async (open) => {
 async function markAllRead() {
   try {
     await notifications.markAllRead()
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível marcar como lidas'
     toast.add({ title: 'Erro', description: message, color: 'error' })
   }
@@ -44,8 +42,7 @@ async function markAllRead() {
 async function onOpen(notificationId: number) {
   try {
     await notifications.markRead(notificationId)
-  }
-  catch {
+  } catch {
     // ignore
   }
 }

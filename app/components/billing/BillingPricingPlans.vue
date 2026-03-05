@@ -39,14 +39,13 @@ async function startCheckout(priceId: string) {
       method: 'POST',
       body: {
         priceId,
-        'successPath': props.successPath ?? undefined,
-        'cancelPath': props.cancelPath ?? undefined
+        successPath: props.successPath ?? undefined,
+        cancelPath: props.cancelPath ?? undefined
       }
     })
 
     await navigateTo(url, { external: true })
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível iniciar o checkout'
     toast.add({ title: 'Erro', description: message, color: 'error' })
   }

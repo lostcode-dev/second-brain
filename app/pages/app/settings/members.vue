@@ -2,7 +2,7 @@
 import type { Member } from '~/types'
 
 definePageMeta({
-  layout: 'app',
+  layout: 'app'
 })
 
 const { data: members } = await useFetch<Member[]>('/api/members', { default: () => [] })

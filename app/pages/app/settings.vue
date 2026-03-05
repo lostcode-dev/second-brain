@@ -2,7 +2,7 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 definePageMeta({
-  layout: 'app',
+  layout: 'app'
 })
 
 const links = [[{

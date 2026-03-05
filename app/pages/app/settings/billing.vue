@@ -53,8 +53,7 @@ function formatMoney(amount: number | null, currency: string | null) {
       style: 'currency',
       currency: (currency || 'brl').toUpperCase()
     }).format(value)
-  }
-  catch {
+  } catch {
     return `${value}`
   }
 }
@@ -72,8 +71,7 @@ async function openPortal() {
   try {
     const { url } = await $fetch<{ url: string }>('/api/billing/portal', { method: 'POST' })
     await navigateTo(url, { external: true })
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível abrir o portal'
     toast.add({ title: 'Erro', description: message, color: 'error' })
   }
@@ -138,7 +136,7 @@ async function openPortal() {
       </template>
     </UTable>
 
-    <div class="flex justify-center pt-4" v-if="(data?.total || 0) > pageSize">
+    <div v-if="(data?.total || 0) > pageSize" class="flex justify-center pt-4">
       <UPagination
         v-model="page"
         :page-count="pageSize"

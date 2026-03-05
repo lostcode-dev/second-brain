@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import { sub } from "date-fns";
-import type { DropdownMenuItem } from "@nuxt/ui";
-import type { Period, Range } from "~/types";
-import { useNotifications } from "~/composables/useNotifications";
+import { sub } from 'date-fns'
+import type { DropdownMenuItem } from '@nuxt/ui'
+import type { Period, Range } from '~/types'
+import { useNotifications } from '~/composables/useNotifications'
 
-const { isNotificationsSlideoverOpen } = useDashboard();
-const notifications = useNotifications();
+const { isNotificationsSlideoverOpen } = useDashboard()
+const notifications = useNotifications()
 
 definePageMeta({
-  layout: "app",
-});
+  layout: 'app'
+})
 
 const items = [
   [
     {
-      label: "New mail",
-      icon: "i-lucide-send",
-      to: "/inbox",
+      label: 'New mail',
+      icon: 'i-lucide-send',
+      to: '/inbox'
     },
     {
-      label: "New customer",
-      icon: "i-lucide-user-plus",
-      to: "/customers",
-    },
-  ],
-] satisfies DropdownMenuItem[][];
+      label: 'New customer',
+      icon: 'i-lucide-user-plus',
+      to: '/customers'
+    }
+  ]
+] satisfies DropdownMenuItem[][]
 
 const range = shallowRef<Range>({
   start: sub(new Date(), { days: 14 }),
-  end: new Date(),
-});
-const period = ref<Period>("daily");
+  end: new Date()
+})
+const period = ref<Period>('daily')
 </script>
 
 <template>
@@ -49,7 +49,12 @@ const period = ref<Period>("daily");
               square
               @click="isNotificationsSlideoverOpen = true"
             >
-              <UChip color="error" inset :show="notifications.unreadCount > 0" :text="String(notifications.unreadCount)">
+              <UChip
+                color="error"
+                inset
+                :show="notifications.unreadCount > 0"
+                :text="String(notifications.unreadCount)"
+              >
                 <UIcon name="i-lucide-bell" class="size-5 shrink-0" />
               </UChip>
             </UButton>

@@ -1,12 +1,12 @@
-import { useAuth } from "~/composables/useAuth"
-import { useBilling } from "~/composables/useBilling"
+import { useAuth } from '~/composables/useAuth'
+import { useBilling } from '~/composables/useBilling'
 
 export default defineNuxtRouteMiddleware(async (to) => {
   if (!to.path.startsWith('/app'))
     return
 
-  if (to.path === '/app/subscribe')
-    return
+  //if (to.path === '/app/subscribe')
+  //  return
 
   const auth = useAuth()
   await auth.ensureReady()
@@ -20,8 +20,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   try {
     if (!shouldRetry) {
       await billing.ensureReady()
-    }
-    else {
+    } else {
       for (let attempt = 0; attempt < 3; attempt++) {
         await billing.fetchStatus()
         if (billing.hasAccess.value)
@@ -30,14 +29,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
         await new Promise(resolve => setTimeout(resolve, 1200))
       }
     }
-  }
-  catch (error: any) {
+  } catch (error: any) {
     const statusCode = error?.statusCode || error?.status
     if (statusCode === 401)
       return navigateTo('/login')
-    return navigateTo('/app/subscribe')
+    //return navigateTo('/app/subscribe')
   }
 
-  if (!billing.hasAccess.value)
-    return navigateTo('/app/subscribe')
+  //if (!billing.hasAccess.value)
+  //  return navigateTo('/app/subscribe')
 })
