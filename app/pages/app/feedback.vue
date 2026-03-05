@@ -128,17 +128,6 @@ function onUserPageUpdate(page: number) {
 function onAdminPageUpdate(page: number) {
   adminPage.value = page
 }
-
-const debouncedUserSearch = refDebounced(listSearch, 400)
-const debouncedAdminSearch = refDebounced(adminSearch, 400)
-
-watch(debouncedUserSearch, () => {
-  listPage.value = 1
-})
-
-watch(debouncedAdminSearch, () => {
-  adminPage.value = 1
-})
 </script>
 
 <template>

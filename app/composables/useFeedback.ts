@@ -19,6 +19,12 @@ export function useFeedback() {
   const listStatus = ref('')
   const listSearch = ref('')
 
+  const debouncedListSearch = refDebounced(listSearch, 400)
+
+  watch([listType, listStatus, debouncedListSearch], () => {
+    if (listPage.value !== 1) listPage.value = 1
+  })
+
   const listParams = computed(() => {
     const p: Record<string, string | number> = {
       page: listPage.value,
@@ -26,7 +32,7 @@ export function useFeedback() {
     }
     if (listType.value) p.type = listType.value
     if (listStatus.value) p.status = listStatus.value
-    if (listSearch.value) p.search = listSearch.value
+    if (debouncedListSearch.value) p.search = debouncedListSearch.value
     return p
   })
 
@@ -38,7 +44,7 @@ export function useFeedback() {
     params: listParams,
     lazy: true,
     server: false,
-    watch: [listParams]
+    watch: [listPage, listPageSize, listType, listStatus, debouncedListSearch]
   })
 
   // ─── User: Create feedback ───────────────────────────
@@ -100,6 +106,12 @@ export function useFeedback() {
   const adminPriority = ref('')
   const adminSearch = ref('')
 
+  const debouncedAdminSearch = refDebounced(adminSearch, 400)
+
+  watch([adminType, adminStatus, adminPriority, debouncedAdminSearch], () => {
+    if (adminPage.value !== 1) adminPage.value = 1
+  })
+
   const adminParams = computed(() => {
     const p: Record<string, string | number> = {
       page: adminPage.value,
@@ -108,7 +120,7 @@ export function useFeedback() {
     if (adminType.value) p.type = adminType.value
     if (adminStatus.value) p.status = adminStatus.value
     if (adminPriority.value) p.priority = adminPriority.value
-    if (adminSearch.value) p.search = adminSearch.value
+    if (debouncedAdminSearch.value) p.search = debouncedAdminSearch.value
     return p
   })
 
@@ -120,7 +132,7 @@ export function useFeedback() {
     params: adminParams,
     lazy: true,
     server: false,
-    watch: [adminParams]
+    watch: [adminPage, adminPageSize, adminType, adminStatus, adminPriority, debouncedAdminSearch]
   })
 
   // ─── Admin: Update status/priority ────────────────────
