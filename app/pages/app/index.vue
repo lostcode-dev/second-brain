@@ -33,7 +33,7 @@ async function handleRefresh() {
 <template>
   <UDashboardPanel id="life-os">
     <template #header>
-      <UDashboardNavbar title="Life OS" :ui="{ right: 'gap-3' }">
+      <UDashboardNavbar title="Visão geral" :ui="{ right: 'gap-3' }">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
