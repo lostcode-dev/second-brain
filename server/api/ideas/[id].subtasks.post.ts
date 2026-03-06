@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { getSupabaseAdminClient } from '../../../../utils/supabase'
-import { requireAuthUser } from '../../../../utils/require-auth'
+import { getSupabaseAdminClient } from '../../utils/supabase'
+import { requireAuthUser } from '../../utils/require-auth'
 
 const bodySchema = z.object({
   title: z.string().min(1, { message: 'Título é obrigatório' }).max(500)
@@ -38,7 +38,10 @@ export default eventHandler(async (event) => {
     .order('position', { ascending: false })
     .limit(1)
 
-  const nextPosition = existing && existing.length > 0 ? existing[0].position + 1 : 0
+  const lastPosition = Array.isArray(existing) && existing.length > 0
+    ? existing[0]!.position
+    : undefined
+  const nextPosition = typeof lastPosition === 'number' ? lastPosition + 1 : 0
 
   const { data: subtask, error } = await supabase
     .from('idea_subtasks')
