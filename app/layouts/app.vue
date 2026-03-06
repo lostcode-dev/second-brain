@@ -56,6 +56,14 @@ const links = [
       }
     },
     {
+      label: 'Finanças',
+      icon: 'i-lucide-wallet',
+      to: '/app/financial',
+      onSelect: () => {
+        open.value = false
+      }
+    },
+    {
       label: 'Configurações',
       to: '/app/settings',
       icon: 'i-lucide-settings',
