@@ -1,90 +1,105 @@
 <script setup lang="ts">
-import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
-import type { Habit } from '~/types/habits'
-import { HabitFrequency, HabitDifficulty } from '~/types/habits'
+import * as z from "zod";
+import type { FormSubmitEvent } from "@nuxt/ui";
+import type { Habit } from "~/types/habits";
+import { HabitFrequency, HabitDifficulty } from "~/types/habits";
 
 const props = defineProps<{
-  open: boolean
-  habit: Habit
-}>()
+  open: boolean;
+  habit: Habit;
+}>();
 
 const emit = defineEmits<{
-  'update:open': [value: boolean]
-  'updated': []
-}>()
+  "update:open": [value: boolean];
+  updated: [];
+  identityModalOpen: [value: boolean];
+}>();
 
-const { updateHabit, frequencyOptions, difficultyOptions, dayOptions, identities } = useHabits()
+const {
+  updateHabit,
+  frequencyOptions,
+  difficultyOptions,
+  dayOptions,
+  identities,
+} = useHabits();
 
-const schema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório').max(200),
-  description: z.string().max(1000).optional(),
-  frequency: z.nativeEnum(HabitFrequency),
-  difficulty: z.nativeEnum(HabitDifficulty),
-  identityId: z.string().uuid().optional(),
-  customDays: z.array(z.number().int().min(0).max(6)).optional()
-}).refine(
-  data => data.frequency !== HabitFrequency.Custom || (data.customDays && data.customDays.length > 0),
-  { message: 'Selecione ao menos um dia', path: ['customDays'] }
-)
+const schema = z
+  .object({
+    name: z.string().min(1, "Nome é obrigatório").max(200),
+    description: z.string().max(1000).optional(),
+    frequency: z.nativeEnum(HabitFrequency),
+    difficulty: z.nativeEnum(HabitDifficulty),
+    identityId: z.string().uuid().optional(),
+    customDays: z.array(z.number().int().min(0).max(6)).optional(),
+  })
+  .refine(
+    (data) =>
+      data.frequency !== HabitFrequency.Custom ||
+      (data.customDays && data.customDays.length > 0),
+    { message: "Selecione ao menos um dia", path: ["customDays"] },
+  );
 
-type Schema = z.output<typeof schema>
+type Schema = z.output<typeof schema>;
 
 const state = reactive<Partial<Schema>>({
-  name: '',
-  description: '',
+  name: "",
+  description: "",
   frequency: HabitFrequency.Daily,
   difficulty: HabitDifficulty.Normal,
   identityId: undefined,
-  customDays: []
-})
+  customDays: [],
+});
 
-watch(() => props.habit, (habit) => {
-  if (habit) {
-    state.name = habit.name
-    state.description = habit.description ?? ''
-    state.frequency = habit.frequency
-    state.difficulty = habit.difficulty
-    state.identityId = habit.identityId ?? undefined
-    state.customDays = habit.customDays ?? []
-  }
-}, { immediate: true })
+watch(
+  () => props.habit,
+  (habit) => {
+    if (habit) {
+      state.name = habit.name;
+      state.description = habit.description ?? "";
+      state.frequency = habit.frequency;
+      state.difficulty = habit.difficulty;
+      state.identityId = habit.identityId ?? undefined;
+      state.customDays = habit.customDays ?? [];
+    }
+  },
+  { immediate: true },
+);
 
-const loading = ref(false)
+const loading = ref(false);
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  loading.value = true
+  loading.value = true;
   try {
-    const result = await updateHabit(props.habit.id, event.data)
+    const result = await updateHabit(props.habit.id, event.data);
     if (result) {
-      emit('updated')
-      emit('update:open', false)
+      emit("updated");
+      emit("update:open", false);
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 function onClose() {
-  emit('update:open', false)
+  emit("update:open", false);
 }
 
 function toggleDay(day: number) {
-  if (!state.customDays) state.customDays = []
-  const idx = state.customDays.indexOf(day)
+  if (!state.customDays) state.customDays = [];
+  const idx = state.customDays.indexOf(day);
   if (idx >= 0) {
-    state.customDays.splice(idx, 1)
+    state.customDays.splice(idx, 1);
   } else {
-    state.customDays.push(day)
+    state.customDays.push(day);
   }
 }
 
 const identityItems = computed(() => {
   return [
-    { label: 'Nenhuma', value: '' },
-    ...(identities.value ?? []).map(i => ({ label: i.name, value: i.id }))
-  ]
-})
+    { label: "Nenhuma", value: "" },
+    ...(identities.value ?? []).map((i) => ({ label: i.name, value: i.id })),
+  ];
+});
 </script>
 
 <template>
@@ -102,18 +117,11 @@ const identityItems = computed(() => {
         @submit="onSubmit"
       >
         <UFormField label="Nome" name="name">
-          <UInput
-            v-model="state.name"
-            class="w-full"
-          />
+          <UInput v-model="state.name" class="w-full" />
         </UFormField>
 
         <UFormField label="Descrição" name="description">
-          <UTextarea
-            v-model="state.description"
-            class="w-full"
-            :rows="2"
-          />
+          <UTextarea v-model="state.description" class="w-full" :rows="2" />
         </UFormField>
 
         <UFormField label="Frequência" name="frequency">
@@ -136,8 +144,12 @@ const identityItems = computed(() => {
               :key="day.value"
               :label="day.label"
               size="sm"
-              :color="state.customDays?.includes(day.value) ? 'primary' : 'neutral'"
-              :variant="state.customDays?.includes(day.value) ? 'solid' : 'outline'"
+              :color="
+                state.customDays?.includes(day.value) ? 'primary' : 'neutral'
+              "
+              :variant="
+                state.customDays?.includes(day.value) ? 'solid' : 'outline'
+              "
               @click="toggleDay(day.value)"
             />
           </div>
@@ -157,14 +169,26 @@ const identityItems = computed(() => {
           </div>
         </UFormField>
 
-        <UFormField label="Identidade (opcional)" name="identityId">
-          <USelect
-            v-model="state.identityId"
-            :items="identityItems"
-            value-key="value"
-            class="w-full"
+        <
+        <div class="flex items-center gap-2">
+          <UFormField label="Identidade" name="identityId">
+            <USelect
+              v-model="state.identityId"
+              :items="identityItems"
+              value-key="value"
+              placeholder="Quem você quer se tornar?"
+            />
+          </UFormField>
+
+          <UButton
+            icon="i-lucide-user-plus"
+            color="neutral"
+            variant="subtle"
+            size="sm"
+            aria-label="Gerenciar identidades"
+            @click="emit('identityModalOpen', true)"
           />
-        </UFormField>
+        </div>
 
         <div class="flex justify-end gap-2 pt-2">
           <UButton
@@ -173,11 +197,7 @@ const identityItems = computed(() => {
             variant="subtle"
             @click="onClose"
           />
-          <UButton
-            label="Salvar alterações"
-            type="submit"
-            :loading="loading"
-          />
+          <UButton label="Salvar alterações" type="submit" :loading="loading" />
         </div>
       </UForm>
     </template>

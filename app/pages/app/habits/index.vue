@@ -271,6 +271,7 @@ const todayFormatted = computed(() => {
     :habit-name="selectedHabit.name"
     @update:open="archiveModalOpen = $event"
     @archived="onHabitArchived"
+    @identityModalOpen="identityModalOpen = true"
   />
 
   <HabitsDetailSlideover
@@ -280,6 +281,7 @@ const todayFormatted = computed(() => {
     @update:open="detailSlideoverOpen = $event"
     @edit="editModalOpen = true"
     @archive="archiveModalOpen = true"
+    @identityModalOpen="identityModalOpen = true"
   />
 
   <HabitsIdentityCreateModal
