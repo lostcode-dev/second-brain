@@ -42,7 +42,7 @@ const allDone = computed(() => props.totalCount > 0 && props.completedCount === 
         <span class="text-muted">Progresso do dia</span>
           <span class="font-medium text-highlighted">{{ completedCount }}/{{ totalCount }}</span>
       </div>
-      <UProgress :value="progress" size="sm" v-model="completedCount" :max="totalCount" />
+      <UProgress :value="progress" size="sm" :model-value="Number(completedCount)" :max="totalCount" />
     </div>
 
     <!-- All done state -->
