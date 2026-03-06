@@ -24,6 +24,13 @@ export function useKnowledge() {
   const notesType = ref<string>('')
   const notesTagId = ref<string>('')
   const notesPinned = ref<string>('')
+  const page = notesPage
+  const pageSize = notesPageSize
+  const filters = reactive({
+    type: notesType.value,
+    tagId: notesTagId.value,
+    pinned: notesPinned.value
+  })
 
   const {
     data: notesData,
@@ -50,6 +57,21 @@ export function useKnowledge() {
   watch(notesSearch, () => {
     notesPage.value = 1
     debouncedRefreshNotes()
+  })
+
+  watch(() => filters.type, (value: string) => {
+    notesType.value = value
+    notesPage.value = 1
+  })
+
+  watch(() => filters.tagId, (value: string) => {
+    notesTagId.value = value
+    notesPage.value = 1
+  })
+
+  watch(() => filters.pinned, (value: string) => {
+    notesPinned.value = value
+    notesPage.value = 1
   })
 
   // ─── Tags ───────────────────────────────────────────────────────────────────
@@ -274,6 +296,9 @@ export function useKnowledge() {
     // Notes list
     notesData,
     notesStatus,
+    page,
+    pageSize,
+    filters,
     notesPage,
     notesPageSize,
     notesSearch,

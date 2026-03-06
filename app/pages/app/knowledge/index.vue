@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { KnowledgeNote } from '~/types/knowledge'
+
 definePageMeta({
   layout: 'app'
 })
@@ -17,10 +19,13 @@ const {
   searchResults,
   searching,
   page,
+  pageSize,
   filters,
   refreshNotes,
   refreshGraph,
-  noteTypeOptions
+  noteTypeOptions,
+  togglePin,
+  deleteNote
 } = useKnowledge()
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -32,8 +37,8 @@ const sidebarTab = ref<'notes' | 'tags'>('notes')
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 
-function onSelectNote(noteId: string): void {
-  selectedNoteId.value = noteId
+function onSelectNote(note: string | KnowledgeNote): void {
+  selectedNoteId.value = typeof note === 'string' ? note : note.id
   activeView.value = 'editor'
 }
 
@@ -50,6 +55,17 @@ function onNoteUpdated(): void {
 function onNoteDeleted(): void {
   selectedNoteId.value = null
   refreshNotes()
+}
+
+async function onDeleteNote(note: KnowledgeNote): Promise<void> {
+  const success = await deleteNote(note.id)
+  if (success && selectedNoteId.value === note.id) {
+    selectedNoteId.value = null
+  }
+}
+
+async function onPinNote(note: KnowledgeNote): Promise<void> {
+  await togglePin(note)
 }
 
 function onNavigateNote(noteId: string): void {
@@ -148,12 +164,14 @@ function switchToGraph(): void {
             :notes="notesData?.data ?? []"
             :total="notesData?.total ?? 0"
             :page="page"
+            :page-size="pageSize"
             :loading="notesStatus === 'pending'"
             :selected-id="selectedNoteId"
             @select="onSelectNote"
-            @create="createModalOpen = true"
+            @new-note="createModalOpen = true"
             @update:page="page = $event"
-            @deleted="onNoteDeleted"
+            @pin="onPinNote"
+            @delete="onDeleteNote"
           />
         </div>
 
@@ -205,7 +223,7 @@ function switchToGraph(): void {
         <!-- Graph View -->
         <KnowledgeGraphView
           v-if="activeView === 'graph'"
-          :graph-data="graphData"
+          :graph-data="graphData ?? null"
           :loading="graphStatus === 'pending'"
           @select-note="onGraphSelectNote"
         />
