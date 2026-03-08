@@ -13,7 +13,14 @@ interface TreeStat {
   open: boolean
 }
 
-defineProps<{
+interface HabitLawHint {
+  key: string
+  label: string
+  icon: string
+  text: string
+}
+
+const props = defineProps<{
   node: TodayTreeNode
   stat: TreeStat
 }>()
@@ -23,6 +30,52 @@ const emit = defineEmits<{
   select: [habitId: string]
   'open-note': [habitId: string, completed: boolean]
 }>()
+
+function normalizeLawText(value: string | null | undefined): string | null {
+  if (!value) return null
+
+  const plainText = value
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  if (!plainText) return null
+
+  if (plainText.length <= 140) return plainText
+  return `${plainText.slice(0, 137)}...`
+}
+
+const lawHints = computed<HabitLawHint[]>(() => {
+  const habit = props.node.habit
+
+  return [
+    {
+      key: 'obvious',
+      label: 'Lei 1: Tornar obvio',
+      icon: 'i-lucide-eye',
+      text: normalizeLawText(habit.obviousStrategy)
+    },
+    {
+      key: 'attractive',
+      label: 'Lei 2: Tornar atraente',
+      icon: 'i-lucide-sparkles',
+      text: normalizeLawText(habit.attractiveStrategy)
+    },
+    {
+      key: 'easy',
+      label: 'Lei 3: Tornar facil',
+      icon: 'i-lucide-feather',
+      text: normalizeLawText(habit.easyStrategy)
+    },
+    {
+      key: 'satisfying',
+      label: 'Lei 4: Tornar satisfatorio',
+      icon: 'i-lucide-trophy',
+      text: normalizeLawText(habit.satisfyingStrategy)
+    }
+  ].filter((hint): hint is HabitLawHint => Boolean(hint.text))
+})
 </script>
 
 <template>
@@ -49,7 +102,7 @@ const emit = defineEmits<{
           :model-value="node.habit.log?.completed ?? false"
           @click.stop
           size="sm"
-          @update:model-value="emit('toggle', node.habit.id, $event as boolean)""
+          @update:model-value="emit('toggle', node.habit.id, $event as boolean)"
         />
       </div>
 
@@ -89,6 +142,20 @@ const emit = defineEmits<{
                 color="primary"
                 size="xs"
               />
+              <UTooltip
+                v-for="hint in lawHints"
+                :key="hint.key"
+                :text="`${hint.label}: ${hint.text}`"
+              >
+                <button
+                  type="button"
+                  class="inline-flex size-6 items-center justify-center rounded-md border border-default/60 bg-default/40 text-muted transition hover:border-primary/40 hover:text-highlighted"
+                  :aria-label="`${hint.label}: ${hint.text}`"
+                  @click.stop
+                >
+                  <UIcon :name="hint.icon" class="size-3.5" />
+                </button>
+              </UTooltip>
               <UBadge
                 class="sm:hidden"
                 :color="DIFFICULTY_META[node.habit.difficulty].color"
