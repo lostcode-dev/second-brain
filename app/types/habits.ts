@@ -291,6 +291,24 @@ export interface SharedHabitsProgress {
   totalHabits: number
 }
 
+export interface SharedHabitCardData {
+  habit: {
+    id: string
+    name: string
+    description: string | null
+    frequency: string
+    difficulty: string
+    habitType: string
+    scheduledTime: string | null
+    createdAt: string
+    identityName: string | null
+    streakCurrent: number
+  }
+  completionRate7d: number
+  completionRate30d: number
+  totalCompletions30d: number
+}
+
 // ─── API Responses ────────────────────────────────────────────────────────────
 
 export interface HabitListResponse {

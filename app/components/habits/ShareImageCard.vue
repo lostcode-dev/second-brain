@@ -1,146 +1,142 @@
 <script setup lang="ts">
-import { DIFFICULTY_META, FREQUENCY_META } from '~/types/habits'
+import { DIFFICULTY_META, FREQUENCY_META, HABIT_TYPE_META } from '~/types/habits'
+import type { SharedHabitCardData } from '~/types/habits'
 
-export type ShareFormat = 'square' | 'story' | 'landscape'
-
-interface ShareHabitItem {
-  name: string
-  frequency: string
-  difficulty: string
-  streakCurrent: number
-}
+export type ShareFormat = 'square'
 
 const props = defineProps<{
-  format: ShareFormat
+  format?: ShareFormat
   userName?: string
-  habits: ShareHabitItem[]
-  completionRate7d: number
-  completionRate30d: number
-  totalHabits: number
+  data: SharedHabitCardData
   date: string
 }>()
 
-const formatSizes: Record<ShareFormat, { width: number; height: number; label: string }> = {
-  square: { width: 1080, height: 1080, label: 'Instagram Feed' },
-  story: { width: 1080, height: 1920, label: 'Instagram Story' },
-  landscape: { width: 1200, height: 630, label: 'WhatsApp / X' },
-}
+const habit = computed(() => props.data.habit)
 
-const size = computed(() => formatSizes[props.format])
+const difficultyLabel = computed(() =>
+  DIFFICULTY_META[habit.value.difficulty as keyof typeof DIFFICULTY_META]?.label ?? habit.value.difficulty
+)
 
-const maxHabits = computed(() => {
-  if (props.format === 'story') return 10
-  if (props.format === 'landscape') return 5
-  return 7
+const difficultyColor = computed(() => {
+  const tone = DIFFICULTY_META[habit.value.difficulty as keyof typeof DIFFICULTY_META]?.color
+  if (tone === 'success') return '#34d399'
+  if (tone === 'warning') return '#f59e0b'
+  return '#fb7185'
 })
 
-const visibleHabits = computed(() => props.habits.slice(0, maxHabits.value))
-const hasMore = computed(() => props.habits.length > maxHabits.value)
+const frequencyLabel = computed(() =>
+  FREQUENCY_META[habit.value.frequency as keyof typeof FREQUENCY_META]?.label ?? habit.value.frequency
+)
 
-function getDifficultyLabel(d: string): string {
-  return DIFFICULTY_META[d as keyof typeof DIFFICULTY_META]?.label ?? d
-}
+const habitTypeLabel = computed(() =>
+  HABIT_TYPE_META[habit.value.habitType as keyof typeof HABIT_TYPE_META]?.label ?? habit.value.habitType
+)
 
-function getFrequencyLabel(f: string): string {
-  return FREQUENCY_META[f as keyof typeof FREQUENCY_META]?.label ?? f
-}
-
-const formattedDate = computed(() => {
-  const d = new Date(props.date + 'T12:00:00')
-  return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })
+const habitTypeAccent = computed(() => {
+  const tone = HABIT_TYPE_META[habit.value.habitType as keyof typeof HABIT_TYPE_META]?.color
+  return tone === 'error' ? '#fb7185' : '#2dd4bf'
 })
 
-function rateColor(rate: number): string {
-  if (rate >= 80) return '#22c55e'
-  if (rate >= 50) return '#eab308'
-  return '#ef4444'
-}
+const description = computed(() => {
+  const raw = habit.value.description
+    ?.replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  if (!raw) {
+    return 'Um passo pequeno, repetido com consistência, muda a direção dos próximos meses.'
+  }
+
+  if (raw.length <= 150) return raw
+  return `${raw.slice(0, 147)}...`
+})
+
+const createdAtLabel = computed(() => {
+  const date = new Date(habit.value.createdAt)
+  return Number.isNaN(date.getTime())
+    ? ''
+    : date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+})
+
+const shareDateLabel = computed(() => {
+  const date = new Date(`${props.date}T12:00:00`)
+  return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })
+})
+
+const completionTone = computed(() => {
+  const rate = props.data.completionRate30d
+  if (rate >= 80) return '#34d399'
+  if (rate >= 50) return '#fbbf24'
+  return '#fb7185'
+})
 </script>
 
 <template>
-  <div
-    class="share-card"
-    :style="{
-      width: size.width + 'px',
-      height: size.height + 'px',
-    }"
-  >
-    <!-- Background pattern -->
-    <div class="share-card__bg" />
+  <div class="share-card">
+    <div class="share-card__pattern" />
+    <div class="share-card__glow share-card__glow--top" />
+    <div class="share-card__glow share-card__glow--bottom" />
 
-    <!-- Content -->
     <div class="share-card__content">
-      <!-- Header -->
-      <div class="share-card__header">
-        <div class="share-card__logo">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-            <rect width="40" height="40" rx="10" fill="#6366f1" />
-            <path d="M12 20C12 15.58 15.58 12 20 12s8 3.58 8 8-3.58 8-8 8-8-3.58-8-8z" stroke="#fff" stroke-width="2" fill="none" />
-            <circle cx="20" cy="20" r="3" fill="#fff" />
-          </svg>
-          <span class="share-card__brand">Second Brain</span>
+      <header class="share-card__header">
+        <div>
+          <p class="share-card__eyebrow">Second Brain Presents</p>
+          <p class="share-card__date">{{ shareDateLabel }}</p>
         </div>
-        <p class="share-card__date">{{ formattedDate }}</p>
-      </div>
+        <div class="share-card__user-block">
+          <span class="share-card__user-label">Hábito em destaque</span>
+          <strong class="share-card__user-name">{{ userName || 'Meu ciclo atual' }}</strong>
+        </div>
+      </header>
 
-      <!-- Title -->
-      <div class="share-card__title-block">
-        <h2 class="share-card__title">
-          {{ userName ? `${userName} está` : 'Estou' }} construindo consistência
-        </h2>
-        <p class="share-card__subtitle">Progresso de hábitos</p>
-      </div>
+      <section class="share-card__hero">
+        <div class="share-card__hero-copy">
+          <p class="share-card__hero-label">Spotify Wrapped de hábitos</p>
+          <h1 class="share-card__habit-name">{{ habit.name }}</h1>
+          <p class="share-card__description">{{ description }}</p>
+        </div>
 
-      <!-- Stats row -->
-      <div class="share-card__stats">
-        <div class="share-card__stat">
-          <span class="share-card__stat-value" :style="{ color: rateColor(completionRate7d) }">
-            {{ completionRate7d }}%
-          </span>
-          <span class="share-card__stat-label">últimos 7 dias</span>
-        </div>
-        <div class="share-card__stat-divider" />
-        <div class="share-card__stat">
-          <span class="share-card__stat-value" :style="{ color: rateColor(completionRate30d) }">
-            {{ completionRate30d }}%
-          </span>
-          <span class="share-card__stat-label">últimos 30 dias</span>
-        </div>
-        <div class="share-card__stat-divider" />
-        <div class="share-card__stat">
-          <span class="share-card__stat-value">{{ totalHabits }}</span>
-          <span class="share-card__stat-label">hábitos ativos</span>
-        </div>
-      </div>
-
-      <!-- Habits list -->
-      <div class="share-card__habits">
-        <div
-          v-for="(h, i) in visibleHabits"
-          :key="i"
-          class="share-card__habit"
-        >
-          <div class="share-card__habit-left">
-            <span class="share-card__habit-index">{{ i + 1 }}</span>
-            <span class="share-card__habit-name">{{ h.name }}</span>
+        <div class="share-card__meter">
+          <div class="share-card__meter-ring">
+            <span class="share-card__meter-value" :style="{ color: completionTone }">{{ data.completionRate30d }}%</span>
           </div>
-          <div class="share-card__habit-right">
-            <span class="share-card__habit-tag">{{ getFrequencyLabel(h.frequency) }}</span>
-            <span class="share-card__habit-tag">{{ getDifficultyLabel(h.difficulty) }}</span>
-            <span v-if="h.streakCurrent > 0" class="share-card__habit-streak">
-              🔥 {{ h.streakCurrent }}
-            </span>
-          </div>
+          <span class="share-card__meter-label">consistência 30d</span>
         </div>
-        <p v-if="hasMore" class="share-card__more">
-          +{{ habits.length - maxHabits }} hábitos
-        </p>
-      </div>
+      </section>
 
-      <!-- Footer -->
-      <div class="share-card__footer">
-        <p>Construa sistemas, não objetivos. — Atomic Habits</p>
-      </div>
+      <section class="share-card__metrics">
+        <div class="share-card__metric">
+          <span class="share-card__metric-kicker">Streak</span>
+          <strong class="share-card__metric-value">{{ habit.streakCurrent }} dias</strong>
+          <span class="share-card__metric-caption">sequência atual</span>
+        </div>
+        <div class="share-card__metric">
+          <span class="share-card__metric-kicker">Últimos 7 dias</span>
+          <strong class="share-card__metric-value">{{ data.completionRate7d }}%</strong>
+          <span class="share-card__metric-caption">ritmo recente</span>
+        </div>
+        <div class="share-card__metric">
+          <span class="share-card__metric-kicker">Check-ins 30d</span>
+          <strong class="share-card__metric-value">{{ data.totalCompletions30d }}</strong>
+          <span class="share-card__metric-caption">marcas concluídas</span>
+        </div>
+      </section>
+
+      <section class="share-card__tags">
+        <span class="share-card__tag">{{ frequencyLabel }}</span>
+        <span class="share-card__tag" :style="{ borderColor: difficultyColor, color: difficultyColor }">{{ difficultyLabel }}</span>
+        <span class="share-card__tag" :style="{ borderColor: habitTypeAccent, color: habitTypeAccent }">{{ habitTypeLabel }}</span>
+        <span v-if="habit.identityName" class="share-card__tag">{{ habit.identityName }}</span>
+        <span v-if="habit.scheduledTime" class="share-card__tag">{{ habit.scheduledTime }}</span>
+      </section>
+
+      <footer class="share-card__footer">
+        <div class="share-card__footer-line">
+          <span class="share-card__footer-copy">Começou em {{ createdAtLabel || 'um novo ciclo' }}</span>
+          <span class="share-card__footer-copy">Sistemas &gt; motivação</span>
+        </div>
+      </footer>
     </div>
   </div>
 </template>
@@ -148,196 +144,203 @@ function rateColor(rate: number): string {
 <style scoped>
 .share-card {
   position: relative;
+  width: 1080px;
+  height: 1080px;
   overflow: hidden;
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  color: #f1f5f9;
-  background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at top left, #2dd4bf 0%, rgba(45, 212, 191, 0) 28%),
+    radial-gradient(circle at bottom right, #7c3aed 0%, rgba(124, 58, 237, 0) 32%),
+    linear-gradient(140deg, #07111f 0%, #0b1d34 45%, #140b2f 100%);
+  font-family: 'Space Grotesk', 'Inter', 'Segoe UI', sans-serif;
 }
 
-.share-card__bg {
+.share-card__pattern {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
-  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.12) 0, rgba(255, 255, 255, 0) 56%);
+  background-size: 48px 48px, 48px 48px, 100% 100%;
+  background-position: center;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.15));
+  opacity: 0.35;
+}
+
+.share-card__glow {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 999px;
+  filter: blur(90px);
+  opacity: 0.45;
+}
+
+.share-card__glow--top {
+  top: -140px;
+  right: -80px;
+  background: rgba(45, 212, 191, 0.35);
+}
+
+.share-card__glow--bottom {
+  bottom: -160px;
+  left: -80px;
+  background: rgba(168, 85, 247, 0.35);
 }
 
 .share-card__content {
   position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100%;
-  padding: 48px;
+  padding: 62px;
   box-sizing: border-box;
 }
 
-.share-card__header {
+.share-card__header,
+.share-card__footer-line {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 24px;
 }
 
-.share-card__logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.share-card__brand {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #e2e8f0;
-}
-
+.share-card__eyebrow,
+.share-card__user-label,
+.share-card__hero-label,
+.share-card__metric-kicker,
+.share-card__footer-copy,
 .share-card__date {
-  font-size: 16px;
-  color: #94a3b8;
-}
-
-.share-card__title-block {
-  text-align: center;
-}
-
-.share-card__title {
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.2;
-  background: linear-gradient(135deg, #e2e8f0, #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   margin: 0;
-}
-
-.share-card__subtitle {
   font-size: 18px;
-  color: #94a3b8;
-  margin-top: 8px;
-}
-
-.share-card__stats {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 24px 32px;
-}
-
-.share-card__stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.share-card__stat-value {
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #a78bfa;
-}
-
-.share-card__stat-label {
-  font-size: 14px;
-  color: #94a3b8;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: rgba(226, 232, 240, 0.68);
 }
 
-.share-card__stat-divider {
-  width: 1px;
-  height: 48px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.share-card__habits {
+.share-card__user-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  flex: 1;
-  justify-content: center;
-  min-height: 0;
+  align-items: flex-end;
+  gap: 6px;
 }
 
-.share-card__habit {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+.share-card__user-name {
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
-.share-card__habit-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-
-.share-card__habit-index {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: rgba(99, 102, 241, 0.2);
-  font-size: 13px;
-  font-weight: 700;
-  color: #a78bfa;
-  flex-shrink: 0;
+.share-card__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 36px;
+  align-items: end;
+  margin-top: 52px;
 }
 
 .share-card__habit-name {
-  font-size: 18px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 10px 0 18px;
+  font-size: 92px;
+  line-height: 0.93;
+  letter-spacing: -0.07em;
+  max-width: 6.5ch;
 }
 
-.share-card__habit-right {
+.share-card__description {
+  margin: 0;
+  max-width: 620px;
+  font-size: 31px;
+  line-height: 1.25;
+  color: rgba(241, 245, 249, 0.86);
+}
+
+.share-card__meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.share-card__meter-ring {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  justify-content: center;
+  width: 236px;
+  height: 236px;
+  border-radius: 999px;
+  border: 18px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 0 14px rgba(13, 23, 38, 0.75);
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
 }
 
-.share-card__habit-tag {
-  font-size: 12px;
-  padding: 3px 10px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  color: #cbd5e1;
-  text-transform: capitalize;
+.share-card__meter-value {
+  font-size: 66px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.06em;
 }
 
-.share-card__habit-streak {
-  font-size: 14px;
-  font-weight: 700;
-  color: #fb923c;
+.share-card__meter-label {
+  font-size: 19px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(226, 232, 240, 0.7);
 }
 
-.share-card__more {
-  text-align: center;
-  font-size: 14px;
-  color: #64748b;
-  font-style: italic;
+.share-card__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 54px;
+}
+
+.share-card__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(8px);
+}
+
+.share-card__metric-value {
+  font-size: 52px;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.share-card__metric-caption {
+  font-size: 22px;
+  color: rgba(226, 232, 240, 0.85);
+}
+
+.share-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.share-card__tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(9, 18, 32, 0.48);
+  font-size: 25px;
+  letter-spacing: -0.02em;
 }
 
 .share-card__footer {
-  text-align: center;
-  font-size: 14px;
-  color: #64748b;
-  font-style: italic;
+  margin-top: auto;
+  padding-top: 28px;
 }
 </style>

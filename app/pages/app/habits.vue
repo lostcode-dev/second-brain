@@ -62,25 +62,29 @@ function ensureLoaded(
 }
 
 // Load insights when tab is selected
-watch(activeTab, (tab) => {
-  ensureLoaded(insightsStatus, refreshInsights);
+watch(
+  activeTab,
+  (tab) => {
+    ensureLoaded(insightsStatus, refreshInsights);
 
-  if (tab === "today") {
-    ensureLoaded(todayStatus, refreshToday);
-    ensureLoaded(stacksStatus, refreshStacks);
-  }
+    if (tab === "today") {
+      ensureLoaded(todayStatus, refreshToday);
+      ensureLoaded(stacksStatus, refreshStacks);
+    }
 
-  if (tab === "all") {
-    ensureLoaded(listStatus, refreshList);
-    ensureLoaded(stacksStatus, refreshStacks);
-  }
+    if (tab === "all") {
+      ensureLoaded(listStatus, refreshList);
+      ensureLoaded(stacksStatus, refreshStacks);
+    }
 
-  if (tab === "review") {
-    reviewWeekKey.value = reviewWeekKey.value || currentWeekKey.value;
-    loadReflection(reviewWeekKey.value);
-    loadReflectionsList(true);
-  }
-}, { immediate: true });
+    if (tab === "review") {
+      reviewWeekKey.value = reviewWeekKey.value || currentWeekKey.value;
+      loadReflection(reviewWeekKey.value);
+      loadReflectionsList(true);
+    }
+  },
+  { immediate: true },
+);
 
 // ─── Modals ───────────────────────────────────────────────────────────────────
 const createModalOpen = ref(false);
@@ -137,7 +141,11 @@ async function onToggleHabit(habitId: string, completed: boolean) {
   await refreshInsights();
 }
 
-async function onLogWithNote(habitId: string, status: HabitLogStatus, note: string) {
+async function onLogWithNote(
+  habitId: string,
+  status: HabitLogStatus,
+  note: string,
+) {
   const date = todayDate.value ?? new Date().toISOString().split("T")[0]!;
   const completed = status !== HabitLogStatus.Skipped;
   await logHabit({ habitId, logDate: date, completed, note, status });
@@ -145,7 +153,9 @@ async function onLogWithNote(habitId: string, status: HabitLogStatus, note: stri
 }
 
 function onNavigateDate(direction: "prev" | "next") {
-  const current = new Date((todayDate.value ?? new Date().toISOString().split("T")[0]!) + "T12:00:00");
+  const current = new Date(
+    (todayDate.value ?? new Date().toISOString().split("T")[0]!) + "T12:00:00",
+  );
   current.setDate(current.getDate() + (direction === "next" ? 1 : -1));
   todayDate.value = current.toISOString().split("T")[0]!;
 }
@@ -212,7 +222,10 @@ const reflectionsHasMore = ref(true);
 
 const reviewWeekOptions = computed(() => {
   const items: { label: string; value: string }[] = [
-    { label: `Semana atual (${currentWeekKey.value})`, value: currentWeekKey.value },
+    {
+      label: `Semana atual (${currentWeekKey.value})`,
+      value: currentWeekKey.value,
+    },
   ];
 
   const seen = new Set<string>([currentWeekKey.value]);
@@ -226,7 +239,9 @@ const reviewWeekOptions = computed(() => {
   return items;
 });
 
-const reviewEditable = computed(() => reviewWeekKey.value === currentWeekKey.value);
+const reviewEditable = computed(
+  () => reviewWeekKey.value === currentWeekKey.value,
+);
 
 /** Navigate week for review */
 function navigateReviewWeek(direction: "prev" | "next") {
@@ -268,11 +283,15 @@ async function loadReflectionsList(reset = false) {
     });
 
     const incoming = data ?? [];
-    const byWeek = new Map(reflectionsList.value.map((r) => [r.weekKey, r] as const));
+    const byWeek = new Map(
+      reflectionsList.value.map((r) => [r.weekKey, r] as const),
+    );
     for (const r of incoming) {
       if (r?.weekKey) byWeek.set(r.weekKey, r);
     }
-    reflectionsList.value = Array.from(byWeek.values()).sort((a, b) => (a.weekKey < b.weekKey ? 1 : -1));
+    reflectionsList.value = Array.from(byWeek.values()).sort((a, b) =>
+      a.weekKey < b.weekKey ? 1 : -1,
+    );
 
     if (incoming.length < reflectionsPageSize) {
       reflectionsHasMore.value = false;
@@ -498,7 +517,10 @@ const _identityFilterOptions = computed(() => [
     @update:open="detailSlideoverOpen = $event"
     @edit="editModalOpen = true"
     @stack="onStackHabit(selectedHabit)"
-    @share="shareImageModalOpen = true; shareImageHabit = selectedHabit"
+    @share="
+      shareImageModalOpen = true;
+      shareImageHabit = selectedHabit;
+    "
     @remove-stack="onRemoveSingleStack"
     @remove-stacks="onRemoveStack(selectedHabit)"
     @archive="archiveModalOpen = true"
@@ -509,6 +531,12 @@ const _identityFilterOptions = computed(() => [
     :open="createModalOpen"
     @update:open="createModalOpen = $event"
     @identityModalOpen="identityModalOpen = true"
+  />
+
+  <HabitsShareImageModal
+    :open="shareImageModalOpen"
+    :habit="shareImageHabit"
+    @update:open="shareImageModalOpen = $event"
   />
 
   <HabitsEditModal
@@ -539,7 +567,12 @@ const _identityFilterOptions = computed(() => [
     :habits="listData?.data ?? []"
     :initial-trigger-habit-id="stackSourceHabit?.id"
     :initial-trigger-habit-name="stackSourceHabit?.name"
-    @update:open="(value: boolean) => { stackCreateModalOpen = value; if (!value) stackSourceHabit = null; }"
+    @update:open="
+      (value: boolean) => {
+        stackCreateModalOpen = value;
+        if (!value) stackSourceHabit = null;
+      }
+    "
     @created="() => {}"
   />
 
@@ -547,10 +580,4 @@ const _identityFilterOptions = computed(() => [
     :open="settingsModalOpen"
     @update:open="settingsModalOpen = $event"
   />
-
-  <HabitsShareImageModal
-    :open="shareImageModalOpen"
-    @update:open="shareImageModalOpen = $event"
-  />
 </template>
-

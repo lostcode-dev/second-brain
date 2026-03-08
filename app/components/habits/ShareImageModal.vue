@@ -1,69 +1,70 @@
 <script setup lang="ts">
 import { toPng } from 'html-to-image'
-import type { ShareFormat } from './ShareImageCard.vue'
-import type { SharedHabitsProgress } from '~/types/habits'
+import type { Habit, SharedHabitCardData } from '~/types/habits'
 
 const props = defineProps<{
   open: boolean
+  habit?: Habit | null
 }>()
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
 }>()
 
-const { fetchSharedProgress } = useHabits()
 const { user } = useAuth()
 const toast = useToast()
 
-const cardRef = ref<HTMLElement | null>(null)
+const exportCardRef = ref<HTMLElement | null>(null)
 const loading = ref(true)
 const generating = ref(false)
-const progress = ref<SharedHabitsProgress | null>(null)
-const selectedFormat = ref<ShareFormat>('square')
-
-const formatOptions: { label: string; value: ShareFormat; icon: string; desc: string }[] = [
-  { label: 'Quadrado', value: 'square', icon: 'i-lucide-square', desc: '1080×1080 · Instagram Feed' },
-  { label: 'Story', value: 'story', icon: 'i-lucide-smartphone', desc: '1080×1920 · Instagram/WhatsApp' },
-  { label: 'Paisagem', value: 'landscape', icon: 'i-lucide-monitor', desc: '1200×630 · WhatsApp/X' },
-]
+const progress = ref<SharedHabitCardData | null>(null)
 
 const userName = computed(() => user.value?.user_metadata?.name as string | undefined)
 
 const todayISO = computed(() => new Date().toISOString().split('T')[0]!)
 
-const previewScale = computed(() => {
-  const w = selectedFormat.value === 'landscape' ? 1200 : 1080
-  return 360 / w
-})
+const selectedHabitName = computed(() => props.habit?.name ?? 'habito')
+const fileSafeHabitName = computed(() =>
+  selectedHabitName.value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase() || 'habito'
+)
 
-const previewHeight = computed(() => {
-  const sizes: Record<ShareFormat, number> = { square: 1080, story: 1920, landscape: 630 }
-  return sizes[selectedFormat.value] * previewScale.value
-})
-
-watch(() => props.open, async (open) => {
+watch(() => [props.open, props.habit?.id] as const, async ([open, habitId]) => {
   if (!open) return
+  if (!habitId) {
+    progress.value = null
+    loading.value = false
+    return
+  }
+
   loading.value = true
   progress.value = null
 
-  // Fetch from user's own data via API that uses their token
   try {
-    const data = await $fetch<SharedHabitsProgress>('/api/habits/share/my-progress')
+    const data = await $fetch<SharedHabitCardData>('/api/habits/share/my-progress', {
+      query: { habitId }
+    })
     progress.value = data
   } catch {
-    toast.add({ title: 'Erro', description: 'Não foi possível carregar os dados.', color: 'error' })
+    toast.add({ title: 'Erro', description: 'Não foi possível carregar os dados do hábito.', color: 'error' })
   } finally {
     loading.value = false
   }
 })
 
 async function generateImage(): Promise<Blob | null> {
-  if (!cardRef.value) return null
+  if (!exportCardRef.value) return null
   generating.value = true
   try {
-    const dataUrl = await toPng(cardRef.value, {
-      pixelRatio: 1,
+    const dataUrl = await toPng(exportCardRef.value, {
+      pixelRatio: 2,
       cacheBust: true,
+      canvasWidth: 1080,
+      canvasHeight: 1080
     })
     const res = await fetch(dataUrl)
     return await res.blob()
@@ -82,7 +83,7 @@ async function download() {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `habitos-${selectedFormat.value}-${todayISO.value}.png`
+  a.download = `habito-${fileSafeHabitName.value}-${todayISO.value}.png`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
@@ -95,13 +96,13 @@ async function shareNative() {
   const blob = await generateImage()
   if (!blob) return
 
-  const file = new File([blob], `habitos-${selectedFormat.value}.png`, { type: 'image/png' })
+  const file = new File([blob], `habito-${fileSafeHabitName.value}.png`, { type: 'image/png' })
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({
-        title: 'Meu progresso de hábitos',
-        text: 'Construindo consistência — Second Brain',
+        title: `Meu hábito: ${selectedHabitName.value}`,
+        text: `Construindo consistência com ${selectedHabitName.value} — Second Brain`,
         files: [file],
       })
     } catch (err) {
@@ -118,8 +119,8 @@ async function shareNative() {
 <template>
   <UModal
     :open="props.open"
-    title="Compartilhar progresso"
-    description="Gere uma imagem para compartilhar nas redes sociais"
+    title="Compartilhar hábito"
+    description="Formato quadrado, pronto para baixar ou compartilhar"
     :ui="{
       overlay: 'z-[200] bg-elevated/75',
       content: 'z-[210]'
@@ -128,33 +129,16 @@ async function shareNative() {
   >
     <template #body>
       <div class="space-y-4">
-        <!-- Format selector -->
         <div class="space-y-2">
           <p class="text-sm font-medium text-highlighted">Formato</p>
-          <div class="flex flex-wrap gap-2">
-            <UButton
-              v-for="opt in formatOptions"
-              :key="opt.value"
-              type="button"
-              :icon="opt.icon"
-              :label="opt.label"
-              size="sm"
-              :color="selectedFormat === opt.value ? 'primary' : 'neutral'"
-              :variant="selectedFormat === opt.value ? 'solid' : 'outline'"
-              @click="selectedFormat = opt.value"
-            />
-          </div>
-          <p class="text-xs text-muted">
-            {{ formatOptions.find(o => o.value === selectedFormat)?.desc }}
-          </p>
+          <p class="text-sm text-muted">Quadrado 1080×1080, com foco em um único hábito.</p>
         </div>
 
-        <!-- Preview -->
         <div class="space-y-2">
           <p class="text-sm font-medium text-highlighted">Pré-visualização</p>
 
           <template v-if="loading">
-            <div class="flex items-center justify-center rounded-lg border border-default bg-elevated/50" :style="{ height: previewHeight + 'px' }">
+            <div class="flex h-[360px] items-center justify-center rounded-lg border border-default bg-elevated/50">
               <USkeleton class="h-full w-full rounded-lg" />
             </div>
           </template>
@@ -162,17 +146,13 @@ async function shareNative() {
           <template v-else-if="progress">
             <div
               class="mx-auto overflow-hidden rounded-lg border border-default shadow-lg"
-              :style="{ width: '360px', height: previewHeight + 'px' }"
+              :style="{ width: '360px', height: '360px' }"
             >
-              <div :style="{ transform: `scale(${previewScale})`, transformOrigin: 'top left' }">
-                <div ref="cardRef">
+              <div :style="{ transform: 'scale(0.3333333)', transformOrigin: 'top left' }">
+                <div>
                   <HabitsShareImageCard
-                    :format="selectedFormat"
                     :user-name="userName"
-                    :habits="progress.habits"
-                    :completion-rate7d="progress.completionRate7d"
-                    :completion-rate30d="progress.completionRate30d"
-                    :total-habits="progress.totalHabits"
+                    :data="progress"
                     :date="todayISO"
                   />
                 </div>
@@ -182,7 +162,18 @@ async function shareNative() {
 
           <div v-else class="flex flex-col items-center justify-center gap-2 py-8">
             <UIcon name="i-lucide-image-off" class="size-8 text-muted" />
-            <p class="text-sm text-muted">Não foi possível carregar os dados.</p>
+            <p class="text-sm text-muted">Selecione um hábito para compartilhar.</p>
+          </div>
+        </div>
+
+        <div class="pointer-events-none fixed -left-[9999px] top-0">
+          <div ref="exportCardRef">
+            <HabitsShareImageCard
+              v-if="progress"
+              :user-name="userName"
+              :data="progress"
+              :date="todayISO"
+            />
           </div>
         </div>
       </div>
