@@ -3,6 +3,7 @@ import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
 import { sanitizeRichTextHtml } from '../../utils/rich-text'
 import { mapHabit } from '../../utils/habits'
+import { hasVersionedHabitChanges, syncHabitVersion, toHabitVersionShape } from '../../utils/habit-versions'
 
 const paramsSchema = z.object({
   id: z.string().uuid()
@@ -37,7 +38,7 @@ export default eventHandler(async (event) => {
   // Fetch current habit to compare tracked fields
   const { data: current, error: fetchError } = await supabase
     .from('habits')
-    .select('difficulty, frequency, identity_id, habit_type')
+    .select('id, user_id, identity_id, name, description, obvious_strategy, attractive_strategy, easy_strategy, satisfying_strategy, frequency, difficulty, habit_type, custom_days, sort_order, timezone')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
@@ -60,6 +61,16 @@ export default eventHandler(async (event) => {
   if (parsed.identityId !== undefined) updateData.identity_id = parsed.identityId
   if (parsed.customDays !== undefined) updateData.custom_days = parsed.customDays
   if (parsed.sortOrder !== undefined) updateData.sort_order = parsed.sortOrder
+
+  const nextVersionCandidate = {
+    ...(current as Record<string, unknown>),
+    ...toHabitVersionShape(current as Record<string, unknown>),
+    ...updateData,
+    id,
+    user_id: user.id
+  }
+
+  const shouldRotateVersion = hasVersionedHabitChanges(current as Record<string, unknown>, nextVersionCandidate)
 
   // Record change history for tracked fields
   const fieldToColumn: Record<string, string> = {
@@ -101,6 +112,10 @@ export default eventHandler(async (event) => {
 
   if (error || !data) {
     throw createError({ statusCode: 500, statusMessage: 'Falha ao atualizar hábito', data: error?.message })
+  }
+
+  if (shouldRotateVersion) {
+    await syncHabitVersion(supabase, data as Record<string, unknown>)
   }
 
   return mapHabit(data as Record<string, unknown>)

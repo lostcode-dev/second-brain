@@ -144,9 +144,33 @@ export interface HabitLog {
   id: string
   userId: string
   habitId: string
+  habitVersionId: string
   logDate: string
   completed: boolean
   note: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface HabitVersion {
+  id: string
+  habitId: string
+  userId: string
+  identityId: string | null
+  name: string
+  description: string | null
+  obviousStrategy: string | null
+  attractiveStrategy: string | null
+  easyStrategy: string | null
+  satisfyingStrategy: string | null
+  frequency: HabitFrequency
+  difficulty: HabitDifficulty
+  habitType: HabitType
+  customDays: number[] | null
+  sortOrder: number
+  timezone: string | null
+  validFrom: string
+  validTo: string | null
   createdAt: string
   updatedAt: string
 }

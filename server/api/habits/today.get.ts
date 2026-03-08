@@ -1,47 +1,66 @@
 import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
-import { mapHabit } from '../../utils/habits'
+import { mapHabit, mapHabitFromVersion } from '../../utils/habits'
+import { resolveHabitsForDate } from '../../utils/habit-versions'
 
 const querySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data deve estar no formato YYYY-MM-DD').optional()
 })
+
+function isDueOnDay(frequency: unknown, customDays: unknown, dayOfWeek: number): boolean {
+  if (frequency === 'daily') return true
+  if (frequency === 'weekly') return dayOfWeek === 1
+  if (frequency === 'custom' && Array.isArray(customDays)) {
+    return (customDays as number[]).includes(dayOfWeek)
+  }
+  return false
+}
 
 export default eventHandler(async (event) => {
   const user = await requireAuthUser(event)
   const query = getQuery(event)
   const params = querySchema.parse(query)
 
-  const today = params.date ?? new Date().toISOString().split('T')[0]
-  const dayOfWeek = new Date(`${today}T12:00:00Z`).getUTCDay() // 0=Sun..6=Sat
+  const todayStr = new Date().toISOString().split('T')[0]!
+  const date = params.date ?? todayStr
+  const dayOfWeek = new Date(`${date}T12:00:00Z`).getUTCDay()
+  const isCurrentDay = date === todayStr
 
   const supabase = getSupabaseAdminClient()
 
-  // Fetch all active habits
-  const { data: habits, error: habitsError } = await supabase
-    .from('habits')
-    .select('*, identity:identities(*), streak:habit_streaks(*)')
-    .eq('user_id', user.id)
-    .is('archived_at', null)
-    .order('sort_order', { ascending: true })
-    .order('name', { ascending: true })
+  let todayHabitsMapped: Record<string, unknown>[]
 
-  if (habitsError) {
-    throw createError({ statusCode: 500, statusMessage: 'Falha ao buscar hábitos', data: habitsError.message })
+  if (isCurrentDay) {
+    // Current day — read directly from habits table (always up-to-date)
+    const { data: habits, error: habitsError } = await supabase
+      .from('habits')
+      .select('*, identity:identities(*), streak:habit_streaks(*)')
+      .eq('user_id', user.id)
+      .is('archived_at', null)
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true })
+
+    if (habitsError) {
+      throw createError({ statusCode: 500, statusMessage: 'Falha ao buscar hábitos', data: habitsError.message })
+    }
+
+    todayHabitsMapped = (habits ?? [])
+      .filter((h: Record<string, unknown>) => isDueOnDay(h.frequency, h.custom_days, dayOfWeek))
+      .map((h: Record<string, unknown>) => mapHabit(h))
+  } else {
+    // Past/future date — use habit_versions for historical accuracy
+    const resolved = await resolveHabitsForDate(supabase, user.id, date)
+
+    todayHabitsMapped = resolved
+      .filter(({ version }) => isDueOnDay(version.frequency, version.custom_days, dayOfWeek))
+      .map(({ version, identity, streak, archivedAt }) =>
+        mapHabitFromVersion(version, identity, streak, archivedAt)
+      )
   }
 
-  // Filter habits due today
-  const todayHabits = (habits ?? []).filter((habit: Record<string, unknown>) => {
-    if (habit.frequency === 'daily') return true
-    if (habit.frequency === 'weekly') return dayOfWeek === 1 // Monday
-    if (habit.frequency === 'custom' && habit.custom_days) {
-      return (habit.custom_days as number[]).includes(dayOfWeek)
-    }
-    return false
-  })
-
-  // Fetch logs for today
-  const habitIds = todayHabits.map((h: Record<string, unknown>) => h.id as string)
+  // Fetch logs for the date
+  const habitIds = todayHabitsMapped.map((h) => h.id as string)
 
   let logs: Record<string, { completed: boolean, note: string | null, id: string }> = {}
 
@@ -50,8 +69,8 @@ export default eventHandler(async (event) => {
       .from('habit_logs')
       .select('id, habit_id, completed, note')
       .eq('user_id', user.id)
-      .eq('log_date', today!)
-      .in('habit_id', habitIds as string[])
+      .eq('log_date', date)
+      .in('habit_id', habitIds)
 
     if (logsData) {
       logs = Object.fromEntries(
@@ -60,12 +79,12 @@ export default eventHandler(async (event) => {
     }
   }
 
-  const result = todayHabits.map((habit: Record<string, unknown>) => ({
-    ...mapHabit(habit),
+  const result = todayHabitsMapped.map((habit) => ({
+    ...habit,
     log: logs[habit.id as string] ?? null
   }))
 
-  const completedCount = result.filter((h: Record<string, unknown>) => (h.log as Record<string, unknown> | null)?.completed).length
+  const completedCount = result.filter((h) => (h.log as Record<string, unknown> | null)?.completed).length
 
   return {
     habits: result,

@@ -3,6 +3,7 @@ import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
 import { sanitizeRichTextHtml } from '../../utils/rich-text'
 import { mapHabit } from '../../utils/habits'
+import { createInitialHabitVersion } from '../../utils/habit-versions'
 
 const bodySchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(200),
@@ -51,6 +52,8 @@ export default eventHandler(async (event) => {
   if (error) {
     throw createError({ statusCode: 500, statusMessage: 'Falha ao criar hábito', data: error.message })
   }
+
+  await createInitialHabitVersion(supabase, habit as Record<string, unknown>)
 
   // Initialize streak cache
   await supabase.from('habit_streaks').insert({

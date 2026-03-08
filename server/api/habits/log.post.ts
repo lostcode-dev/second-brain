@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
+import { resolveHabitVersionIdForDate } from '../../utils/habit-versions'
 
 const bodySchema = z.object({
   habitId: z.string().uuid(),
@@ -38,6 +39,8 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Hábito não encontrado' })
   }
 
+  const habitVersionId = await resolveHabitVersionIdForDate(supabase, parsed.habitId, user.id, parsed.logDate)
+
   // Upsert log (idempotent per habit+date)
   const { data: log, error: logError } = await supabase
     .from('habit_logs')
@@ -45,6 +48,7 @@ export default eventHandler(async (event) => {
       {
         user_id: user.id,
         habit_id: parsed.habitId,
+        habit_version_id: habitVersionId,
         log_date: parsed.logDate,
         completed: parsed.completed,
         note: parsed.note ?? null,

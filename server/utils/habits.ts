@@ -50,6 +50,40 @@ export function mapHabit(row: Record<string, unknown>): Record<string, unknown> 
   }
 }
 
+/**
+ * Maps a habit_versions row (with separate identity/streak/archivedAt) to the
+ * same shape returned by mapHabit, so the client doesn't need to distinguish.
+ */
+export function mapHabitFromVersion(
+  version: Record<string, unknown>,
+  identity: Record<string, unknown> | null | undefined,
+  streak: Record<string, unknown> | null | undefined,
+  archivedAt: string | null
+): Record<string, unknown> {
+  return {
+    id: version.habit_id,
+    userId: version.user_id,
+    identityId: version.identity_id ?? null,
+    name: version.name,
+    description: version.description ?? null,
+    obviousStrategy: version.obvious_strategy ?? null,
+    attractiveStrategy: version.attractive_strategy ?? null,
+    easyStrategy: version.easy_strategy ?? null,
+    satisfyingStrategy: version.satisfying_strategy ?? null,
+    frequency: version.frequency,
+    difficulty: version.difficulty,
+    habitType: version.habit_type ?? 'positive',
+    customDays: version.custom_days ?? null,
+    sortOrder: version.sort_order ?? 0,
+    timezone: version.timezone ?? null,
+    archivedAt,
+    createdAt: version.created_at,
+    updatedAt: version.updated_at,
+    identity: mapIdentity(identity ?? null),
+    streak: mapStreak(streak ?? null)
+  }
+}
+
 export function mapHabitList(rows: Record<string, unknown>[] | null | undefined): Record<string, unknown>[] {
   return (rows ?? []).map(mapHabit)
 }
