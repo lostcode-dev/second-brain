@@ -1,5 +1,6 @@
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
+import { mapHabitStacks } from '../../utils/habit-stacks'
 
 export default eventHandler(async (event) => {
   const user = await requireAuthUser(event)
@@ -16,5 +17,5 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Falha ao buscar empilhamentos', data: error.message })
   }
 
-  return data ?? []
+  return mapHabitStacks((data ?? []) as Record<string, unknown>[])
 })

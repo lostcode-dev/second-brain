@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
+import { mapHabitStack } from '../../utils/habit-stacks'
 
 const bodySchema = z.object({
   triggerHabitId: z.string().uuid('ID do hábito gatilho é obrigatório'),
@@ -57,5 +58,5 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Falha ao criar empilhamento', data: error.message })
   }
 
-  return data
+  return mapHabitStack(data as Record<string, unknown>)
 })
