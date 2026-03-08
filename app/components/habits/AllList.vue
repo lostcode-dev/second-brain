@@ -41,6 +41,10 @@ const treeData = ref<HabitSortableTreeNode[]>([])
 const collapsedIds = ref<string[]>([])
 const virtualizationEnabled = computed(() => props.habits.length > 12)
 
+function nodeKeyFn(stat: any) {
+  return stat.data.id
+}
+
 function compareHabits(left: Habit, right: Habit): number {
   if (left.sortOrder !== right.sortOrder) {
     return left.sortOrder - right.sortOrder
@@ -140,29 +144,6 @@ function getOutgoingStacks(habit: Habit): HabitStack[] {
   return (props.stacks ?? []).filter((stack) => stack.triggerHabitId === habit.id)
 }
 
-function getIncomingStacks(habit: Habit): HabitStack[] {
-  return (props.stacks ?? []).filter((stack) => stack.newHabitId === habit.id)
-}
-
-function getStackDescription(habit: Habit): string | null {
-  const outgoing = getOutgoingStacks(habit)
-  const incoming = getIncomingStacks(habit)
-
-  if (outgoing.length > 0) {
-    if (outgoing.length === 1) {
-      return `Depois deste hábito, faça ${outgoing[0]?.newHabit?.name ?? 'o próximo hábito'}`
-    }
-
-    return `Depois deste hábito, faça ${outgoing.length} hábitos em sequência`
-  }
-
-  if (incoming.length > 0) {
-    return `Este hábito acontece depois de ${incoming[0]?.triggerHabit?.name ?? 'outro hábito'}`
-  }
-
-  return null
-}
-
 function getRowItems(habit: Habit) {
   const hasOutgoingStacks = getOutgoingStacks(habit).length > 0
 
@@ -248,7 +229,7 @@ function onAfterDrop() {
             ref="treeRef"
             v-model="treeData"
             children-key="children"
-            node-key="id"
+            :node-key="nodeKeyFn"
             trigger-class="habit-tree-drag-handle"
             :indent="24"
             :tree-line="true"
@@ -261,7 +242,7 @@ function onAfterDrop() {
             @close:node="onTreeClosed"
             @after-drop="onAfterDrop"
           >
-            <template #default="{ node, stat }">
+            <template #default="{ node, stat }: { node: HabitSortableTreeNode; stat: TreeStat }">
               <div
                 class="habit-tree-row mb-3 rounded-xl border border-default/60 bg-default/70 p-3 shadow-sm transition-colors hover:bg-elevated/50"
                 @click="emit('select', node.habit.id)"
@@ -323,11 +304,6 @@ function onAfterDrop() {
                       >
                         {{ node.habit.customDays.map((day: number) => dayLabels[day]).join(', ') }}
                       </span>
-                    </div>
-
-                    <div v-if="getStackDescription(node.habit)" class="mt-1 flex items-center gap-1.5 text-xs text-muted">
-                      <UIcon name="i-lucide-link-2" class="size-3.5 shrink-0 text-primary" />
-                      <span class="truncate">{{ getStackDescription(node.habit) }}</span>
                     </div>
                   </div>
 

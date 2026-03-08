@@ -1,5 +1,20 @@
 <script setup lang="ts">
-import type { HabitStack, TodayHabit, TodayHabitTreeNode } from '~/types/habits'
+import { BaseTree } from '@he-tree/vue'
+import type { HabitStack, TodayHabit } from '~/types/habits'
+import { DIFFICULTY_META, HABIT_TYPE_META } from '~/types/habits'
+
+interface TodayTreeNode {
+  id: string
+  habit: TodayHabit
+  children: TodayTreeNode[]
+  open?: boolean
+}
+
+interface TreeStat {
+  open: boolean
+  level: number
+  data: TodayTreeNode
+}
 
 const props = defineProps<{
   habits: TodayHabit[]
@@ -54,87 +69,113 @@ const isToday = computed(() => {
   return props.currentDate === today
 })
 
+const treeRef = ref<InstanceType<typeof BaseTree> | null>(null)
+const treeData = ref<TodayTreeNode[]>([])
+const collapsedIds = ref<string[]>([])
+const virtualizationEnabled = computed(() => props.habits.length > 12)
+
+function nodeKeyFn(stat: any) {
+  return stat.data.id
+}
+
 function compareHabits(left: TodayHabit, right: TodayHabit): number {
   if (left.sortOrder !== right.sortOrder) {
     return left.sortOrder - right.sortOrder
   }
-
   return left.name.localeCompare(right.name, 'pt-BR')
 }
 
-const habitTrees = computed<TodayHabitTreeNode[]>(() => {
+function buildTreeData(): TodayTreeNode[] {
   const visibleHabits = [...(props.habits ?? [])].sort(compareHabits)
-
   if (visibleHabits.length === 0) return []
 
-  const visibleHabitIds = new Set(visibleHabits.map((habit) => habit.id))
+  const hiddenIds = new Set(collapsedIds.value)
+  const visibleHabitIds = new Set(visibleHabits.map(h => h.id))
   const childrenByParent = new Map<string, string[]>()
-  const parentsByChild = new Map<string, string[]>()
+  const parentsByChild = new Map<string, string>()
+  const habitById = new Map(visibleHabits.map(h => [h.id, h] as const))
 
   for (const stack of props.stacks ?? []) {
-    if (!visibleHabitIds.has(stack.triggerHabitId) || !visibleHabitIds.has(stack.newHabitId)) {
-      continue
-    }
+    if (!visibleHabitIds.has(stack.triggerHabitId) || !visibleHabitIds.has(stack.newHabitId)) continue
 
     const parentChildren = childrenByParent.get(stack.triggerHabitId) ?? []
     if (!parentChildren.includes(stack.newHabitId)) {
       parentChildren.push(stack.newHabitId)
+      parentChildren.sort((a, b) => {
+        const ha = habitById.get(a)
+        const hb = habitById.get(b)
+        if (!ha || !hb) return 0
+        return compareHabits(ha, hb)
+      })
       childrenByParent.set(stack.triggerHabitId, parentChildren)
     }
 
-    const childParents = parentsByChild.get(stack.newHabitId) ?? []
-    if (!childParents.includes(stack.triggerHabitId)) {
-      childParents.push(stack.triggerHabitId)
-      parentsByChild.set(stack.newHabitId, childParents)
-    }
+    parentsByChild.set(stack.newHabitId, stack.triggerHabitId)
   }
 
-  const habitById = new Map(visibleHabits.map((habit) => [habit.id, habit] as const))
-  const roots: TodayHabitTreeNode[] = []
+  const roots: TodayTreeNode[] = []
   const visited = new Set<string>()
 
-  function sortChildIds(habitIds: string[]): string[] {
-    return [...habitIds].sort((leftId, rightId) => {
-      const leftHabit = habitById.get(leftId)
-      const rightHabit = habitById.get(rightId)
-
-      if (!leftHabit || !rightHabit) return 0
-
-      return compareHabits(leftHabit, rightHabit)
-    })
-  }
-
-  function buildNode(habitId: string): TodayHabitTreeNode | null {
+  function buildNode(habitId: string): TodayTreeNode | null {
     if (visited.has(habitId)) return null
-
     const habit = habitById.get(habitId)
     if (!habit) return null
 
     visited.add(habitId)
-
-    const childIds = sortChildIds(childrenByParent.get(habitId) ?? [])
+    const childIds = childrenByParent.get(habitId) ?? []
     const children = childIds
-      .map((childId) => buildNode(childId))
-      .filter((child): child is TodayHabitTreeNode => child !== null)
+      .map(id => buildNode(id))
+      .filter((n): n is TodayTreeNode => n !== null)
 
-    return { habit, children }
+    return { id: habit.id, habit, children, open: !hiddenIds.has(habit.id) }
   }
 
   for (const habit of visibleHabits) {
-    const visibleParents = parentsByChild.get(habit.id) ?? []
-    if (visibleParents.length === 0) {
+    if (!parentsByChild.has(habit.id)) {
       const root = buildNode(habit.id)
       if (root) roots.push(root)
     }
   }
 
+  // Orphans fallback
   for (const habit of visibleHabits) {
     const root = buildNode(habit.id)
     if (root) roots.push(root)
   }
 
   return roots
-})
+}
+
+watch(
+  () => [props.habits, props.stacks],
+  () => { treeData.value = buildTreeData() },
+  { immediate: true, deep: true }
+)
+
+function expandAll() {
+  collapsedIds.value = []
+  treeRef.value?.openAll()
+}
+
+function collapseAll() {
+  const ids: string[] = []
+  function collect(nodes: TodayTreeNode[]) {
+    for (const n of nodes) { ids.push(n.id); collect(n.children) }
+  }
+  collect(treeData.value)
+  collapsedIds.value = ids
+  treeRef.value?.closeAll()
+}
+
+function onTreeOpened(stat: TreeStat) {
+  collapsedIds.value = collapsedIds.value.filter(id => id !== stat.data.id)
+}
+
+function onTreeClosed(stat: TreeStat) {
+  if (!collapsedIds.value.includes(stat.data.id)) {
+    collapsedIds.value = [...collapsedIds.value, stat.data.id]
+  }
+}
 </script>
 
 <template>
@@ -205,20 +246,114 @@ const habitTrees = computed<TodayHabitTreeNode[]>(() => {
       </UCard>
     </template>
 
-    <!-- Habits list -->
+    <!-- Habits tree -->
     <template v-else-if="habits.length > 0 && !allDone">
-      <div class="space-y-4">
-        <HabitsTodayTreeItem
-          v-for="(tree, index) in habitTrees"
-          :key="tree.habit.id"
-          :node="tree"
-          :stacks="stacks"
-          :is-last="index === habitTrees.length - 1"
-          :ancestor-has-next="[]"
-          @toggle="emit('toggle', $event[0], $event[1])"
-          @select="emit('select', $event)"
-          @open-note="openNoteModal($event[0], $event[1])"
-        />
+      <div class="today-tree-shell rounded-2xl border border-default/60 bg-default/50 p-3">
+        <BaseTree
+          ref="treeRef"
+          v-model="treeData"
+          children-key="children"
+          :node-key="nodeKeyFn"
+          :indent="24"
+          :tree-line="true"
+          :tree-line-offset="10"
+          :default-open="true"
+          :virtualization="virtualizationEnabled"
+          :virtualization-prerender-count="20"
+          :watermark="false"
+          @open:node="onTreeOpened"
+          @close:node="onTreeClosed"
+        >
+          <template #default="{ node, stat }: { node: TodayTreeNode; stat: TreeStat }">
+            <div
+              class="today-tree-row mb-3 rounded-xl border border-default/60 p-3 shadow-sm transition-colors hover:bg-elevated/50"
+              :class="node.habit.log?.completed ? 'bg-success/5 border-success/20' : 'bg-default/70'"
+              @click="emit('select', node.habit.id)"
+            >
+              <div class="flex items-center gap-3">
+                <!-- Expand/collapse -->
+                <button
+                  v-if="node.children.length"
+                  type="button"
+                  class="inline-flex size-7 items-center justify-center rounded-md text-muted transition hover:bg-muted/60 hover:text-highlighted"
+                  @click.stop="stat.open = !stat.open"
+                >
+                  <UIcon :name="stat.open ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="size-4" />
+                </button>
+                <span v-else class="inline-flex size-7 items-center justify-center text-muted">
+                  <span class="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                </span>
+
+                <!-- Checkbox -->
+                <UCheckbox
+                  :model-value="node.habit.log?.completed ?? false"
+                  @click.stop
+                  @update:model-value="emit('toggle', node.habit.id, $event as boolean)"
+                />
+
+                <!-- Type icon -->
+                <UIcon
+                  :name="HABIT_TYPE_META[node.habit.habitType ?? 'positive'].icon"
+                  class="size-4 shrink-0"
+                  :class="node.habit.habitType === 'negative' ? 'text-error' : 'text-success'"
+                />
+
+                <!-- Habit info -->
+                <div class="flex-1 min-w-0">
+                  <p
+                    class="font-medium truncate"
+                    :class="node.habit.log?.completed ? 'line-through text-muted' : 'text-highlighted'"
+                  >
+                    {{ node.habit.name }}
+                  </p>
+                  <div class="mt-1 flex flex-wrap items-center gap-1.5">
+                    <UBadge
+                      v-if="node.habit.identity"
+                      :label="node.habit.identity.name"
+                      variant="subtle"
+                      color="primary"
+                      size="xs"
+                    />
+                    <span v-if="node.habit.log?.note" class="max-w-40 truncate text-xs italic text-muted">
+                      "{{ node.habit.log.note }}"
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Right side: difficulty, streak, note button -->
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <UBadge
+                    :color="DIFFICULTY_META[node.habit.difficulty].color"
+                    variant="subtle"
+                    size="xs"
+                  >
+                    <template #leading>
+                      <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3" />
+                    </template>
+                    {{ DIFFICULTY_META[node.habit.difficulty].label }}
+                  </UBadge>
+
+                  <div
+                    v-if="node.habit.streak && node.habit.streak.currentStreak > 0"
+                    class="flex items-center gap-1 text-xs text-muted"
+                  >
+                    <UIcon name="i-lucide-flame" class="size-3.5 text-orange-500" />
+                    <span>{{ node.habit.streak.currentStreak }}</span>
+                  </div>
+
+                  <UButton
+                    :icon="node.habit.log?.completed ? 'i-lucide-message-square' : 'i-lucide-message-square-plus'"
+                    color="neutral"
+                    variant="ghost"
+                    size="xs"
+                    :aria-label="node.habit.log?.completed ? 'Adicionar nota (feito)' : 'Marcar como não feito com nota'"
+                    @click.stop="openNoteModal(node.habit.id, !(node.habit.log?.completed ?? false))"
+                  />
+                </div>
+              </div>
+            </div>
+          </template>
+        </BaseTree>
       </div>
     </template>
 
@@ -272,3 +407,14 @@ const habitTrees = computed<TodayHabitTreeNode[]>(() => {
     </UModal>
   </div>
 </template>
+
+<style scoped>
+:deep(.today-tree-shell .he-tree) {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+:deep(.today-tree-shell .tree-line) {
+  background-color: color-mix(in srgb, var(--ui-border) 80%, transparent);
+}
+</style>
