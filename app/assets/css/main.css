@@ -46,13 +46,6 @@ html {
 
 /* ─── Mobile touch & interaction improvements ───────────────────── */
 @media (max-width: 768px) {
-  /* Larger touch targets on mobile */
-  button,
-  a {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
   /* Smaller icon-only buttons keep 40px minimum */
   button[data-square],
   button:has(> svg:only-child) {
