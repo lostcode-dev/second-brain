@@ -55,6 +55,11 @@ const isToday = computed(() => {
   return props.currentDate === today
 })
 
+type TodayHabitRow = {
+  habit: TodayHabit
+  depth: number
+}
+
 function getIncomingStacks(habit: TodayHabit): HabitStack[] {
   return (props.stacks ?? []).filter((stack) => stack.newHabitId === habit.id)
 }
@@ -88,6 +93,66 @@ function getOutgoingStackLabel(habit: TodayHabit): string {
 
   return `Continua com ${outgoingStacks.length} hábitos`
 }
+
+const displayRows = computed<TodayHabitRow[]>(() => {
+  const visibleHabits = props.habits ?? []
+
+  if (visibleHabits.length === 0) return []
+
+  const visibleHabitIds = new Set(visibleHabits.map((habit) => habit.id))
+  const childrenByParent = new Map<string, string[]>()
+  const parentsByChild = new Map<string, string[]>()
+
+  for (const stack of props.stacks ?? []) {
+    if (!visibleHabitIds.has(stack.triggerHabitId) || !visibleHabitIds.has(stack.newHabitId)) {
+      continue
+    }
+
+    const parentChildren = childrenByParent.get(stack.triggerHabitId) ?? []
+    if (!parentChildren.includes(stack.newHabitId)) {
+      parentChildren.push(stack.newHabitId)
+      childrenByParent.set(stack.triggerHabitId, parentChildren)
+    }
+
+    const childParents = parentsByChild.get(stack.newHabitId) ?? []
+    if (!childParents.includes(stack.triggerHabitId)) {
+      childParents.push(stack.triggerHabitId)
+      parentsByChild.set(stack.newHabitId, childParents)
+    }
+  }
+
+  const habitById = new Map(visibleHabits.map((habit) => [habit.id, habit] as const))
+  const rows: TodayHabitRow[] = []
+  const visited = new Set<string>()
+
+  function appendHabit(habitId: string, depth: number) {
+    if (visited.has(habitId)) return
+
+    const habit = habitById.get(habitId)
+    if (!habit) return
+
+    visited.add(habitId)
+    rows.push({ habit, depth })
+
+    const childIds = childrenByParent.get(habitId) ?? []
+    for (const childId of childIds) {
+      appendHabit(childId, depth + 1)
+    }
+  }
+
+  for (const habit of visibleHabits) {
+    const visibleParents = parentsByChild.get(habit.id) ?? []
+    if (visibleParents.length === 0) {
+      appendHabit(habit.id, 0)
+    }
+  }
+
+  for (const habit of visibleHabits) {
+    appendHabit(habit.id, 0)
+  }
+
+  return rows
+})
 </script>
 
 <template>
@@ -160,107 +225,122 @@ function getOutgoingStackLabel(habit: TodayHabit): string {
 
     <!-- Habits list -->
     <template v-else-if="habits.length > 0 && !allDone">
-      <UCard
-        v-for="habit in habits"
-        :key="habit.id"
-        :class="[
-          'cursor-pointer transition-colors hover:bg-elevated/50',
-          isStackedHabit(habit) ? 'ring-1 ring-primary/30 bg-primary/5' : '',
-        ]"
-        @click="emit('select', habit.id)"
+      <div
+        v-for="row in displayRows"
+        :key="row.habit.id"
+        class="space-y-2"
+        :style="{ marginLeft: `${row.depth * 1.25}rem` }"
       >
-        <div class="flex items-center gap-3">
-          <UCheckbox
-            :model-value="habit.log?.completed ?? false"
-            @click.stop
-            @update:model-value="emit('toggle', habit.id, $event as boolean)"
-          />
-
-          <!-- Positive/Negative indicator -->
-          <UIcon
-            :name="HABIT_TYPE_META[habit.habitType ?? 'positive'].icon"
-            class="size-4 shrink-0"
-            :class="habit.habitType === 'negative' ? 'text-error' : 'text-success'"
-          />
-
-          <div class="flex-1 min-w-0">
-            <p
-              class="font-medium truncate"
-              :class="habit.log?.completed ? 'line-through text-muted' : 'text-highlighted'"
-            >
-              {{ habit.name }}
-            </p>
-            <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
-              <UBadge
-                v-if="habit.identity"
-                :label="habit.identity.name"
-                variant="subtle"
-                color="primary"
-                size="xs"
-              />
-              <span v-if="habit.log?.note" class="text-xs text-muted italic truncate max-w-40">
-                "{{ habit.log.note }}"
-              </span>
-            </div>
-
-            <div v-if="isStackedHabit(habit)" class="mt-1.5 flex flex-wrap items-center gap-1.5">
-              <UBadge
-                v-if="getIncomingStacks(habit).length"
-                color="neutral"
-                variant="subtle"
-                size="xs"
-              >
-                <template #leading>
-                  <UIcon name="i-lucide-arrow-down-left" class="size-3" />
-                </template>
-                {{ getIncomingStackLabel(habit) }}
-              </UBadge>
-
-              <UBadge
-                v-if="getOutgoingStacks(habit).length"
-                color="primary"
-                variant="subtle"
-                size="xs"
-              >
-                <template #leading>
-                  <UIcon name="i-lucide-arrow-up-right" class="size-3" />
-                </template>
-                {{ getOutgoingStackLabel(habit) }}
-              </UBadge>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-1.5 shrink-0">
-            <UBadge
-              :color="DIFFICULTY_META[habit.difficulty].color"
-              variant="subtle"
-              size="xs"
-            >
-              <template #leading>
-                <UIcon :name="DIFFICULTY_META[habit.difficulty].icon" class="size-3" />
-              </template>
-              {{ DIFFICULTY_META[habit.difficulty].label }}
-            </UBadge>
-            <div
-              v-if="habit.streak && habit.streak.currentStreak > 0"
-              class="flex items-center gap-1 text-xs text-muted"
-            >
-              <UIcon name="i-lucide-flame" class="size-3.5 text-orange-500" />
-              <span>{{ habit.streak.currentStreak }}</span>
-            </div>
-
-            <!-- Note action -->
-            <UButton
-              :icon="habit.log?.completed ? 'i-lucide-message-square' : 'i-lucide-message-square-plus'"
-              color="neutral"
-              variant="ghost"
-              size="xs"
-              :aria-label="habit.log?.completed ? 'Adicionar nota (feito)' : 'Marcar como não feito com nota'"
-              @click.stop="openNoteModal(habit.id, !(habit.log?.completed ?? false))"
-            />
-          </div>
+        <div
+          v-if="row.depth > 0"
+          class="flex items-center gap-2 pl-2 text-xs font-medium text-primary"
+        >
+          <span class="h-px w-4 bg-primary/30" />
+          <UIcon name="i-lucide-corner-down-right" class="size-3.5" />
+          <span>Hábito empilhado</span>
         </div>
-      </UCard>
+
+        <UCard
+          :class="[
+            'cursor-pointer transition-colors hover:bg-elevated/50',
+            isStackedHabit(row.habit) ? 'ring-1 ring-primary/30 bg-primary/5' : '',
+            row.depth > 0 ? 'border-l-2 border-primary/30' : '',
+          ]"
+          @click="emit('select', row.habit.id)"
+        >
+          <div class="flex items-center gap-3">
+            <UCheckbox
+              :model-value="row.habit.log?.completed ?? false"
+              @click.stop
+              @update:model-value="emit('toggle', row.habit.id, $event as boolean)"
+            />
+
+            <!-- Positive/Negative indicator -->
+            <UIcon
+              :name="HABIT_TYPE_META[row.habit.habitType ?? 'positive'].icon"
+              class="size-4 shrink-0"
+              :class="row.habit.habitType === 'negative' ? 'text-error' : 'text-success'"
+            />
+
+            <div class="flex-1 min-w-0">
+              <p
+                class="font-medium truncate"
+                :class="row.habit.log?.completed ? 'line-through text-muted' : 'text-highlighted'"
+              >
+                {{ row.habit.name }}
+              </p>
+              <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
+                <UBadge
+                  v-if="row.habit.identity"
+                  :label="row.habit.identity.name"
+                  variant="subtle"
+                  color="primary"
+                  size="xs"
+                />
+                <span v-if="row.habit.log?.note" class="text-xs text-muted italic truncate max-w-40">
+                  "{{ row.habit.log.note }}"
+                </span>
+              </div>
+
+              <div v-if="isStackedHabit(row.habit)" class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                <UBadge
+                  v-if="getIncomingStacks(row.habit).length"
+                  color="neutral"
+                  variant="subtle"
+                  size="xs"
+                >
+                  <template #leading>
+                    <UIcon name="i-lucide-arrow-down-left" class="size-3" />
+                  </template>
+                  {{ getIncomingStackLabel(row.habit) }}
+                </UBadge>
+
+                <UBadge
+                  v-if="getOutgoingStacks(row.habit).length"
+                  color="primary"
+                  variant="subtle"
+                  size="xs"
+                >
+                  <template #leading>
+                    <UIcon name="i-lucide-arrow-up-right" class="size-3" />
+                  </template>
+                  {{ getOutgoingStackLabel(row.habit) }}
+                </UBadge>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 shrink-0">
+              <UBadge
+                :color="DIFFICULTY_META[row.habit.difficulty].color"
+                variant="subtle"
+                size="xs"
+              >
+                <template #leading>
+                  <UIcon :name="DIFFICULTY_META[row.habit.difficulty].icon" class="size-3" />
+                </template>
+                {{ DIFFICULTY_META[row.habit.difficulty].label }}
+              </UBadge>
+              <div
+                v-if="row.habit.streak && row.habit.streak.currentStreak > 0"
+                class="flex items-center gap-1 text-xs text-muted"
+              >
+                <UIcon name="i-lucide-flame" class="size-3.5 text-orange-500" />
+                <span>{{ row.habit.streak.currentStreak }}</span>
+              </div>
+
+              <!-- Note action -->
+              <UButton
+                :icon="row.habit.log?.completed ? 'i-lucide-message-square' : 'i-lucide-message-square-plus'"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                :aria-label="row.habit.log?.completed ? 'Adicionar nota (feito)' : 'Marcar como não feito com nota'"
+                @click.stop="openNoteModal(row.habit.id, !(row.habit.log?.completed ?? false))"
+              />
+            </div>
+          </div>
+        </UCard>
+      </div>
     </template>
 
     <!-- Empty state -->
