@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { Habit, HabitStack } from '~/types/habits'
-import { DIFFICULTY_META, FREQUENCY_META, HABIT_TYPE_META } from '~/types/habits'
+import type { Habit, HabitStack, HabitTreeNode } from '~/types/habits'
 
 const props = defineProps<{
   habits: Habit[]
@@ -20,60 +19,68 @@ const emit = defineEmits<{
   'archive': [habit: Habit]
 }>()
 
-const dayLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+const habitTrees = computed<HabitTreeNode[]>(() => {
+  const visibleHabits = props.habits ?? []
 
-function getOutgoingStacks(habit: Habit): HabitStack[] {
-  return props.stacks.filter((stack) => stack.triggerHabitId === habit.id)
-}
+  if (visibleHabits.length === 0) return []
 
-function getIncomingStacks(habit: Habit): HabitStack[] {
-  return props.stacks.filter((stack) => stack.newHabitId === habit.id)
-}
+  const visibleHabitIds = new Set(visibleHabits.map((habit) => habit.id))
+  const childrenByParent = new Map<string, string[]>()
+  const parentsByChild = new Map<string, string[]>()
 
-function getStackDescription(habit: Habit): string | null {
-  const outgoing = getOutgoingStacks(habit)
-  const incoming = getIncomingStacks(habit)
-
-  if (outgoing.length > 0) {
-    if (outgoing.length === 1) {
-      return `Depois deste hábito, faça ${outgoing[0]?.newHabit?.name ?? 'o próximo hábito'}`
+  for (const stack of props.stacks ?? []) {
+    if (!visibleHabitIds.has(stack.triggerHabitId) || !visibleHabitIds.has(stack.newHabitId)) {
+      continue
     }
 
-    return `Depois deste hábito, faça ${outgoing.length} hábitos em sequência`
-  }
-
-  if (incoming.length > 0) {
-    return `Este hábito acontece depois de ${incoming[0]?.triggerHabit?.name ?? 'outro hábito'}`
-  }
-
-  return null
-}
-
-function getRowItems(habit: Habit) {
-  const hasOutgoingStacks = getOutgoingStacks(habit).length > 0
-
-  return [
-    {
-      label: 'Editar',
-      icon: 'i-lucide-pencil',
-      onSelect: () => emit('edit', habit)
-    },
-    {
-      label: hasOutgoingStacks ? 'Remover empilhados' : 'Empilhar',
-      icon: hasOutgoingStacks ? 'i-lucide-unlink' : 'i-lucide-link',
-      onSelect: () => hasOutgoingStacks ? emit('remove-stacks', habit) : emit('stack', habit)
-    },
-    {
-      type: 'separator' as const
-    },
-    {
-      label: 'Arquivar',
-      icon: 'i-lucide-archive',
-      color: 'error' as const,
-      onSelect: () => emit('archive', habit)
+    const parentChildren = childrenByParent.get(stack.triggerHabitId) ?? []
+    if (!parentChildren.includes(stack.newHabitId)) {
+      parentChildren.push(stack.newHabitId)
+      childrenByParent.set(stack.triggerHabitId, parentChildren)
     }
-  ]
-}
+
+    const childParents = parentsByChild.get(stack.newHabitId) ?? []
+    if (!childParents.includes(stack.triggerHabitId)) {
+      childParents.push(stack.triggerHabitId)
+      parentsByChild.set(stack.newHabitId, childParents)
+    }
+  }
+
+  const habitById = new Map(visibleHabits.map((habit) => [habit.id, habit] as const))
+  const roots: HabitTreeNode[] = []
+  const visited = new Set<string>()
+
+  function buildNode(habitId: string): HabitTreeNode | null {
+    if (visited.has(habitId)) return null
+
+    const habit = habitById.get(habitId)
+    if (!habit) return null
+
+    visited.add(habitId)
+
+    const childIds = childrenByParent.get(habitId) ?? []
+    const children = childIds
+      .map((childId) => buildNode(childId))
+      .filter((child): child is HabitTreeNode => child !== null)
+
+    return { habit, children }
+  }
+
+  for (const habit of visibleHabits) {
+    const visibleParents = parentsByChild.get(habit.id) ?? []
+    if (visibleParents.length === 0) {
+      const root = buildNode(habit.id)
+      if (root) roots.push(root)
+    }
+  }
+
+  for (const habit of visibleHabits) {
+    const root = buildNode(habit.id)
+    if (root) roots.push(root)
+  }
+
+  return roots
+})
 </script>
 
 <template>
@@ -94,88 +101,21 @@ function getRowItems(habit: Habit) {
 
     <!-- Habits list -->
     <template v-else-if="habits.length > 0">
-      <UCard
-        v-for="habit in habits"
-        :key="habit.id"
-        class="cursor-pointer transition-colors hover:bg-elevated/50"
-        @click="emit('select', habit.id)"
-      >
-        <div class="flex items-center gap-3">
-          <!-- Positive/Negative indicator -->
-          <UIcon
-            :name="HABIT_TYPE_META[habit.habitType ?? 'positive'].icon"
-            class="size-4 shrink-0"
-            :class="habit.habitType === 'negative' ? 'text-error' : 'text-success'"
-          />
-
-          <div class="flex-1 min-w-0">
-            <p class="font-medium text-highlighted truncate">
-              {{ habit.name }}
-            </p>
-            <!-- Tags row: identity + frequency + custom days -->
-            <div class="flex flex-wrap items-center gap-1.5 mt-1">
-              <UBadge
-                v-if="habit.identity"
-                :label="habit.identity.name"
-                variant="subtle"
-                color="primary"
-                size="xs"
-              />
-              <UBadge variant="subtle" color="neutral" size="xs">
-                <template #leading>
-                  <UIcon :name="FREQUENCY_META[habit.frequency].icon" class="size-3" />
-                </template>
-                {{ FREQUENCY_META[habit.frequency].label }}
-              </UBadge>
-              <!-- Show custom days when frequency is custom -->
-              <span
-                v-if="habit.frequency === 'custom' && habit.customDays?.length"
-                class="text-xs text-muted"
-              >
-                ({{ habit.customDays.map((d: number) => dayLabels[d]).join(', ') }})
-              </span>
-            </div>
-            <div v-if="getStackDescription(habit)" class="mt-1 flex items-center gap-1.5 text-xs text-muted">
-              <UIcon name="i-lucide-link-2" class="size-3.5 shrink-0 text-primary" />
-              <span class="truncate">{{ getStackDescription(habit) }}</span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 shrink-0">
-            <UBadge
-              :color="DIFFICULTY_META[habit.difficulty].color"
-              variant="subtle"
-              size="xs"
-            >
-              <template #leading>
-                <UIcon :name="DIFFICULTY_META[habit.difficulty].icon" class="size-3" />
-              </template>
-              {{ DIFFICULTY_META[habit.difficulty].label }}
-            </UBadge>
-
-            <div
-              v-if="habit.streak && habit.streak.currentStreak > 0"
-              class="flex items-center gap-1 text-xs text-muted"
-            >
-              <UIcon name="i-lucide-flame" class="size-3.5 text-orange-500" />
-              <span>{{ habit.streak.currentStreak }}d</span>
-            </div>
-
-            <UDropdownMenu
-              :items="getRowItems(habit)"
-              :content="{ align: 'end' }"
-            >
-              <UButton
-                icon="i-lucide-ellipsis-vertical"
-                color="neutral"
-                variant="ghost"
-                size="xs"
-                @click.stop
-              />
-            </UDropdownMenu>
-          </div>
-        </div>
-      </UCard>
+      <div class="space-y-4">
+        <HabitsAllTreeItem
+          v-for="(tree, index) in habitTrees"
+          :key="tree.habit.id"
+          :node="tree"
+          :stacks="stacks"
+          :is-last="index === habitTrees.length - 1"
+          :ancestor-has-next="[]"
+          @select="emit('select', $event)"
+          @edit="emit('edit', $event)"
+          @stack="emit('stack', $event)"
+          @remove-stacks="emit('remove-stacks', $event)"
+          @archive="emit('archive', $event)"
+        />
+      </div>
     </template>
 
     <!-- Empty state -->

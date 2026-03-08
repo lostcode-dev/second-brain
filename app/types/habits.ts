@@ -242,6 +242,11 @@ export interface TodayHabitTreeNode {
   children: TodayHabitTreeNode[]
 }
 
+export interface HabitTreeNode {
+  habit: Habit
+  children: HabitTreeNode[]
+}
+
 export interface TodayHabitsResponse {
   habits: TodayHabit[]
   completedCount: number

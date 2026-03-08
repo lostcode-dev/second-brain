@@ -259,7 +259,7 @@ export function useHabits() {
         body: payload
       })
       toast.add({ title: 'Empilhamento criado', description: 'Gatilho de hábito adicionado com sucesso.', color: 'success' })
-      await refreshStacks()
+      await Promise.all([refreshStacks(), refreshToday(), refreshList()])
       return stack
     } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível criar o empilhamento.', color: 'error' })
@@ -271,7 +271,7 @@ export function useHabits() {
     try {
       await $fetch(`/api/habits/stacks/${id}`, { method: 'DELETE' })
       toast.add({ title: 'Empilhamento removido', description: 'Gatilho removido com sucesso.', color: 'success' })
-      await refreshStacks()
+      await Promise.all([refreshStacks(), refreshToday(), refreshList()])
       return true
     } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível remover o empilhamento.', color: 'error' })
@@ -293,7 +293,7 @@ export function useHabits() {
         color: 'success'
       })
 
-      await refreshStacks()
+      await Promise.all([refreshStacks(), refreshToday(), refreshList()])
       return true
     } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível remover os empilhamentos.', color: 'error' })
