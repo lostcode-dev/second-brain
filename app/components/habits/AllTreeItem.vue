@@ -201,17 +201,6 @@ function onChildArchive(habit: Habit) {
                 ({{ node.habit.customDays.map((d: number) => dayLabels[d]).join(', ') }})
               </span>
             </div>
-            <div
-              v-if="depth > 0"
-              class="mt-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted"
-            >
-              <span class="inline-block h-1.5 w-1.5 rounded-full bg-primary/60" />
-              <span>Sub-hábito</span>
-            </div>
-            <div v-if="getStackDescription(node.habit)" class="mt-1 flex items-center gap-1.5 text-xs text-muted">
-              <UIcon name="i-lucide-link-2" class="size-3.5 shrink-0 text-primary" />
-              <span class="truncate">{{ getStackDescription(node.habit) }}</span>
-            </div>
           </div>
 
           <div class="flex items-center gap-2 shrink-0">

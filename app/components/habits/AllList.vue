@@ -243,16 +243,6 @@ function onAfterDrop() {
     <!-- Habits list -->
     <template v-else-if="habits.length > 0">
       <div class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-default/60 bg-muted/20 px-3 py-2">
-          <p class="text-sm text-muted">
-            Arraste pela alça para reorganizar, use expandir/recolher para navegar melhor e a lista será virtualizada quando crescer.
-          </p>
-          <div class="flex items-center gap-2">
-            <UButton label="Expandir tudo" color="neutral" variant="subtle" size="xs" @click="expandAll" />
-            <UButton label="Recolher tudo" color="neutral" variant="subtle" size="xs" @click="collapseAll" />
-          </div>
-        </div>
-
         <div class="habit-tree-shell rounded-2xl border border-default/60 bg-default/50 p-3">
           <Draggable
             ref="treeRef"
@@ -311,7 +301,6 @@ function onAfterDrop() {
                       <p class="truncate font-medium text-highlighted">
                         {{ node.habit.name }}
                       </p>
-                      <UBadge v-if="stat.level > 1" label="Sub-hábito" variant="subtle" color="primary" size="xs" />
                     </div>
 
                     <div class="mt-1 flex flex-wrap items-center gap-1.5">

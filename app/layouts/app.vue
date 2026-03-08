@@ -220,7 +220,11 @@ onMounted(async () => {
 
     <UDashboardSearch :groups="groups" />
 
-    <slot />
+    <div class="app-content-with-bottom-nav w-full min-w-0">
+      <slot />
+    </div>
+
+    <MobileBottomNav />
 
     <NotificationsSlideover />
   </UDashboardGroup>

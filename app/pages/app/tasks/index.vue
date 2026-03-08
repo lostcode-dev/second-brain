@@ -145,14 +145,29 @@ const listFilterOptions = computed(() => [
         <template #right>
           <NotificationsButton />
           <UButton
+            icon="i-lucide-folder-plus"
+            variant="outline"
+            square
+            class="sm:hidden"
+            @click="listCreateModalOpen = true"
+          />
+          <UButton
             label="Nova lista"
             icon="i-lucide-folder-plus"
             variant="outline"
+            class="hidden sm:inline-flex"
             @click="listCreateModalOpen = true"
+          />
+          <UButton
+            icon="i-lucide-plus"
+            square
+            class="sm:hidden"
+            @click="createModalOpen = true"
           />
           <UButton
             label="Nova tarefa"
             icon="i-lucide-plus"
+            class="hidden sm:inline-flex"
             @click="createModalOpen = true"
           />
         </template>
@@ -192,28 +207,28 @@ const listFilterOptions = computed(() => [
               v-model="listSearch"
               icon="i-lucide-search"
               placeholder="Buscar tarefas..."
-              class="max-w-xs"
+              class="w-full sm:max-w-xs"
             />
             <USelect
               v-model="listPriorityModel"
               :items="priorityFilterOptions"
               value-key="value"
               placeholder="Prioridade"
-              class="min-w-32"
+              class="min-w-0 flex-1 sm:min-w-32 sm:flex-none"
             />
             <USelect
               v-model="listStatusModel"
               :items="statusFilterOptions"
               value-key="value"
               placeholder="Status"
-              class="min-w-32"
+              class="min-w-0 flex-1 sm:min-w-32 sm:flex-none"
             />
             <USelect
               v-model="listListIdModel"
               :items="listFilterOptions"
               value-key="value"
               placeholder="Lista"
-              class="min-w-32"
+              class="min-w-0 flex-1 sm:min-w-32 sm:flex-none"
             />
           </div>
 

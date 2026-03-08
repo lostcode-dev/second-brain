@@ -26,3 +26,83 @@
   --ui-bg-elevated: var(--ui-color-neutral-900);
   --ui-bg-accented: var(--ui-color-neutral-800);
 }
+
+/* ─── PWA / Capacitor safe area support ─────────────────────────── */
+html {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+/* Standalone (PWA / Capacitor) mode adjustments */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: contain;
+    -webkit-user-select: none;
+    user-select: text;
+  }
+}
+
+/* ─── Mobile touch & interaction improvements ───────────────────── */
+@media (max-width: 768px) {
+  /* Larger touch targets on mobile */
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Smaller icon-only buttons keep 40px minimum */
+  button[data-square],
+  button:has(> svg:only-child) {
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  /* Improve text readability on mobile */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Hide browser-style scrollbars on mobile for native feel */
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  /* Prevent pull-to-refresh inside the app */
+  .app-shell {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* ─── Keyboard open state (Capacitor) ───────────────────────────── */
+body.keyboard-open .mobile-bottom-nav {
+  display: none;
+}
+
+/* ─── Mobile bottom navigation ──────────────────────────────────── */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding-bottom: var(--safe-area-bottom);
+  background: var(--ui-bg);
+  border-top: 1px solid var(--ui-border-default, var(--ui-color-neutral-200));
+}
+
+.dark .mobile-bottom-nav {
+  border-top-color: var(--ui-color-neutral-800);
+}
+
+/* Offset main content so it's not hidden behind bottom nav */
+@media (max-width: 1023px) {
+  .app-content-with-bottom-nav {
+    padding-bottom: calc(4rem + var(--safe-area-bottom));
+  }
+}

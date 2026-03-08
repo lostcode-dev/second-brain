@@ -8,9 +8,22 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "generate:icons": "node scripts/generate-icons.mjs",
+    "cap:init": "cap init 'Second Brain' com.secondbrain.app --web-dir .output/public",
+    "cap:add:android": "cap add android",
+    "cap:add:ios": "cap add ios",
+    "cap:sync": "nuxt generate && cap sync",
+    "cap:open:android": "cap open android",
+    "cap:open:ios": "cap open ios"
   },
   "dependencies": {
+    "@capacitor/app": "^8.0.1",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/haptics": "^8.0.1",
+    "@capacitor/keyboard": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.1",
     "@he-tree/vue": "^2.10.1",
     "@iconify-json/lucide": "^1.2.95",
     "@iconify-json/simple-icons": "^1.2.72",
@@ -23,6 +36,7 @@
     "@tanstack/table-core": "^8.21.3",
     "@unovis/ts": "^1.6.4",
     "@unovis/vue": "^1.6.4",
+    "@vite-pwa/nuxt": "^1.1.1",
     "@vueup/vue-quill": "^1.2.0",
     "@vueuse/core": "^14.2.1",
     "@vueuse/nuxt": "^14.2.1",
@@ -38,8 +52,12 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/ios": "^8.2.0",
     "@nuxt/eslint": "^1.15.2",
     "eslint": "^10.0.2",
+    "sharp": "^0.34.5",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.2.5"
   },

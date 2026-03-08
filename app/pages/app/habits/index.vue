@@ -295,8 +295,15 @@ const _identityFilterOptions = computed(() => [
         <template #right>
           <NotificationsButton />
           <UButton
+            icon="i-lucide-plus"
+            square
+            class="sm:hidden"
+            @click="createModalOpen = true"
+          />
+          <UButton
             label="Novo hábito"
             icon="i-lucide-plus"
+            class="hidden sm:inline-flex"
             @click="createModalOpen = true"
           />
         </template>
@@ -341,21 +348,21 @@ const _identityFilterOptions = computed(() => [
               v-model="listSearch"
               icon="i-lucide-search"
               placeholder="Buscar hábitos..."
-              class="max-w-xs"
+              class="w-full sm:max-w-xs"
             />
             <USelect
               v-model="listFrequencyModel"
               :items="frequencyFilterOptions"
               value-key="value"
               placeholder="Frequência"
-              class="min-w-32"
+              class="min-w-0 flex-1 sm:min-w-32 sm:flex-none"
             />
             <USelect
               v-model="listDifficultyModel"
               :items="difficultyFilterOptions"
               value-key="value"
               placeholder="Dificuldade"
-              class="min-w-32"
+              class="min-w-0 flex-1 sm:min-w-32 sm:flex-none"
             />
           </div>
 

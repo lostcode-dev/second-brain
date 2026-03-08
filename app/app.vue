@@ -8,11 +8,17 @@ const color = computed(() => colorMode.value === 'dark' ? '#020618' : 'white')
 useHead({
   meta: [
     { charset: 'utf-8' },
-    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-    { key: 'theme-color', name: 'theme-color', content: color }
+    { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover' },
+    { key: 'theme-color', name: 'theme-color', content: color },
+    { name: 'apple-mobile-web-app-capable', content: 'yes' },
+    { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+    { name: 'apple-mobile-web-app-title', content: 'Second Brain' },
+    { name: 'mobile-web-app-capable', content: 'yes' },
+    { name: 'format-detection', content: 'telephone=no' }
   ],
   link: [
-    { rel: 'icon', href: '/favicon.ico' }
+    { rel: 'icon', href: '/favicon.ico' },
+    { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' }
   ],
   htmlAttrs: {
     lang: 'pt-BR'
@@ -57,6 +63,10 @@ provide('navigation', navigation)
 <template>
   <UApp :locale="pt_br">
     <NuxtLoadingIndicator />
+
+    <ClientOnly>
+      <CapacitorInit />
+    </ClientOnly>
 
     <NuxtLayout>
       <NuxtPage />
