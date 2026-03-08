@@ -151,10 +151,10 @@ const logStatusMeta = computed(() => {
                 :label="node.habit.scheduledTime"
                 variant="subtle"
                 color="neutral"
-                size="xs"
+                size="sm"
               >
                 <template #leading>
-                  <UIcon name="i-lucide-clock" class="size-3" />
+                  <UIcon name="i-lucide-clock" class="size-3.5" />
                 </template>
               </UBadge>
               <UBadge
@@ -162,10 +162,10 @@ const logStatusMeta = computed(() => {
                 :label="logStatusMeta.label"
                 variant="subtle"
                 :color="logStatusMeta.color"
-                size="xs"
+                size="sm"
               >
                 <template #leading>
-                  <UIcon :name="logStatusMeta.icon" class="size-3" />
+                  <UIcon :name="logStatusMeta.icon" class="size-3.5" />
                 </template>
               </UBadge>
               <UBadge
@@ -173,7 +173,7 @@ const logStatusMeta = computed(() => {
                 :label="node.habit.identity.name"
                 variant="subtle"
                 color="primary"
-                size="xs"
+                size="sm"
               />
               <UTooltip
                 v-for="hint in lawHints"
@@ -193,10 +193,10 @@ const logStatusMeta = computed(() => {
                 class="sm:hidden"
                 :color="DIFFICULTY_META[node.habit.difficulty].color"
                 variant="subtle"
-                size="xs"
+                size="sm"
               >
                 <template #leading>
-                  <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3" />
+                  <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3.5" />
                 </template>
                 {{ DIFFICULTY_META[node.habit.difficulty].label }}
               </UBadge>
@@ -219,10 +219,10 @@ const logStatusMeta = computed(() => {
           <UBadge
             :color="DIFFICULTY_META[node.habit.difficulty].color"
             variant="subtle"
-            size="xs"
+            size="sm"
           >
             <template #leading>
-              <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3" />
+              <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3.5" />
             </template>
             {{ DIFFICULTY_META[node.habit.difficulty].label }}
           </UBadge>

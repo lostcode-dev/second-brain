@@ -23,6 +23,7 @@ const emit = defineEmits<{
   select: [habitId: string]
   edit: [habit: Habit]
   stack: [habit: Habit]
+  share: [habit: Habit]
   'remove-stacks': [habit: Habit]
   archive: [habit: Habit]
 }>()
@@ -46,6 +47,11 @@ function getRowItems(habit: Habit) {
       label: hasOutgoingStacks ? 'Remover empilhados' : 'Empilhar',
       icon: hasOutgoingStacks ? 'i-lucide-unlink' : 'i-lucide-link',
       onSelect: () => hasOutgoingStacks ? emit('remove-stacks', habit) : emit('stack', habit)
+    },
+    {
+      label: 'Compartilhar',
+      icon: 'i-lucide-share-2',
+      onSelect: () => emit('share', habit)
     },
     {
       type: 'separator' as const
@@ -112,11 +118,11 @@ function getRowItems(habit: Habit) {
             :label="node.habit.identity.name"
             variant="subtle"
             color="primary"
-            size="xs"
+            size="sm"
           />
-          <UBadge variant="subtle" color="neutral" size="xs">
+          <UBadge variant="subtle" color="neutral" size="sm">
             <template #leading>
-              <UIcon :name="FREQUENCY_META[node.habit.frequency].icon" class="size-3" />
+              <UIcon :name="FREQUENCY_META[node.habit.frequency].icon" class="size-3.5" />
             </template>
             {{ FREQUENCY_META[node.habit.frequency].label }}
           </UBadge>
@@ -127,9 +133,9 @@ function getRowItems(habit: Habit) {
             {{ node.habit.customDays.map((day: number) => dayLabels[day]).join(', ') }}
           </span>
 
-          <UBadge class="sm:hidden" :color="DIFFICULTY_META[node.habit.difficulty].color" variant="subtle" size="xs">
+          <UBadge class="sm:hidden" :color="DIFFICULTY_META[node.habit.difficulty].color" variant="subtle" size="sm">
             <template #leading>
-              <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3" />
+              <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3.5" />
             </template>
             {{ DIFFICULTY_META[node.habit.difficulty].label }}
           </UBadge>
@@ -145,9 +151,9 @@ function getRowItems(habit: Habit) {
       </div>
 
       <div class="hidden shrink-0 items-center gap-2 sm:flex">
-        <UBadge :color="DIFFICULTY_META[node.habit.difficulty].color" variant="subtle" size="xs">
+        <UBadge :color="DIFFICULTY_META[node.habit.difficulty].color" variant="subtle" size="sm">
           <template #leading>
-            <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3" />
+            <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3.5" />
           </template>
           {{ DIFFICULTY_META[node.habit.difficulty].label }}
         </UBadge>

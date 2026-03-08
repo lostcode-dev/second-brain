@@ -316,11 +316,9 @@ function getHabitTypeIcon(habitType: HabitType) {
             </div>
 
             <UFormField label="Horário programado" name="scheduledTime">
-              <UInput
+              <UiTimePicker
                 v-model="state.scheduledTime"
-                type="time"
-                placeholder="HH:mm"
-                class="w-full"
+                placeholder="Selecione o horário"
               />
             </UFormField>
           </div>

@@ -39,6 +39,7 @@ const {
   stacksStatus,
   refreshStacks,
   removeStacksByTrigger,
+  removeStack,
   syncHabitTree,
 } = useHabits();
 
@@ -90,6 +91,9 @@ const identityModalOpen = ref(false);
 const stackCreateModalOpen = ref(false);
 const stackSourceHabit = ref<Habit | null>(null);
 const selectedHabit = ref<Habit | null>(null);
+const settingsModalOpen = ref(false);
+const shareImageModalOpen = ref(false);
+const shareImageHabit = ref<Habit | null>(null);
 
 watch(createModalOpen, (open) => {
   if (open) {
@@ -175,9 +179,18 @@ async function onRemoveStack(habit: Habit) {
   await removeStacksByTrigger(habit.id, habit.name);
 }
 
+async function onRemoveSingleStack(stackId: string) {
+  await removeStack(stackId);
+}
+
 function onStackHabit(habit: Habit) {
   stackSourceHabit.value = habit;
   stackCreateModalOpen.value = true;
+}
+
+function onShareHabit(habit: Habit) {
+  shareImageHabit.value = habit;
+  shareImageModalOpen.value = true;
 }
 
 async function onSyncHabitTree(nodes: HabitTreeSyncNode[]) {
@@ -423,6 +436,7 @@ const _identityFilterOptions = computed(() => [
             @select="onSelectHabit"
             @edit="onEditHabit"
             @stack="onStackHabit"
+            @share="onShareHabit"
             @remove-stacks="onRemoveStack"
             @archive="onArchiveHabit"
             @sync-tree="onSyncHabitTree"
@@ -450,6 +464,16 @@ const _identityFilterOptions = computed(() => [
               :disabled="reflectionsListLoading"
               @click="onLoadMoreReflections"
             />
+            <div class="ml-auto">
+              <UButton
+                icon="i-lucide-settings"
+                label="Configurações"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                @click="settingsModalOpen = true"
+              />
+            </div>
           </div>
 
           <HabitsWeeklyReview
@@ -460,12 +484,25 @@ const _identityFilterOptions = computed(() => [
             :on-save="reviewEditable ? onSaveWeeklyReview : undefined"
             @navigate-week="navigateReviewWeek"
           />
-
-          <HabitsSettingsPanel class="mt-6" />
         </div>
       </div>
     </template>
   </UDashboardPanel>
+
+  <!-- Slideover first so modals render on top -->
+  <HabitsDetailSlideover
+    v-if="selectedHabit"
+    :open="detailSlideoverOpen"
+    :habit="selectedHabit"
+    :stacks="stacks ?? []"
+    @update:open="detailSlideoverOpen = $event"
+    @edit="editModalOpen = true"
+    @stack="onStackHabit(selectedHabit)"
+    @share="shareImageModalOpen = true; shareImageHabit = selectedHabit"
+    @remove-stack="onRemoveSingleStack"
+    @remove-stacks="onRemoveStack(selectedHabit)"
+    @archive="archiveModalOpen = true"
+  />
 
   <!-- Modals -->
   <HabitsCreateModal
@@ -492,18 +529,6 @@ const _identityFilterOptions = computed(() => [
     @archived="onHabitArchived"
   />
 
-  <HabitsDetailSlideover
-    v-if="selectedHabit"
-    :open="detailSlideoverOpen"
-    :habit="selectedHabit"
-    :stacks="stacks ?? []"
-    @update:open="detailSlideoverOpen = $event"
-    @edit="editModalOpen = true"
-    @stack="onStackHabit(selectedHabit)"
-    @remove-stacks="onRemoveStack(selectedHabit)"
-    @archive="archiveModalOpen = true"
-  />
-
   <HabitsIdentityCreateModal
     :open="identityModalOpen"
     @update:open="identityModalOpen = $event"
@@ -516,6 +541,16 @@ const _identityFilterOptions = computed(() => [
     :initial-trigger-habit-name="stackSourceHabit?.name"
     @update:open="(value: boolean) => { stackCreateModalOpen = value; if (!value) stackSourceHabit = null; }"
     @created="() => {}"
+  />
+
+  <HabitsSettingsModal
+    :open="settingsModalOpen"
+    @update:open="settingsModalOpen = $event"
+  />
+
+  <HabitsShareImageModal
+    :open="shareImageModalOpen"
+    @update:open="shareImageModalOpen = $event"
   />
 </template>
 
