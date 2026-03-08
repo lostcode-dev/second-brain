@@ -2,12 +2,14 @@ import { useDebounceFn } from '@vueuse/core'
 import type {
   CalendarDay,
   CreateHabitPayload,
+  CreateHabitStackPayload,
   CreateIdentityPayload,
   CreateReflectionPayload,
   HabitChangeHistory,
   HabitInsights,
   HabitListResponse,
   HabitReflection,
+  HabitStack,
   Identity,
   LogHabitPayload,
   TodayHabitsResponse,
@@ -239,6 +241,44 @@ export function useHabits() {
     }
   }
 
+  // ─── Habit Stacks ─────────────────────────────────────────────────────────
+
+  const {
+    data: stacks,
+    status: stacksStatus,
+    refresh: refreshStacks
+  } = useFetch<HabitStack[]>('/api/habits/stacks', {
+    lazy: true,
+    key: 'habits-stacks'
+  })
+
+  async function createStack(payload: CreateHabitStackPayload): Promise<HabitStack | null> {
+    try {
+      const stack = await $fetch<HabitStack>('/api/habits/stacks', {
+        method: 'POST',
+        body: payload
+      })
+      toast.add({ title: 'Empilhamento criado', description: 'Gatilho de hábito adicionado com sucesso.', color: 'success' })
+      await refreshStacks()
+      return stack
+    } catch {
+      toast.add({ title: 'Erro', description: 'Não foi possível criar o empilhamento.', color: 'error' })
+      return null
+    }
+  }
+
+  async function removeStack(id: string): Promise<boolean> {
+    try {
+      await $fetch(`/api/habits/stacks/${id}`, { method: 'DELETE' })
+      toast.add({ title: 'Empilhamento removido', description: 'Gatilho removido com sucesso.', color: 'success' })
+      await refreshStacks()
+      return true
+    } catch {
+      toast.add({ title: 'Erro', description: 'Não foi possível remover o empilhamento.', color: 'error' })
+      return false
+    }
+  }
+
   // ─── Helpers ────────────────────────────────────────────────────────────────
 
   const frequencyOptions = [
@@ -313,6 +353,12 @@ export function useHabits() {
     fetchCalendar,
     fetchHabit,
     fetchHistory,
+    // Stacks
+    stacks,
+    stacksStatus,
+    refreshStacks,
+    createStack,
+    removeStack,
     // Helpers
     frequencyOptions,
     difficultyOptions,

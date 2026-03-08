@@ -180,7 +180,7 @@ export interface CreateHabitPayload {
 
 export interface UpdateHabitPayload {
   name?: string
-  description?: string
+  description?: string | null
   frequency?: HabitFrequency
   difficulty?: HabitDifficulty
   habitType?: HabitType
@@ -205,6 +205,11 @@ export interface CreateReflectionPayload {
   weekKey: string
   wins?: string
   improvements?: string
+}
+
+export interface CreateHabitStackPayload {
+  triggerHabitId: string
+  newHabitId: string
 }
 
 // ─── API Responses ────────────────────────────────────────────────────────────

@@ -1,10 +1,11 @@
 import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
+import { sanitizeRichTextHtml } from '../../utils/rich-text'
 
 const bodySchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(200),
-  description: z.string().max(1000).optional(),
+  description: z.string().max(5000).optional(),
   frequency: z.enum(['daily', 'weekly', 'custom']).default('daily'),
   difficulty: z.enum(['tiny', 'normal', 'hard']).default('normal'),
   habitType: z.enum(['positive', 'negative']).default('positive'),
@@ -28,7 +29,7 @@ export default eventHandler(async (event) => {
     .insert({
       user_id: user.id,
       name: parsed.name,
-      description: parsed.description ?? null,
+      description: sanitizeRichTextHtml(parsed.description),
       frequency: parsed.frequency,
       difficulty: parsed.difficulty,
       habit_type: parsed.habitType,

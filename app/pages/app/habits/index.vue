@@ -20,7 +20,6 @@ const {
   listSearch,
   listFrequency,
   listDifficulty,
-  listIdentityId,
   listPageSize,
   identities,
   insights,
@@ -32,6 +31,9 @@ const {
   fetchHabit,
   getCurrentWeekKey,
   saveReflection,
+  stacks,
+  stacksStatus,
+  removeStack,
 } = useHabits();
 
 // ─── Active tab ───────────────────────────────────────────────────────────────
@@ -58,6 +60,7 @@ const editModalOpen = ref(false);
 const archiveModalOpen = ref(false);
 const detailSlideoverOpen = ref(false);
 const identityModalOpen = ref(false);
+const stackCreateModalOpen = ref(false);
 const selectedHabit = ref<Habit | null>(null);
 
 const ALL_FILTER_VALUE = "__all__";
@@ -117,6 +120,11 @@ function onArchiveHabit(habit: Habit) {
 function onHabitArchived() {
   detailSlideoverOpen.value = false;
   selectedHabit.value = null;
+}
+
+// ─── Stacking actions ─────────────────────────────────────────────────────────
+async function onRemoveStack(id: string) {
+  await removeStack(id);
 }
 
 // ─── Weekly Review ────────────────────────────────────────────────────────────
@@ -350,6 +358,14 @@ const _identityFilterOptions = computed(() => [
             @edit="onEditHabit"
             @archive="onArchiveHabit"
           />
+
+          <!-- Habit Stacking -->
+          <HabitsStackingPanel
+            :stacks="stacks ?? []"
+            :loading="stacksStatus === 'pending'"
+            @create="stackCreateModalOpen = true"
+            @remove="onRemoveStack"
+          />
         </div>
 
         <!-- REVIEW TAB -->
@@ -426,11 +442,17 @@ const _identityFilterOptions = computed(() => [
     :open="identityModalOpen"
     @update:open="identityModalOpen = $event"
   />
+
+  <HabitsStackCreateModal
+    :open="stackCreateModalOpen"
+    :habits="listData?.data ?? []"
+    @update:open="stackCreateModalOpen = $event"
+    @created="() => {}"
+  />
 </template>
 
 <!--
   DONE:
-   ✅ Transformar Diário em tag, e ficar tudo embaixo de título em todos
    ✅ Adicionar icons para dificuldade e frequência, mapeado em enum (DIFFICULTY_META, FREQUENCY_META, HABIT_TYPE_META)
    ✅ Sem tabs em Detalhes: visão geral + calendário juntos, icons em streak
    ✅ Revisão com setas para navegar entre semanas + dropdown + loading skeleton
@@ -449,4 +471,5 @@ const _identityFilterOptions = computed(() => [
    - Definir ordem de execução dos hábitos (sort_order já está no DB)
    - "Feito mais tarde" como status específico
    - Responsividade avançada para mobile (já usa Tailwind/flex-wrap)
+   - Transformar o Create Habits in multi step, onde cada step guia o usuário atráves das 4 leis dos hábitos (gatilho, rotina, recompensa, crença)
 -->

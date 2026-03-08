@@ -4,6 +4,8 @@ import type { FormSubmitEvent } from "@nuxt/ui";
 import type { Habit } from "~/types/habits";
 import { HabitFrequency, HabitDifficulty, HabitType } from "~/types/habits";
 
+const DESCRIPTION_MAX_LENGTH = 5000;
+
 const props = defineProps<{
   open: boolean;
   habit: Habit;
@@ -27,7 +29,7 @@ const {
 const schema = z
   .object({
     name: z.string().min(1, "Nome é obrigatório").max(200),
-    description: z.string().max(1000).optional(),
+    description: z.string().max(DESCRIPTION_MAX_LENGTH).optional(),
     frequency: z.nativeEnum(HabitFrequency),
     difficulty: z.nativeEnum(HabitDifficulty),
     habitType: z.nativeEnum(HabitType),
@@ -80,11 +82,19 @@ const identityIdModel = computed<string | undefined>({
   },
 });
 
+function normalizeDescription(value?: string | null) {
+  const normalized = value?.trim();
+  return normalized ? normalized : undefined;
+}
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   if (loading.value) return;
   loading.value = true;
   try {
-    const result = await updateHabit(props.habit.id, event.data);
+    const result = await updateHabit(props.habit.id, {
+      ...event.data,
+      description: normalizeDescription(event.data.description) ?? null,
+    });
     if (result) {
       emit("updated");
       emit("update:open", false);
@@ -114,6 +124,30 @@ const identityItems = computed(() => {
     ...(identities.value ?? []).map((i) => ({ label: i.name, value: i.id })),
   ];
 });
+
+function getHabitDifficultyIcon(difficulty: HabitDifficulty) {
+  switch (difficulty) {
+    case HabitDifficulty.Tiny:
+      return "i-lucide-feather";
+    case HabitDifficulty.Normal:
+      return "i-lucide-shield";
+    case HabitDifficulty.Hard:
+      return "i-lucide-mountain";
+    default:
+      return "";
+  }
+}
+
+function getHabitTypeIcon(habitType: HabitType) {
+  switch (habitType) {
+    case HabitType.Positive:
+      return "i-lucide-thumbs-up";
+    case HabitType.Negative:
+      return "i-lucide-thumbs-down";
+    default:
+      return "";
+  }
+}
 </script>
 
 <template>
@@ -135,7 +169,11 @@ const identityItems = computed(() => {
         </UFormField>
 
         <UFormField label="Descrição" name="description">
-          <UTextarea v-model="state.description" class="w-full" :rows="2" />
+          <RichTextEditor
+            v-model="state.description"
+            placeholder="Por que esse hábito é importante?"
+            class="w-full"
+          />
         </UFormField>
 
         <UFormField label="Frequência" name="frequency">
@@ -169,37 +207,42 @@ const identityItems = computed(() => {
           </div>
         </UFormField>
 
-        <UFormField label="Dificuldade" name="difficulty">
-          <div class="flex gap-2">
-            <UButton
-              v-for="opt in difficultyOptions"
-              :key="opt.value"
-              :label="opt.label"
-              size="sm"
-              :color="state.difficulty === opt.value ? 'primary' : 'neutral'"
-              :variant="state.difficulty === opt.value ? 'solid' : 'outline'"
-              @click="state.difficulty = opt.value"
-            />
-          </div>
-        </UFormField>
+        <div class="grid gap-4 md:grid-cols-2">
+          <UFormField label="Dificuldade" name="difficulty">
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                v-for="opt in difficultyOptions"
+                :key="opt.value"
+                type="button"
+                :label="opt.label"
+                size="sm"
+                :icon="getHabitDifficultyIcon(opt.value)"
+                :color="state.difficulty === opt.value ? 'primary' : 'neutral'"
+                :variant="state.difficulty === opt.value ? 'solid' : 'outline'"
+                @click="state.difficulty = opt.value"
+              />
+            </div>
+          </UFormField>
 
-        <UFormField label="Tipo" name="habitType">
-          <div class="flex gap-2">
-            <UButton
-              v-for="opt in habitTypeOptions"
-              :key="opt.value"
-              :label="opt.label"
-              :icon="opt.value === HabitType.Positive ? 'i-lucide-thumbs-up' : 'i-lucide-thumbs-down'"
-              size="sm"
-              :color="state.habitType === opt.value ? (opt.value === HabitType.Positive ? 'success' : 'error') : 'neutral'"
-              :variant="state.habitType === opt.value ? 'solid' : 'outline'"
-              @click="state.habitType = opt.value"
-            />
-          </div>
-        </UFormField>
+          <UFormField label="Tipo" name="habitType">
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                v-for="opt in habitTypeOptions"
+                :key="opt.value"
+                type="button"
+                :label="opt.label"
+                :icon="getHabitTypeIcon(opt.value)"
+                size="sm"
+                :color="state.habitType === opt.value ? (opt.value === HabitType.Positive ? 'success' : 'error') : 'neutral'"
+                :variant="state.habitType === opt.value ? 'solid' : 'outline'"
+                @click="state.habitType = opt.value"
+              />
+            </div>
+          </UFormField>
+        </div>
 
-        <div class="flex items-center gap-2">
-          <UFormField label="Identidade" name="identityId">
+        <div class="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
+          <UFormField label="Identidade" name="identityId" class="min-w-0">
             <USelect
               v-model="identityIdModel"
               :items="identityItems"
@@ -214,6 +257,8 @@ const identityItems = computed(() => {
             color="neutral"
             variant="subtle"
             size="md"
+            type="button"
+            class="self-end"
             aria-label="Gerenciar identidades"
             @click="emit('identityModalOpen', true)"
           />
@@ -223,6 +268,7 @@ const identityItems = computed(() => {
           <UButton
             icon="i-lucide-x"
             label="Cancelar"
+            type="button"
             color="neutral"
             variant="subtle"
             @click="onClose"

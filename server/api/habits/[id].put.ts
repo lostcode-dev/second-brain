@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
+import { sanitizeRichTextHtml } from '../../utils/rich-text'
 
 const paramsSchema = z.object({
   id: z.string().uuid()
@@ -8,7 +9,7 @@ const paramsSchema = z.object({
 
 const bodySchema = z.object({
   name: z.string().min(1).max(200).optional(),
-  description: z.string().max(1000).nullable().optional(),
+  description: z.string().max(5000).nullable().optional(),
   frequency: z.enum(['daily', 'weekly', 'custom']).optional(),
   difficulty: z.enum(['tiny', 'normal', 'hard']).optional(),
   habitType: z.enum(['positive', 'negative']).optional(),
@@ -43,7 +44,7 @@ export default eventHandler(async (event) => {
   const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
 
   if (parsed.name !== undefined) updateData.name = parsed.name
-  if (parsed.description !== undefined) updateData.description = parsed.description
+  if (parsed.description !== undefined) updateData.description = sanitizeRichTextHtml(parsed.description)
   if (parsed.frequency !== undefined) updateData.frequency = parsed.frequency
   if (parsed.difficulty !== undefined) updateData.difficulty = parsed.difficulty
   if (parsed.habitType !== undefined) updateData.habit_type = parsed.habitType

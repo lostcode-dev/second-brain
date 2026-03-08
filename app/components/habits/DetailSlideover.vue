@@ -44,9 +44,11 @@ function formatDate(iso: string | null | undefined): string {
                 {{ habit.name }}
               </h3>
             </div>
-            <p v-if="habit.description" class="text-sm text-muted">
-              {{ habit.description }}
-            </p>
+            <div
+              v-if="habit.description"
+              class="habit-description text-sm text-muted"
+              v-html="habit.description"
+            />
           </div>
           <div class="flex gap-1 shrink-0">
             <UButton
@@ -159,3 +161,35 @@ function formatDate(iso: string | null | undefined): string {
     </template>
   </USlideover>
 </template>
+
+<style scoped>
+.habit-description :deep(p) {
+  margin: 0;
+}
+
+.habit-description :deep(p + p),
+.habit-description :deep(ul + p),
+.habit-description :deep(ol + p),
+.habit-description :deep(blockquote + p),
+.habit-description :deep(p + ul),
+.habit-description :deep(p + ol) {
+  margin-top: 0.5rem;
+}
+
+.habit-description :deep(ul),
+.habit-description :deep(ol) {
+  padding-left: 1.25rem;
+}
+
+.habit-description :deep(blockquote) {
+  margin-top: 0.5rem;
+  border-left: 2px solid var(--ui-border);
+  padding-left: 0.75rem;
+  color: var(--ui-text-muted);
+}
+
+.habit-description :deep(a) {
+  color: var(--ui-primary);
+  text-decoration: underline;
+}
+</style>
