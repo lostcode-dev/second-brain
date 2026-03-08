@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
 import { sanitizeRichTextHtml } from '../../utils/rich-text'
+import { mapHabit } from '../../utils/habits'
 
 const paramsSchema = z.object({
   id: z.string().uuid()
@@ -10,6 +11,10 @@ const paramsSchema = z.object({
 const bodySchema = z.object({
   name: z.string().min(1).max(200).optional(),
   description: z.string().max(5000).nullable().optional(),
+  obviousStrategy: z.string().max(5000).nullable().optional(),
+  attractiveStrategy: z.string().max(5000).nullable().optional(),
+  easyStrategy: z.string().max(5000).nullable().optional(),
+  satisfyingStrategy: z.string().max(5000).nullable().optional(),
   frequency: z.enum(['daily', 'weekly', 'custom']).optional(),
   difficulty: z.enum(['tiny', 'normal', 'hard']).optional(),
   habitType: z.enum(['positive', 'negative']).optional(),
@@ -45,6 +50,10 @@ export default eventHandler(async (event) => {
 
   if (parsed.name !== undefined) updateData.name = parsed.name
   if (parsed.description !== undefined) updateData.description = sanitizeRichTextHtml(parsed.description)
+  if (parsed.obviousStrategy !== undefined) updateData.obvious_strategy = sanitizeRichTextHtml(parsed.obviousStrategy)
+  if (parsed.attractiveStrategy !== undefined) updateData.attractive_strategy = sanitizeRichTextHtml(parsed.attractiveStrategy)
+  if (parsed.easyStrategy !== undefined) updateData.easy_strategy = sanitizeRichTextHtml(parsed.easyStrategy)
+  if (parsed.satisfyingStrategy !== undefined) updateData.satisfying_strategy = sanitizeRichTextHtml(parsed.satisfyingStrategy)
   if (parsed.frequency !== undefined) updateData.frequency = parsed.frequency
   if (parsed.difficulty !== undefined) updateData.difficulty = parsed.difficulty
   if (parsed.habitType !== undefined) updateData.habit_type = parsed.habitType
@@ -94,5 +103,5 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Falha ao atualizar hábito', data: error?.message })
   }
 
-  return data
+  return mapHabit(data as Record<string, unknown>)
 })

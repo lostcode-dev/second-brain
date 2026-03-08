@@ -310,9 +310,9 @@ export function useHabits() {
   ]
 
   const difficultyOptions = [
-    { label: 'Pequeno', value: HabitDifficulty.Tiny, description: 'Ex: 1 flexão, 1 página' },
-    { label: 'Normal', value: HabitDifficulty.Normal, description: 'Ex: 20 min exercício' },
-    { label: 'Difícil', value: HabitDifficulty.Hard, description: 'Ex: 1h de estudo' }
+    { label: 'Pequeno', value: HabitDifficulty.Tiny },
+    { label: 'Normal', value: HabitDifficulty.Normal },
+    { label: 'Difícil', value: HabitDifficulty.Hard }
   ]
 
   const habitTypeOptions = [

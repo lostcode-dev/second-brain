@@ -67,6 +67,10 @@ export interface Habit {
   identityId: string | null
   name: string
   description: string | null
+  obviousStrategy: string | null
+  attractiveStrategy: string | null
+  easyStrategy: string | null
+  satisfyingStrategy: string | null
   frequency: HabitFrequency
   difficulty: HabitDifficulty
   habitType: HabitType
@@ -171,6 +175,10 @@ export interface HabitReflection {
 export interface CreateHabitPayload {
   name: string
   description?: string
+  obviousStrategy?: string
+  attractiveStrategy?: string
+  easyStrategy?: string
+  satisfyingStrategy?: string
   frequency: HabitFrequency
   difficulty: HabitDifficulty
   habitType?: HabitType
@@ -181,6 +189,10 @@ export interface CreateHabitPayload {
 export interface UpdateHabitPayload {
   name?: string
   description?: string | null
+  obviousStrategy?: string | null
+  attractiveStrategy?: string | null
+  easyStrategy?: string | null
+  satisfyingStrategy?: string | null
   frequency?: HabitFrequency
   difficulty?: HabitDifficulty
   habitType?: HabitType

@@ -437,6 +437,8 @@ const _identityFilterOptions = computed(() => [
     :stacks="stacks ?? []"
     @update:open="detailSlideoverOpen = $event"
     @edit="editModalOpen = true"
+    @stack="onStackHabit(selectedHabit)"
+    @remove-stacks="onRemoveStack(selectedHabit)"
     @archive="archiveModalOpen = true"
   />
 

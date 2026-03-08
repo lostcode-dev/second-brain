@@ -2,10 +2,15 @@ import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
 import { sanitizeRichTextHtml } from '../../utils/rich-text'
+import { mapHabit } from '../../utils/habits'
 
 const bodySchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(200),
   description: z.string().max(5000).optional(),
+  obviousStrategy: z.string().max(5000).optional(),
+  attractiveStrategy: z.string().max(5000).optional(),
+  easyStrategy: z.string().max(5000).optional(),
+  satisfyingStrategy: z.string().max(5000).optional(),
   frequency: z.enum(['daily', 'weekly', 'custom']).default('daily'),
   difficulty: z.enum(['tiny', 'normal', 'hard']).default('normal'),
   habitType: z.enum(['positive', 'negative']).default('positive'),
@@ -30,6 +35,10 @@ export default eventHandler(async (event) => {
       user_id: user.id,
       name: parsed.name,
       description: sanitizeRichTextHtml(parsed.description),
+      obvious_strategy: sanitizeRichTextHtml(parsed.obviousStrategy),
+      attractive_strategy: sanitizeRichTextHtml(parsed.attractiveStrategy),
+      easy_strategy: sanitizeRichTextHtml(parsed.easyStrategy),
+      satisfying_strategy: sanitizeRichTextHtml(parsed.satisfyingStrategy),
       frequency: parsed.frequency,
       difficulty: parsed.difficulty,
       habit_type: parsed.habitType,
@@ -52,5 +61,5 @@ export default eventHandler(async (event) => {
     last_completed_date: null
   })
 
-  return habit
+  return mapHabit(habit as Record<string, unknown>)
 })

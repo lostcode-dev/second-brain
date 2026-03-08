@@ -11,6 +11,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:open': [value: boolean]
   'edit': []
+  'stack': []
+  'remove-stacks': []
   'archive': []
   'identityModalOpen': [value: boolean]
 }>()
@@ -165,9 +167,31 @@ const incomingStacks = computed(() =>
         </div>
 
         <div v-if="triggerStacks.length || incomingStacks.length" class="space-y-3">
-          <div class="flex items-center gap-2">
-            <UIcon name="i-lucide-link-2" class="size-4 text-primary" />
-            <h4 class="text-sm font-semibold text-highlighted">Empilhamento</h4>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-link-2" class="size-4 text-primary" />
+              <h4 class="text-sm font-semibold text-highlighted">Empilhamento</h4>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <UButton
+                icon="i-lucide-link"
+                label="Empilhar"
+                size="xs"
+                variant="subtle"
+                color="neutral"
+                @click="emit('stack')"
+              />
+              <UButton
+                v-if="triggerStacks.length"
+                icon="i-lucide-unlink"
+                label="Remover empilhados"
+                size="xs"
+                variant="subtle"
+                color="error"
+                @click="emit('remove-stacks')"
+              />
+            </div>
           </div>
 
           <UCard v-if="incomingStacks.length">
@@ -206,6 +230,30 @@ const incomingStacks = computed(() =>
                 </UBadge>
               </div>
             </div>
+          </UCard>
+        </div>
+
+        <div v-else class="space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-link-2" class="size-4 text-primary" />
+              <h4 class="text-sm font-semibold text-highlighted">Empilhamento</h4>
+            </div>
+
+            <UButton
+              icon="i-lucide-link"
+              label="Empilhar"
+              size="xs"
+              variant="subtle"
+              color="neutral"
+              @click="emit('stack')"
+            />
+          </div>
+
+          <UCard>
+            <p class="text-sm text-muted">
+              Defina o que deve acontecer depois deste hábito para criar uma sequência clara de ações.
+            </p>
           </UCard>
         </div>
 

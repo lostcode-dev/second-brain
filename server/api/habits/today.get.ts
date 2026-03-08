@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
+import { mapHabit } from '../../utils/habits'
 
 const querySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data deve estar no formato YYYY-MM-DD').optional()
@@ -59,7 +60,7 @@ export default eventHandler(async (event) => {
   }
 
   const result = todayHabits.map((habit: Record<string, unknown>) => ({
-    ...habit,
+    ...mapHabit(habit),
     log: logs[habit.id as string] ?? null
   }))
 

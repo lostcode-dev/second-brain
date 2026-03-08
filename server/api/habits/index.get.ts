@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
+import { mapHabitList } from '../../utils/habits'
 
 const querySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -69,7 +70,7 @@ export default eventHandler(async (event) => {
   }
 
   return {
-    data: data ?? [],
+    data: mapHabitList((data ?? []) as Record<string, unknown>[]),
     total: count ?? 0,
     page: params.page,
     pageSize: params.pageSize
