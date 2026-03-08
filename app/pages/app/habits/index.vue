@@ -33,7 +33,7 @@ const {
   saveReflection,
   stacks,
   stacksStatus,
-  removeStack,
+  removeStacksByTrigger,
 } = useHabits();
 
 // ─── Active tab ───────────────────────────────────────────────────────────────
@@ -61,6 +61,7 @@ const archiveModalOpen = ref(false);
 const detailSlideoverOpen = ref(false);
 const identityModalOpen = ref(false);
 const stackCreateModalOpen = ref(false);
+const stackSourceHabit = ref<Habit | null>(null);
 const selectedHabit = ref<Habit | null>(null);
 
 const ALL_FILTER_VALUE = "__all__";
@@ -123,8 +124,13 @@ function onHabitArchived() {
 }
 
 // ─── Stacking actions ─────────────────────────────────────────────────────────
-async function onRemoveStack(id: string) {
-  await removeStack(id);
+async function onRemoveStack(habit: Habit) {
+  await removeStacksByTrigger(habit.id, habit.name);
+}
+
+function onStackHabit(habit: Habit) {
+  stackSourceHabit.value = habit;
+  stackCreateModalOpen.value = true;
 }
 
 // ─── Weekly Review ────────────────────────────────────────────────────────────
@@ -349,6 +355,7 @@ const _identityFilterOptions = computed(() => [
 
           <HabitsAllList
             :habits="listData?.data ?? []"
+            :stacks="stacks ?? []"
             :total="listData?.total ?? 0"
             :page="listPage"
             :page-size="listPageSize"
@@ -356,15 +363,9 @@ const _identityFilterOptions = computed(() => [
             @update:page="listPage = $event"
             @select="onSelectHabit"
             @edit="onEditHabit"
+            @stack="onStackHabit"
+            @remove-stacks="onRemoveStack"
             @archive="onArchiveHabit"
-          />
-
-          <!-- Habit Stacking -->
-          <HabitsStackingPanel
-            :stacks="stacks ?? []"
-            :loading="stacksStatus === 'pending'"
-            @create="stackCreateModalOpen = true"
-            @remove="onRemoveStack"
           />
         </div>
 
@@ -433,6 +434,7 @@ const _identityFilterOptions = computed(() => [
     v-if="selectedHabit"
     :open="detailSlideoverOpen"
     :habit="selectedHabit"
+    :stacks="stacks ?? []"
     @update:open="detailSlideoverOpen = $event"
     @edit="editModalOpen = true"
     @archive="archiveModalOpen = true"
@@ -446,7 +448,9 @@ const _identityFilterOptions = computed(() => [
   <HabitsStackCreateModal
     :open="stackCreateModalOpen"
     :habits="listData?.data ?? []"
-    @update:open="stackCreateModalOpen = $event"
+    :initial-trigger-habit-id="stackSourceHabit?.id"
+    :initial-trigger-habit-name="stackSourceHabit?.name"
+    @update:open="(value) => { stackCreateModalOpen = value; if (!value) stackSourceHabit = null; }"
     @created="() => {}"
   />
 </template>

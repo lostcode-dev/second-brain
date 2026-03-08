@@ -279,6 +279,28 @@ export function useHabits() {
     }
   }
 
+  async function removeStacksByTrigger(triggerHabitId: string, habitName: string): Promise<boolean> {
+    try {
+      const result = await $fetch<{ success: boolean; removedCount: number }>(`/api/habits/stacks/trigger/${triggerHabitId}`, {
+        method: 'DELETE'
+      })
+
+      toast.add({
+        title: 'Empilhamentos removidos',
+        description: result.removedCount > 0
+          ? `Os empilhamentos de "${habitName}" foram removidos.`
+          : `"${habitName}" não tinha empilhamentos ativos.`,
+        color: 'success'
+      })
+
+      await refreshStacks()
+      return true
+    } catch {
+      toast.add({ title: 'Erro', description: 'Não foi possível remover os empilhamentos.', color: 'error' })
+      return false
+    }
+  }
+
   // ─── Helpers ────────────────────────────────────────────────────────────────
 
   const frequencyOptions = [
@@ -359,6 +381,7 @@ export function useHabits() {
     refreshStacks,
     createStack,
     removeStack,
+    removeStacksByTrigger,
     // Helpers
     frequencyOptions,
     difficultyOptions,

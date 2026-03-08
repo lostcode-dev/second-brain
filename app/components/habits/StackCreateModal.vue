@@ -6,6 +6,8 @@ import type { Habit } from '~/types/habits'
 const props = defineProps<{
   open: boolean
   habits: Habit[]
+  initialTriggerHabitId?: string
+  initialTriggerHabitName?: string
 }>()
 
 const emit = defineEmits<{
@@ -34,8 +36,20 @@ const state = reactive<Partial<Schema>>({
 
 const loading = ref(false)
 
+watch(
+  () => [props.open, props.initialTriggerHabitId] as const,
+  ([open, initialTriggerHabitId]) => {
+    if (!open) return
+    state.triggerHabitId = initialTriggerHabitId
+    state.newHabitId = undefined
+  },
+  { immediate: true }
+)
+
 const habitItems = computed(() =>
-  props.habits.map((h) => ({ label: h.name, value: h.id }))
+  props.habits
+    .filter((h) => h.id !== props.initialTriggerHabitId)
+    .map((h) => ({ label: h.name, value: h.id }))
 )
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -68,7 +82,7 @@ function onClose() {
   >
     <template #body>
       <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
-        <UFormField label="Depois de..." name="triggerHabitId">
+        <UFormField v-if="!props.initialTriggerHabitId" label="Depois de..." name="triggerHabitId">
           <USelect
             v-model="(state.triggerHabitId as string)"
             :items="habitItems"
@@ -77,6 +91,10 @@ function onClose() {
             icon="i-lucide-zap"
             class="w-full"
           />
+        </UFormField>
+
+        <UFormField v-else label="Depois de...">
+          <UInput :model-value="props.initialTriggerHabitName ?? ''" icon="i-lucide-zap" disabled class="w-full" />
         </UFormField>
 
         <div class="flex items-center gap-2 text-muted">

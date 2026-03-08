@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { Habit } from '~/types/habits'
+import type { Habit, HabitStack } from '~/types/habits'
 import { DIFFICULTY_META, FREQUENCY_META, HABIT_TYPE_META } from '~/types/habits'
 
 const props = defineProps<{
   habit: Habit
+  stacks?: HabitStack[]
   open: boolean
 }>()
 
@@ -21,6 +22,14 @@ function formatDate(iso: string | null | undefined): string {
   const d = new Date(iso)
   return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR')
 }
+
+const triggerStacks = computed(() =>
+  (props.stacks ?? []).filter((stack) => stack.triggerHabitId === props.habit.id)
+)
+
+const incomingStacks = computed(() =>
+  (props.stacks ?? []).filter((stack) => stack.newHabitId === props.habit.id)
+)
 </script>
 
 <template>
@@ -153,6 +162,51 @@ function formatDate(iso: string | null | undefined): string {
               {{ habit.customDays.map((d: number) => dayLabels[d]).join(', ') }}
             </span>
           </div>
+        </div>
+
+        <div v-if="triggerStacks.length || incomingStacks.length" class="space-y-3">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-link-2" class="size-4 text-primary" />
+            <h4 class="text-sm font-semibold text-highlighted">Empilhamento</h4>
+          </div>
+
+          <UCard v-if="incomingStacks.length">
+            <div class="space-y-2">
+              <p class="text-xs font-medium uppercase tracking-wide text-muted">
+                Este hábito entra depois de
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <UBadge
+                  v-for="stack in incomingStacks"
+                  :key="stack.id"
+                  color="neutral"
+                  variant="subtle"
+                  size="sm"
+                >
+                  {{ stack.triggerHabit?.name ?? 'Hábito removido' }}
+                </UBadge>
+              </div>
+            </div>
+          </UCard>
+
+          <UCard v-if="triggerStacks.length">
+            <div class="space-y-2">
+              <p class="text-xs font-medium uppercase tracking-wide text-muted">
+                Depois deste hábito, faça
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <UBadge
+                  v-for="stack in triggerStacks"
+                  :key="stack.id"
+                  color="primary"
+                  variant="subtle"
+                  size="sm"
+                >
+                  {{ stack.newHabit?.name ?? 'Hábito removido' }}
+                </UBadge>
+              </div>
+            </div>
+          </UCard>
         </div>
 
         <!-- Calendar (always visible, no tab needed) -->

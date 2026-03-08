@@ -7,7 +7,7 @@ export default eventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from('habit_stacks')
-    .select('*, trigger_habit:habits!trigger_habit_id(id, name), new_habit:habits!new_habit_id(id, name)')
+    .select('*, triggerHabit:habits!trigger_habit_id(id, name), newHabit:habits!new_habit_id(id, name)')
     .eq('user_id', user.id)
     .is('archived_at', null)
     .order('created_at', { ascending: false })

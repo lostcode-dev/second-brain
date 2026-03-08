@@ -50,7 +50,7 @@ export default eventHandler(async (event) => {
       trigger_habit_id: parsed.triggerHabitId,
       new_habit_id: parsed.newHabitId
     })
-    .select('*, trigger_habit:habits!trigger_habit_id(id, name), new_habit:habits!new_habit_id(id, name)')
+    .select('*, triggerHabit:habits!trigger_habit_id(id, name), newHabit:habits!new_habit_id(id, name)')
     .single()
 
   if (error) {

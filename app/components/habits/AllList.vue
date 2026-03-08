@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { Habit } from '~/types/habits'
+import type { Habit, HabitStack } from '~/types/habits'
 import { DIFFICULTY_META, FREQUENCY_META, HABIT_TYPE_META } from '~/types/habits'
 
-const _props = defineProps<{
+const props = defineProps<{
   habits: Habit[]
+  stacks: HabitStack[]
   total: number
   page: number
   pageSize: number
@@ -14,17 +15,53 @@ const emit = defineEmits<{
   'update:page': [value: number]
   'select': [habitId: string]
   'edit': [habit: Habit]
+  'stack': [habit: Habit]
+  'remove-stacks': [habit: Habit]
   'archive': [habit: Habit]
 }>()
 
 const dayLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
+function getOutgoingStacks(habit: Habit): HabitStack[] {
+  return props.stacks.filter((stack) => stack.triggerHabitId === habit.id)
+}
+
+function getIncomingStacks(habit: Habit): HabitStack[] {
+  return props.stacks.filter((stack) => stack.newHabitId === habit.id)
+}
+
+function getStackDescription(habit: Habit): string | null {
+  const outgoing = getOutgoingStacks(habit)
+  const incoming = getIncomingStacks(habit)
+
+  if (outgoing.length > 0) {
+    if (outgoing.length === 1) {
+      return `Depois deste hábito, faça ${outgoing[0]?.newHabit?.name ?? 'o próximo hábito'}`
+    }
+
+    return `Depois deste hábito, faça ${outgoing.length} hábitos em sequência`
+  }
+
+  if (incoming.length > 0) {
+    return `Este hábito acontece depois de ${incoming[0]?.triggerHabit?.name ?? 'outro hábito'}`
+  }
+
+  return null
+}
+
 function getRowItems(habit: Habit) {
+  const hasOutgoingStacks = getOutgoingStacks(habit).length > 0
+
   return [
     {
       label: 'Editar',
       icon: 'i-lucide-pencil',
       onSelect: () => emit('edit', habit)
+    },
+    {
+      label: hasOutgoingStacks ? 'Remover empilhados' : 'Empilhar',
+      icon: hasOutgoingStacks ? 'i-lucide-unlink' : 'i-lucide-link',
+      onSelect: () => hasOutgoingStacks ? emit('remove-stacks', habit) : emit('stack', habit)
     },
     {
       type: 'separator' as const
@@ -97,6 +134,10 @@ function getRowItems(habit: Habit) {
               >
                 ({{ habit.customDays.map((d: number) => dayLabels[d]).join(', ') }})
               </span>
+            </div>
+            <div v-if="getStackDescription(habit)" class="mt-1 flex items-center gap-1.5 text-xs text-muted">
+              <UIcon name="i-lucide-link-2" class="size-3.5 shrink-0 text-primary" />
+              <span class="truncate">{{ getStackDescription(habit) }}</span>
             </div>
           </div>
 
