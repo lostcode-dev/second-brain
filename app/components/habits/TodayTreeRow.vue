@@ -50,6 +50,7 @@ const emit = defineEmits<{
           @click.stop
           size="sm"
           @update:model-value="emit('toggle', node.habit.id, $event as boolean)"
+          class="h-8 w-8"
         />
       </div>
 

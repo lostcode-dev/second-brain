@@ -179,6 +179,7 @@ const reminderOptions = [
             :model-value="state.allDay"
             label="Dia inteiro"
             size="sm"
+            class="h-8 w-8"
             @update:model-value="state.allDay = Boolean($event)"
           />
         </div>

@@ -209,6 +209,7 @@ async function onUnlinkHabit(linkId: string) {
                 :model-value="task.completed"
                 @update:model-value="onToggleTask(task)"
                   size="sm"
+                  class="h-8 w-8"
               />
               <span
                 class="flex-1 text-sm"

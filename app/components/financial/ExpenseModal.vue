@@ -162,6 +162,7 @@ async function onSubmit(): Promise<void> {
             v-model="state.recurring"
             label="Despesa recorrente"
             size="sm"
+            class="h-8 w-8"
           />
         </UFormField>
 
