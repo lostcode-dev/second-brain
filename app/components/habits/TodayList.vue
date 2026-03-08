@@ -288,6 +288,7 @@ function onTreeClosed(stat: TreeStat) {
                 <UCheckbox
                   :model-value="node.habit.log?.completed ?? false"
                   @click.stop
+                  size="sm"
                   @update:model-value="emit('toggle', node.habit.id, $event as boolean)"
                 />
 
