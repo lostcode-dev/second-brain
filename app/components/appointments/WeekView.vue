@@ -4,24 +4,14 @@ import type { CalendarEvent } from '~/types/appointments'
 const props = defineProps<{
   events: CalendarEvent[]
   loading: boolean
-  currentDate: Date
+  weekStartDate: Date
 }>()
 
 const emit = defineEmits<{
-  selectEvent: [event: CalendarEvent]
+  selectEvent: [event: CalendarEvent, mouseEvent: MouseEvent]
+  selectSlot: [date: string, mouseEvent: MouseEvent]
   weekChange: [from: string, to: string]
 }>()
-
-// ─── Week navigation ──────────────────────────────────────────────────────
-const weekStart = ref(getWeekStart(props.currentDate))
-
-function getWeekStart(date: Date): Date {
-  const d = new Date(date)
-  const day = d.getDay()
-  d.setDate(d.getDate() - day)
-  d.setHours(0, 0, 0, 0)
-  return d
-}
 
 function getWeekEnd(start: Date): Date {
   const d = new Date(start)
@@ -30,36 +20,9 @@ function getWeekEnd(start: Date): Date {
   return d
 }
 
-const weekLabel = computed(() => {
-  const start = weekStart.value
-  const end = getWeekEnd(start)
-  const startStr = start.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-  const endStr = end.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-  return `${startStr} — ${endStr}`
-})
-
-function prevWeek() {
-  const d = new Date(weekStart.value)
-  d.setDate(d.getDate() - 7)
-  weekStart.value = d
-  emitRange()
-}
-
-function nextWeek() {
-  const d = new Date(weekStart.value)
-  d.setDate(d.getDate() + 7)
-  weekStart.value = d
-  emitRange()
-}
-
-function goToToday() {
-  weekStart.value = getWeekStart(new Date())
-  emitRange()
-}
-
 function emitRange() {
-  const from = formatDate(weekStart.value)
-  const end = getWeekEnd(weekStart.value)
+  const from = formatDate(props.weekStartDate)
+  const end = getWeekEnd(props.weekStartDate)
   const to = formatDate(end)
   emit('weekChange', from, to)
 }
@@ -67,6 +30,10 @@ function emitRange() {
 function formatDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
+
+watch(() => props.weekStartDate, () => {
+  emitRange()
+})
 
 // ─── Day columns ──────────────────────────────────────────────────────────
 interface DayColumn {
@@ -84,7 +51,7 @@ const weekDays = computed((): DayColumn[] => {
   const days: DayColumn[] = []
 
   for (let i = 0; i < 7; i++) {
-    const date = new Date(weekStart.value)
+    const date = new Date(props.weekStartDate)
     date.setDate(date.getDate() + i)
     const dateStr = formatDate(date)
 
@@ -124,41 +91,22 @@ function formatTime(dateStr: string): string {
   })
 }
 
-// Emit initial range
+function onDaySlotClick(day: DayColumn, e: MouseEvent) {
+  emit('selectSlot', day.dateStr, e)
+}
+
+function onEventClick(evt: CalendarEvent, e: MouseEvent) {
+  e.stopPropagation()
+  emit('selectEvent', evt, e)
+}
+
 onMounted(() => {
   emitRange()
 })
 </script>
 
 <template>
-  <div class="space-y-4">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <UButton
-          icon="i-lucide-chevron-left"
-          variant="ghost"
-          size="sm"
-          @click="prevWeek"
-        />
-        <h3 class="min-w-56 text-center text-base font-semibold text-highlighted">
-          {{ weekLabel }}
-        </h3>
-        <UButton
-          icon="i-lucide-chevron-right"
-          variant="ghost"
-          size="sm"
-          @click="nextWeek"
-        />
-      </div>
-      <UButton
-        label="Hoje"
-        variant="outline"
-        size="sm"
-        @click="goToToday"
-      />
-    </div>
-
+  <div>
     <!-- Loading -->
     <div
       v-if="loading"
@@ -174,13 +122,14 @@ onMounted(() => {
     <!-- Week grid -->
     <div
       v-else
-      class="grid grid-cols-7 gap-px rounded-lg border border-default overflow-hidden"
+      class="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-default"
     >
       <div
         v-for="day in weekDays"
         :key="day.dateStr"
-        class="min-h-48 bg-default"
+        class="min-h-48 cursor-pointer bg-default"
         :class="day.isToday ? 'bg-primary/5' : ''"
+        @click="onDaySlotClick(day, $event)"
       >
         <!-- Day header -->
         <div
@@ -207,7 +156,7 @@ onMounted(() => {
             :key="index"
             class="cursor-pointer rounded px-1.5 py-1 text-xs transition-opacity hover:opacity-80"
             :style="{ backgroundColor: getEventColor(evt) + '20', borderLeft: `3px solid ${getEventColor(evt)}` }"
-            @click="emit('selectEvent', evt)"
+            @click="onEventClick(evt, $event)"
           >
             <div class="font-medium truncate" :style="{ color: getEventColor(evt) }">
               {{ evt.title }}

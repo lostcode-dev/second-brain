@@ -4,6 +4,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 const toast = useToast()
 
 const open = ref(false)
+const sidebarCollapsed = ref(true)
 
 const links = [
   [
@@ -181,6 +182,7 @@ onMounted(async () => {
     <UDashboardSidebar
       id="default"
       v-model:open="open"
+      v-model:collapsed="sidebarCollapsed"
       collapsible
       resizable
       class="bg-elevated/25"

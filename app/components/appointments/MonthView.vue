@@ -5,55 +5,23 @@ const props = defineProps<{
   events: CalendarEvent[]
   loading: boolean
   currentDate: Date
+  viewYear: number
+  viewMonth: number
 }>()
 
 const emit = defineEmits<{
-  selectEvent: [event: CalendarEvent]
-  selectDate: [date: string]
+  selectEvent: [event: CalendarEvent, mouseEvent: MouseEvent]
+  selectSlot: [date: string, mouseEvent: MouseEvent]
   monthChange: [from: string, to: string]
-  createOnDate: [date: string]
 }>()
 
-// ─── Month navigation ─────────────────────────────────────────────────────
-const viewYear = ref(props.currentDate.getFullYear())
-const viewMonth = ref(props.currentDate.getMonth())
-
-const monthLabel = computed(() => {
-  const date = new Date(viewYear.value, viewMonth.value, 1)
-  return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-})
-
-function prevMonth() {
-  if (viewMonth.value === 0) {
-    viewMonth.value = 11
-    viewYear.value--
-  } else {
-    viewMonth.value--
-  }
-  emitRange()
-}
-
-function nextMonth() {
-  if (viewMonth.value === 11) {
-    viewMonth.value = 0
-    viewYear.value++
-  } else {
-    viewMonth.value++
-  }
-  emitRange()
-}
-
-function goToToday() {
-  const now = new Date()
-  viewYear.value = now.getFullYear()
-  viewMonth.value = now.getMonth()
-  emitRange()
+function formatDate(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
 function emitRange() {
-  const first = new Date(viewYear.value, viewMonth.value, 1)
-  const last = new Date(viewYear.value, viewMonth.value + 1, 0)
-  // Extend to cover the full calendar grid (prev month days + next month days)
+  const first = new Date(props.viewYear, props.viewMonth, 1)
+  const last = new Date(props.viewYear, props.viewMonth + 1, 0)
   const startDay = first.getDay()
   const gridStart = new Date(first)
   gridStart.setDate(gridStart.getDate() - startDay)
@@ -61,15 +29,12 @@ function emitRange() {
   const remaining = 6 - last.getDay()
   gridEnd.setDate(gridEnd.getDate() + remaining)
 
-  emit('monthChange',
-    formatDate(gridStart),
-    formatDate(gridEnd)
-  )
+  emit('monthChange', formatDate(gridStart), formatDate(gridEnd))
 }
 
-function formatDate(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-}
+watch([() => props.viewYear, () => props.viewMonth], () => {
+  emitRange()
+})
 
 // ─── Calendar grid ────────────────────────────────────────────────────────
 const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
@@ -84,11 +49,11 @@ interface DayCell {
 }
 
 const calendarGrid = computed((): DayCell[][] => {
-  const first = new Date(viewYear.value, viewMonth.value, 1)
-  const last = new Date(viewYear.value, viewMonth.value + 1, 0)
+  const first = new Date(props.viewYear, props.viewMonth, 1)
+  const last = new Date(props.viewYear, props.viewMonth + 1, 0)
   const startDay = first.getDay()
   const today = new Date()
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  const todayStr = formatDate(today)
 
   const weeks: DayCell[][] = []
   const currentDate = new Date(first)
@@ -97,15 +62,14 @@ const calendarGrid = computed((): DayCell[][] => {
   for (let w = 0; w < 6; w++) {
     const week: DayCell[] = []
     for (let d = 0; d < 7; d++) {
-      const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`
-
+      const dateStr = formatDate(currentDate)
       const dayEvents = getDayEvents(currentDate)
 
       week.push({
         date: new Date(currentDate),
         dateStr,
         day: currentDate.getDate(),
-        isCurrentMonth: currentDate.getMonth() === viewMonth.value,
+        isCurrentMonth: currentDate.getMonth() === props.viewMonth,
         isToday: dateStr === todayStr,
         events: dayEvents
       })
@@ -113,8 +77,6 @@ const calendarGrid = computed((): DayCell[][] => {
       currentDate.setDate(currentDate.getDate() + 1)
     }
     weeks.push(week)
-
-    // Stop if we've gone past the last day and filled the week
     if (currentDate > last && currentDate.getDay() === 0) break
   }
 
@@ -135,54 +97,26 @@ function getDayEvents(date: Date): CalendarEvent[] {
   })
 }
 
-function onDayClick(cell: DayCell) {
-  emit('selectDate', cell.dateStr)
+function onDayClick(cell: DayCell, e: MouseEvent) {
+  emit('selectSlot', cell.dateStr, e)
 }
 
 function onEventClick(evt: CalendarEvent, e: MouseEvent) {
   e.stopPropagation()
-  emit('selectEvent', evt)
+  emit('selectEvent', evt, e)
 }
 
 function getEventColor(evt: CalendarEvent): string {
   return evt.calendar?.color ?? '#10b981'
 }
 
-// Emit initial range
 onMounted(() => {
   emitRange()
 })
 </script>
 
 <template>
-  <div class="space-y-4">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <UButton
-          icon="i-lucide-chevron-left"
-          variant="ghost"
-          size="sm"
-          @click="prevMonth"
-        />
-        <h3 class="min-w-40 text-center text-lg font-semibold capitalize text-highlighted">
-          {{ monthLabel }}
-        </h3>
-        <UButton
-          icon="i-lucide-chevron-right"
-          variant="ghost"
-          size="sm"
-          @click="nextMonth"
-        />
-      </div>
-      <UButton
-        label="Hoje"
-        variant="outline"
-        size="sm"
-        @click="goToToday"
-      />
-    </div>
-
+  <div>
     <!-- Loading -->
     <div
       v-if="loading"
@@ -221,7 +155,7 @@ onMounted(() => {
           :class="[
             !cell.isCurrentMonth ? 'bg-muted/5' : ''
           ]"
-          @click="onDayClick(cell)"
+          @click="onDayClick(cell, $event)"
         >
           <div class="mb-1 flex justify-end">
             <span
