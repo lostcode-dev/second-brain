@@ -17,8 +17,11 @@ useHead({
     { name: 'format-detection', content: 'telephone=no' }
   ],
   link: [
-    { rel: 'icon', href: '/favicon.ico' },
-    { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' }
+    { rel: 'icon', type: 'image/svg+xml', href: '/icons/second-brain-icon.svg' },
+    { rel: 'alternate icon', type: 'image/png', href: '/icons/icon-192x192.png' },
+    { rel: 'shortcut icon', href: '/favicon.ico' },
+    { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' },
+    { rel: 'mask-icon', href: '/icons/second-brain-mono.svg', color: '#12E39A' }
   ],
   htmlAttrs: {
     lang: 'pt-BR'
@@ -62,7 +65,11 @@ provide('navigation', navigation)
 
 <template>
   <UApp :locale="pt_br">
-    <NuxtLoadingIndicator />
+    <NuxtLoadingIndicator
+      color="linear-gradient(90deg, #12E39A 0%, #5EF2BF 45%, #12E39A 100%)"
+      error-color="#fb7185"
+      :height="3"
+    />
 
     <ClientOnly>
       <CapacitorInit />
