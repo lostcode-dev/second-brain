@@ -475,36 +475,117 @@ onMounted(() => {
 </template>
 
 <!--
-  TO DO:
-  - Quando abre a página está fazendo vários requests, deve otimizar porque não precisa iniciar fazendo requests repetidas.
-  - Na tab de Agenda, deveria ser possível editar todo o evento quando clicko para editar o evento, e também exibir todas as informações.
-  - Na tab de Agenda, está exibindo invalid date, deve corrigir para exibir a data corretamente.
-  - Na tab de Mês, apesar de trazer as respostas, não está exibindo os eventos, deve corrigir para exibir os eventos corretamente.
-  - Na tab de semana, apesar de trazer as respostas, não está exibindo os eventos, deve corrigir para exibir os eventos corretamente.
-  - A parte de Calendários, está ocupando muito espaço, deve ser colapsada por padrão, e expandida apenas quando o usuário quiser, para otimizar o espaço da tela.
-  - Qando clicko no calendário, deve ficar ativo e exibir os eventos relacionados a ele, deve corrigir para exibir os eventos relacionados ao calendário selecionado.
-  - Quando clicko no calendário, deve tirar a seleção de selecionado, e exibir para todos, basicamente posso selecionar um por vez, e sem seleção seleciona todos.
+  TO DO
 
-  - Deve ficar armazenado o histórico dos eventos para poder exibir dados do passado, no caso de alteração.
-  - Não precisa exibir as 3 Tabs, porque todo o gerenciamento deve ser feita no calendário principal.
-  - Deve ser possível mudar a view do calendário (Dia, Semana, Mês) e ficar armazenado para a próxima vez que acessar, para otimizar a experiência do usuário.
-  - Quando clicko em um evento, deve abrir um "HoverCard", que nem no Google Calendar, com as informações do agendamento, com o btn de editar, remover, duplicar.
-  - Quando clicko em um espaço vazio do calendário, deve abrir um "HoverCard" para criar um novo evento, com a data já preenchida, para otimizar a criação de eventos.
-  - Deve seguir o padrão do Google Calendar, para otimizar a experiência do usuário, porque já estão acostumados com aquele padrão.
-  - Deve seguir o padrão do Google Calendar, para otimizar a experiência do usuário, porque já estão acostumados com aquele padrão, principamente no mode visualizar os eventos.
-  - Sidebar lateral de navegação, do menu, deve ser colapsada por padrão, e expandida apenas quando o usuário quiser, para otimizar o espaço da tela, ou quando colocar o mouse em cima.
+  ========================
+  ⚡ Performance
+  ========================
 
-  - Hábitos que tem hora marcada, deve aparecer na agenda, e deve ser possível marcar como feito, ou não feito, para otimizar o acompanhamento dos hábitos.
-  - Deve ser possível arrastar e soltar os eventos para mudar a data, ou horário, para otimizar a edição dos eventos.
-  - Deve ser possível alterar o horário do hábito no dia que tem hora marcada, para otimizar o acompanhamento dos hábitos.
-  - Hábitos que não tem hora marcada, deve exibir que nem tarefas que existe no Google Calendar, que ficam no topo do dia, para otimizar a visualização dos hábitos.
-  - Se o Hábito estiver empilhado e o primeiro hábito tem horário, deve empilhar os outros hábitos embaixo, e exibir o horário do primeiro hábito, para otimizar a visualização dos hábitos, mesmo que os outros não tenham hora marcada.
-  - Quando estou mudando o dia, não está atualizando os eventos, para exibir os dados do dia.
-  - Em semana deve ter um layout semelhante ao Google Calendar, para otimizar a experiência do usuário, que nem o Dia, que exibe o horário na lateral esquerda.
-  - Quanto tento duplicar um evento, está dando erro 500, deve corrigir para duplicar o evento corretamente.
-  - Quando clicko em um espaço vazio do calendário, no modo dia, deve pegar o horário do dia clicado, para otimizar a criação de eventos.
-  - Quando clicko em um epsço vazio, deve ficar fácil a seleção da data, para otimizar a criação de eventos, principalmente no modo semana e mês, onde tem muitos dias.
-  - Devemos considerar o hábito como um calendário, então deve aparecer a opção onde filtra por calendário, para otimizar a visualização dos hábitos, e conseguir ver somente os hábitos no calendário.
-  - Deve ter uma cor específica para os hábitos, uma cor que não pode ser selecionada na criação de calendários, para otimizar a identificação visual dos hábitos no calendário. 
+  - Ao abrir a página estão sendo disparados múltiplos requests desnecessários.
+    É necessário otimizar o carregamento inicial para evitar requisições repetidas.
+
+  ========================
+  📅 Calendário / Eventos
+  ========================
+
+  - Na tab de Agenda:
+    - Deve ser possível editar completamente um evento ao clicar nele.
+    - Todas as informações do evento devem ser exibidas corretamente.
+
+  - Corrigir erro de "Invalid Date" na visualização da Agenda.
+
+  - Na visualização de Mês:
+    - Os dados estão sendo retornados pela API, porém os eventos não estão sendo renderizados.
+
+  - Na visualização de Semana:
+    - Os dados estão sendo retornados pela API, porém os eventos não estão sendo renderizados.
+
+  - Quando alterar o dia selecionado, os eventos não estão sendo atualizados corretamente.
+
+  - Corrigir erro 500 ao tentar duplicar um evento.
+
+  - Implementar suporte a arrastar e soltar (drag and drop) para alterar data ou horário dos eventos.
+
+  - Ao clicar em um evento:
+    - Deve abrir um **HoverCard** semelhante ao Google Calendar.
+    - O card deve conter:
+      - Informações do evento
+      - Botões de **editar**, **remover** e **duplicar**.
+
+  - Ao clicar em um espaço vazio do calendário:
+    - Deve abrir um **HoverCard para criação de evento**.
+    - A data (e horário, quando aplicável) deve ser preenchida automaticamente.
+
+  - No modo **Dia**, ao clicar em um espaço vazio:
+    - O horário correspondente ao local clicado deve ser utilizado para criar o evento.
+
+  - A seleção de data deve ser facilitada nos modos **Semana** e **Mês**, onde há muitos dias visíveis.
+
+  - O layout da visualização **Semana** deve seguir o padrão do Google Calendar,
+    exibindo a grade de horários na lateral esquerda, semelhante ao modo Dia.
+
+  - Não é necessário manter três abas separadas (Agenda, Semana, Mês).
+    O gerenciamento deve ser centralizado em um único calendário com alternância de visualização.
+
+  - O usuário deve poder alternar entre **Dia / Semana / Mês**, e essa preferência deve ser persistida
+    para melhorar a experiência na próxima visita.
+
+  - O sistema deve seguir padrões de interação semelhantes ao **Google Calendar**,
+    já que a maioria dos usuários está familiarizada com esse modelo.
+
+  - O histórico dos eventos deve ser preservado para permitir visualização correta de dados passados,
+    mesmo após alterações.
+
+  ========================
+  🗂️ Calendários / Filtros
+  ========================
+
+  - A seção de calendários está ocupando muito espaço.
+    Deve ser **colapsada por padrão** e expandida apenas quando o usuário desejar.
+
+  - Ao clicar em um calendário:
+    - Ele deve ficar ativo e exibir apenas os eventos relacionados a ele.
+
+  - Deve ser possível selecionar **apenas um calendário por vez**.
+
+  - Ao remover a seleção:
+    - Todos os calendários devem voltar a ser exibidos.
+
+  - Hábitos devem ser considerados um **tipo de calendário**.
+    Assim, deve ser possível filtrar eventos apenas de hábitos.
+
+  - Os hábitos devem possuir **uma cor específica reservada**,
+    que não pode ser utilizada por calendários comuns,
+    facilitando a identificação visual.
+
+  ========================
+  🧠 Integração com Hábitos
+  ========================
+
+  - Hábitos com horário definido devem aparecer na agenda.
+
+  - Deve ser possível marcar diretamente no calendário se o hábito foi:
+    - Concluído
+    - Não concluído
+
+  - Deve ser possível alterar o horário de um hábito em um dia específico.
+
+  - Hábitos sem horário definido devem aparecer no topo do dia,
+    semelhante ao comportamento de **tarefas no Google Calendar**.
+
+  - Se um hábito fizer parte de um **empilhamento (habit stacking)**:
+    - Caso o primeiro hábito tenha horário definido,
+    - os demais hábitos devem aparecer empilhados abaixo dele,
+      utilizando o mesmo horário como referência visual.
+
+  ========================
+  🧭 Navegação / Layout
+  ========================
+
+  - A sidebar lateral de navegação deve iniciar **colapsada por padrão**.
+
+  - A sidebar deve expandir:
+    - ao passar o mouse sobre ela
+    - ou quando o usuário clicar para expandir manualmente.
+
 -->
-

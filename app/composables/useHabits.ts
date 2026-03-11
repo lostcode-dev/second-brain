@@ -398,7 +398,7 @@ export function useHabits() {
       })
 
       toast.add({
-        title: 'Árvore atualizada',
+        title: 'Hábito atualizado',
         description: 'A ordem e os empilhamentos dos hábitos foram sincronizados.',
         color: 'success'
       })

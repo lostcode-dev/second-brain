@@ -73,15 +73,14 @@ const displayInitials = computed(() => props.userInitials || 'SB')
     <div class="share-card__content">
       <header class="share-card__header">
         <div class="share-card__profile">
-          <div class="share-card__avatar">SB</div>
+          <div class="share-card__avatar">{{ displayInitials}}</div>
           <div class="share-card__profile-copy">
-            <p class="share-card__eyebrow">Second Brain Wrapped</p>
+            <p class="share-card__eyebrow">{{ props.userName || 'Second Brain' }}</p>
             <strong class="share-card__profile-name">Meu ciclo atual</strong>
           </div>
         </div>
 
         <div class="share-card__header-meta">
-          <p class="share-card__eyebrow">edição hábito</p>
           <p class="share-card__date">{{ shareDateLabel }}</p>
         </div>
       </header>
@@ -126,17 +125,6 @@ const displayInitials = computed(() => props.userInitials || 'SB')
         <span class="share-card__tag" :style="{ borderColor: habitTypeAccent, color: habitTypeAccent }">{{ habitTypeLabel }}</span>
         <span v-if="habit.identityName" class="share-card__tag">{{ habit.identityName }}</span>
         <span v-if="habit.scheduledTime" class="share-card__tag">{{ habit.scheduledTime }}</span>
-      </section>
-
-      <section class="share-card__cta">
-        <div>
-          <p class="share-card__cta-title">Qual hábito está definindo sua próxima fase?</p>
-          <p class="share-card__cta-copy">Mostre seu progresso e marque seu ritual visual de consistência.</p>
-        </div>
-        <div class="share-card__cta-pill">
-          <span class="share-card__cta-dot" />
-          <span>compartilhe o seu</span>
-        </div>
       </section>
 
       <footer class="share-card__footer">
@@ -321,7 +309,7 @@ const displayInitials = computed(() => props.userInitials || 'SB')
 }
 
 .share-card__meter-value {
-  font-size: 78px;
+  font-size: 70px;
   line-height: 1;
   font-weight: 800;
   letter-spacing: -0.06em;

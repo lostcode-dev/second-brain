@@ -588,35 +588,65 @@ const difficultyFilterOptions = computed(() => [
 </template>
 
 <!--
-  TO DO:
- - Na imagem de compartilhar para as redes sociais, ainda contém muita informação pessoal e os dados estão incorretos.
-  - Não precisa da descrição do hábito.
-  - A imagem está cortando no bottom. 
- - Está com algum cálculo errado no Streak.
-  - Na verdade, é porque quando não marca o hábito, ele não contabiliza.
- - Tem que ter o histórico do empilhamento para conseguir exibir dados do passado.
-  - Atualmente temos o histórico para os hábitos.
- - O loading quando mudo o empilhamento deve ser feito por de baixo dos panos, sem exibir o skeleton
-  - Assim evita de ficar piscando a tela toda vez que mudar o empilhamento.
- - Precisa de alguma rotina para no fim do dia os hábitos que não foram marcados como feitos, sejam marcados como não feitos (skipped)
- - Verificar o fluxo de "Identificadores", tem muitos bugs.
-  - Tanto de layout, quanto de dados. 
- - As estáticas de hábitos no topo não está legal, porque está ocupando o espaço na tela, o principal deveri ser gerenciar os hábitos. Pode ficar em uma nova tab de "Insights" ou algo do tipo.
- - Adicionar na nova tab de "Insights", gráficos e análises mais detalhadas sobre os hábitos, algo também como o quadro do github de commits, quanto mais hábitos concluídos em um dia mais verde vai ficando o dia, como evolução ao longo do tempo, correlações entre hábitos, etc.
- - Melhorar o layout da linha na Tab de "Hoje".
- - Adicionar horário final no hábito, porque pode exibir na minha agenda. (pensar no melhor fluxo de integração entre hábitos e agenda)
- - o menu bubble do componente de Rich Text está cortando no input.
- - Dificuldade e tipo tem que ficar em linhas diferentes
- - De vez em quando está sendo deslogado do nada.
- - Corrigir o processo de autenticação, porque estou tendo que fazer login o tempo todo e minha sessão não está ficando guardada.
- - Possibilidade de adicionar "tags" nos hábitos para facilitar a organização e filtragem.
- - Remover o template que tem no modal de criação de hábito.
+  TO DO
 
- - Personalizar o scroll para ficar mais bonito e consistente com o design do app.
- - HourPicker no modal está abrindo atrás do modal.
- - Aumentar tamanho do modal de hábitos, porque tem bastante espaço vazio.
- - Melhorar insights, muito espaço disponível e mais informações relevantes, e também responsivo.
+  ========================
+  🔢 Lógica / Regras de Negócio
+  ========================
 
- Backlog:
-  - Pensar sobre a integração com IA para análise de hábitos e sugestões de melhorias.
+  - Corrigir cálculo do Streak.
+    Atualmente, quando um hábito não é marcado no dia, ele não está sendo contabilizado corretamente.
+    É necessário garantir que hábitos não concluídos interrompam ou atualizem o streak de forma correta.
+
+  - Criar rotina automática de fechamento do dia.
+    No final do dia, todos os hábitos que não foram marcados como concluídos devem ser automaticamente registrados como "skipped".
+
+  - Implementar histórico de empilhamento (habit stacking history).
+    Alterações feitas hoje não devem impactar visualizações de períodos passados.
+    Ao visualizar dados antigos, o sistema deve exibir as configurações válidas naquele momento histórico.
+
+  - Revisar fluxo de "Identificadores".
+    O fluxo apresenta diversos bugs, tanto relacionados a dados quanto ao layout.
+
+  ========================
+  🎨 Interface / UX
+  ========================
+
+  - Corrigir corte do menu Bubble do Rich Text dentro de modais.
+
+  - Melhorar a área de Insights:
+    - Atualmente há muito espaço vazio.
+    - Incluir mais informações relevantes para o usuário.
+    - Tornar a seção totalmente responsiva.
+
+  - Permitir seleção de múltiplas frequências no formulário de hábitos.
+    Atualmente só é possível selecionar uma frequência, mas muitos hábitos ocorrem em múltiplos dias da semana.
+
+  - Melhorar o campo de horário do hábito.
+    O objetivo é permitir que o usuário utilize o horário como referência na agenda diária.
+
+  - Personalizar o scroll da aplicação para manter consistência visual com o design do app.
+
+  - Corrigir o HourPicker dentro do modal.
+    Atualmente ele está abrindo atrás do modal.
+
+  - Aumentar a largura do modal de hábitos.
+    Existe muito espaço vazio que poderia ser melhor aproveitado.
+
+  ========================
+  🔐 Autenticação / Sessão
+  ========================
+
+  - Investigar problema de logout inesperado.
+    O usuário está sendo deslogado ocasionalmente sem motivo aparente.
+
+  - Corrigir persistência de sessão.
+    O sistema está exigindo login com muita frequência, indicando que a sessão não está sendo armazenada corretamente.
+
+  ========================
+  🏷️ Organização
+  ========================
+
+  - Adicionar suporte a "tags" nos hábitos.
+    Isso permitirá melhor organização, categorização e filtragem.
 -->
