@@ -102,6 +102,31 @@ sync_remote_files() {
     "$ROOT_DIR/" "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
 }
 
+sync_remote_artifact() {
+  require_remote_config
+  require_command rsync
+
+  local rsync_command
+  rsync_command="$(rsync_ssh_command)"
+
+  if [[ ! -f "$ROOT_DIR/dist/server.js" ]]; then
+    echo "Erro: artefato não encontrado em dist/server.js. Rode o build local antes do deploy por artefato."
+    exit 1
+  fi
+
+  echo "Sincronizando artefato de runtime para ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}..."
+  rsync -az --delete \
+    --include 'dist/' \
+    --include 'dist/***' \
+    --include 'scripts/' \
+    --include 'scripts/server.sh' \
+    --include '.env.example' \
+    --include 'ecosystem.config.cjs' \
+    --exclude '*' \
+    -e "$rsync_command" \
+    "$ROOT_DIR/" "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+}
+
 remote_prepare_dir() {
   require_remote_config
   remote_exec "mkdir -p '$DEPLOY_PATH'"
@@ -211,6 +236,12 @@ build_app() {
   pnpm build
 }
 
+build_artifact() {
+  require_command pnpm
+  echo "Gerando artefato local de runtime..."
+  pnpm build
+}
+
 start_app() {
   ensure_pm2
   ensure_logs_dir
@@ -288,12 +319,29 @@ bootstrap() {
   echo "Se ainda não configurou o startup do PM2 no servidor, rode: pm2 startup && pm2 save"
 }
 
+bootstrap_artifact() {
+  require_command node
+  require_command npm
+  ensure_env
+  ensure_logs_dir
+  restart_app
+  save_pm2
+  echo "Bootstrap por artefato concluído."
+}
+
 deploy() {
   ensure_env
   install_deps
   build_app
   restart_app
   echo "Deploy concluído."
+}
+
+deploy_artifact() {
+  ensure_env
+  ensure_logs_dir
+  restart_app
+  echo "Deploy por artefato concluído."
 }
 
 remote_bootstrap() {
@@ -312,6 +360,26 @@ remote_deploy() {
   sync_remote_files
   remote_exec "cd '$DEPLOY_PATH' && chmod +x ./scripts/server.sh && ./scripts/server.sh deploy"
   echo "Deploy remoto concluído."
+}
+
+remote_artifact_bootstrap() {
+  require_remote_config
+  build_artifact
+  remote_provision_runtime
+  remote_prepare_dir
+  sync_remote_artifact
+  remote_exec "cd '$DEPLOY_PATH' && chmod +x ./scripts/server.sh && ./scripts/server.sh bootstrap-artifact"
+  echo "Bootstrap remoto por artefato concluído."
+}
+
+remote_artifact_deploy() {
+  require_remote_config
+  build_artifact
+  remote_provision_runtime
+  remote_prepare_dir
+  sync_remote_artifact
+  remote_exec "cd '$DEPLOY_PATH' && chmod +x ./scripts/server.sh && ./scripts/server.sh deploy-artifact"
+  echo "Deploy remoto por artefato concluído."
 }
 
 remote_status() {
@@ -387,8 +455,12 @@ Uso: ./scripts/server.sh <comando>
 Comandos:
   bootstrap   Primeira subida: valida ambiente, instala deps, builda e sobe com PM2
   deploy      Atualiza dependências, gera novo build e reinicia no PM2
+  bootstrap-artifact  Sobe no PM2 usando apenas o artefato já buildado
+  deploy-artifact     Atualiza no PM2 usando apenas o artefato já buildado
   remote-bootstrap  Envia arquivos por SSH/rsync e executa bootstrap no servidor
   remote-deploy     Envia arquivos por SSH/rsync e executa deploy no servidor
+  remote-artifact-bootstrap  Builda localmente e envia só o runtime para o servidor
+  remote-artifact-deploy     Builda localmente e envia só o runtime para o servidor
   remote-provision  Instala Node.js, pnpm e PM2 no servidor remoto
   remote-status     Consulta status da app no servidor remoto
   remote-logs       Acompanha log diário remoto (ou outro dia: remote-logs YYYY-MM-DD)
@@ -412,8 +484,12 @@ COMMAND="${1:-}"
 case "$COMMAND" in
   bootstrap) bootstrap ;;
   deploy) deploy ;;
+  bootstrap-artifact) bootstrap_artifact ;;
+  deploy-artifact) deploy_artifact ;;
   remote-bootstrap) remote_bootstrap ;;
   remote-deploy) remote_deploy ;;
+  remote-artifact-bootstrap) remote_artifact_bootstrap ;;
+  remote-artifact-deploy) remote_artifact_deploy ;;
   remote-provision) remote_provision_runtime ;;
   remote-status) remote_status ;;
   remote-logs) remote_logs "$@" ;;

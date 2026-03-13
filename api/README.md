@@ -111,6 +111,10 @@ Endpoint de exemplo para receber payloads externos.
 | `pnpm server:deploy` | Deploy de manutenção com restart |
 | `pnpm server:remote-bootstrap` | Envia arquivos e faz bootstrap remoto via SSH |
 | `pnpm server:remote-deploy` | Envia arquivos e faz deploy remoto via SSH |
+| `pnpm server:artifact-bootstrap` | Sobe localmente usando só o artefato já buildado |
+| `pnpm server:artifact-deploy` | Atualiza localmente usando só o artefato já buildado |
+| `pnpm server:remote-artifact-bootstrap` | Builda localmente e sobe só o runtime no servidor |
+| `pnpm server:remote-artifact-deploy` | Builda localmente e envia só o runtime no servidor |
 | `pnpm server:remote-provision` | Provisiona Node.js, pnpm e PM2 no servidor remoto |
 | `pnpm server:remote-nginx-setup` | Instala e configura Nginx remoto para expor a API |
 | `pnpm server:remote-nginx-test` | Testa a configuração remota do Nginx |
@@ -175,6 +179,31 @@ O comando `bootstrap` faz:
 
 ### Primeira vez a partir da sua máquina local
 
+Fluxo recomendado para este projeto:
+
+```bash
+pnpm server:remote-artifact-bootstrap
+```
+
+Esse modo evita `pnpm install` no Droplet. O build acontece localmente e o servidor recebe apenas o que precisa para rodar.
+
+### Primeira vez a partir da sua máquina local sem instalar dependências no servidor
+
+```bash
+cd /caminho/para/second-brain/api
+pnpm server:remote-artifact-bootstrap
+```
+
+Esse comando:
+
+- gera o bundle local em `dist/server.js`
+- provisiona Node.js e PM2 no Droplet se necessário
+- cria o diretório remoto se necessário
+- envia apenas `dist/`, `ecosystem.config.cjs`, `scripts/server.sh` e `.env.example`
+- executa `./scripts/server.sh bootstrap-artifact` no servidor
+
+### Primeira vez a partir da sua máquina local com install/build remoto
+
 ```bash
 cd /caminho/para/second-brain/api
 pnpm server:remote-bootstrap
@@ -212,6 +241,23 @@ O comando `deploy` faz:
 - reinicia a aplicação no PM2
 
 ### Manutenção futura a partir da sua máquina local
+
+Fluxo recomendado para deploys futuros:
+
+```bash
+pnpm server:remote-artifact-deploy
+```
+
+Esse modo recompila localmente e sincroniza só o runtime já pronto.
+
+### Manutenção futura a partir da sua máquina local com artefato
+
+```bash
+cd /caminho/para/second-brain/api
+pnpm server:remote-artifact-deploy
+```
+
+### Manutenção futura a partir da sua máquina local com install/build remoto
 
 ```bash
 cd /caminho/para/second-brain/api
