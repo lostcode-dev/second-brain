@@ -588,4 +588,8 @@ onMounted(() => {
     - ao passar o mouse sobre ela
     - ou quando o usuário clicar para expandir manualmente.
 
+  ---
+
+  - Deve ser possível selecionar um icon como se fosse uma avatar para o Evento.
+
 -->

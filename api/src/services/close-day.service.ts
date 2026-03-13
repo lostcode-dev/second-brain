@@ -1,0 +1,101 @@
+import { HabitRepository } from '../repositories/index.js'
+import { HabitFrequency, HabitLogStatus } from '../types/index.js'
+import type { SkipLogInsert } from '../types/index.js'
+import { getUtcDayOfWeek, listDatesBetween, getTodayUtc, getPreviousDateUtc, logger } from '../utils/index.js'
+import { getSupabaseClient } from '../lib/index.js'
+
+export interface CloseDayResult {
+  skipped: number
+  processedDates: string[]
+  range: { from: string; to: string }
+}
+
+export class CloseDayService {
+  private repo: HabitRepository
+
+  constructor() {
+    this.repo = new HabitRepository(getSupabaseClient())
+  }
+
+  async execute(dateParam?: string, fromParam?: string): Promise<CloseDayResult> {
+    const today = getTodayUtc()
+    const endDate = dateParam ?? getPreviousDateUtc(today)
+
+    if (endDate >= today) {
+      throw Object.assign(new Error('A rotina de fechamento só pode processar datas anteriores a hoje'), {
+        statusCode: 400,
+      })
+    }
+
+    const startDate = fromParam ?? endDate
+
+    if (startDate > endDate) {
+      throw Object.assign(new Error('O parâmetro from deve ser menor ou igual a date'), { statusCode: 400 })
+    }
+
+    const processedDates = listDatesBetween(startDate, endDate)
+    let skipped = 0
+
+    for (const targetDate of processedDates) {
+      skipped += await this.processDate(targetDate)
+    }
+
+    logger.info('[close-day] concluído', { skipped, range: { from: startDate, to: endDate } })
+
+    return { skipped, processedDates, range: { from: startDate, to: endDate } }
+  }
+
+  private async processDate(targetDate: string): Promise<number> {
+    const dayOfWeek = getUtcDayOfWeek(targetDate)
+
+    const versions = await this.repo.getVersionsForDate(targetDate)
+    if (versions.length === 0) return 0
+
+    const habitIds = [...new Set(versions.map((v) => v.habit_id))]
+    const habits = await this.repo.getHabitsByIds(habitIds)
+
+    const archivedMap = new Map(habits.map((h) => [h.id, h.archived_at]))
+
+    const dueVersions = versions.filter((v) => {
+      const archivedAt = archivedMap.get(v.habit_id)
+      if (archivedAt) {
+        const archivedDate = archivedAt.split('T')[0]
+        if (archivedDate && archivedDate <= targetDate) return false
+      }
+      return isDueOnDay(v.frequency, v.custom_days, dayOfWeek)
+    })
+
+    if (dueVersions.length === 0) return 0
+
+    const dueHabitIds = dueVersions.map((v) => v.habit_id)
+    const existingLogs = await this.repo.getLogsForDate(dueHabitIds, targetDate)
+    const loggedIds = new Set(existingLogs.map((l) => l.habit_id))
+
+    const rows: SkipLogInsert[] = dueVersions
+      .filter((v) => !loggedIds.has(v.habit_id))
+      .map((v) => ({
+        user_id: v.user_id,
+        habit_id: v.habit_id,
+        habit_version_id: v.id,
+        log_date: targetDate,
+        completed: false as const,
+        status: HabitLogStatus.Skipped,
+        note: null,
+        updated_at: new Date().toISOString(),
+      }))
+
+    if (rows.length === 0) return 0
+
+    await this.repo.upsertSkipLogs(rows)
+    return rows.length
+  }
+}
+
+function isDueOnDay(frequency: HabitFrequency | string, customDays: number[] | null, dayOfWeek: number): boolean {
+  if (frequency === HabitFrequency.Daily) return true
+  if (frequency === HabitFrequency.Weekly) return dayOfWeek === 1
+  if (frequency === HabitFrequency.Custom) {
+    return customDays?.includes(dayOfWeek) ?? false
+  }
+  return false
+}

@@ -1,3 +1,6 @@
+packages:
+  - 'api'
+
 ignoredBuiltDependencies:
   - '@parcel/watcher'
   - '@tailwindcss/oxide'

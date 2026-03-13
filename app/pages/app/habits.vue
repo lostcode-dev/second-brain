@@ -649,4 +649,6 @@ const difficultyFilterOptions = computed(() => [
 
   - Adicionar suporte a "tags" nos hábitos.
     Isso permitirá melhor organização, categorização e filtragem.
+
+  - Deve ser possível selecionat um emoji como se fosse uma avatar para o hábito.
 -->
