@@ -170,7 +170,14 @@ ensure_logs_dir() {
 install_deps() {
   require_command pnpm
   echo "Instalando dependências..."
-  pnpm install --frozen-lockfile
+
+  if [[ -f "$ROOT_DIR/pnpm-lock.yaml" ]]; then
+    pnpm install --frozen-lockfile
+    return
+  fi
+
+  echo "Aviso: pnpm-lock.yaml não encontrado. Executando install sem frozen-lockfile."
+  pnpm install --no-frozen-lockfile
 }
 
 build_app() {

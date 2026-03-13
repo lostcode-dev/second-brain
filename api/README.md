@@ -166,7 +166,8 @@ chmod +x ./scripts/server.sh
 O comando `bootstrap` faz:
 
 - garante que `.env` exista
-- instala dependências com `pnpm install --frozen-lockfile`
+- instala dependências com `pnpm install --frozen-lockfile` quando houver `pnpm-lock.yaml`
+- se não houver lockfile local, faz fallback para `pnpm install --no-frozen-lockfile`
 - gera o build de produção
 - instala o PM2 globalmente se necessário
 - sobe ou reinicia a aplicação no PM2
