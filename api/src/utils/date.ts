@@ -1,7 +1,24 @@
+import { env } from '../config/index.js'
+
 export function formatDateUtc(date: Date): string {
   return date.toISOString().split('T')[0] as string
 }
 
+/**
+ * Returns today's date string (YYYY-MM-DD) in the configured timezone.
+ * Uses Intl.DateTimeFormat to get the correct local date regardless of server UTC offset.
+ */
+export function getTodayLocal(): string {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: env.TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+  return formatter.format(new Date())
+}
+
+/** @deprecated prefer getTodayLocal() */
 export function getTodayUtc(): string {
   return formatDateUtc(new Date())
 }

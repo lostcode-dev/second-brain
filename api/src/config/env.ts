@@ -5,7 +5,8 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  CRON_SECRET: z.string().min(16),
+  TZ: z.string().default('Europe/Lisbon'),
+  CRON_CLOSE_DAY_SCHEDULE: z.string().default('55 23 * * *'),
 })
 
 function loadEnv() {

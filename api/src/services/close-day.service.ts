@@ -1,7 +1,7 @@
 import { HabitRepository } from '../repositories/index.js'
 import { HabitFrequency, HabitLogStatus } from '../types/index.js'
 import type { SkipLogInsert } from '../types/index.js'
-import { getUtcDayOfWeek, listDatesBetween, getTodayUtc, getPreviousDateUtc, logger } from '../utils/index.js'
+import { getUtcDayOfWeek, listDatesBetween, getTodayLocal, getPreviousDateUtc, logger } from '../utils/index.js'
 import { getSupabaseClient } from '../lib/index.js'
 
 export interface CloseDayResult {
@@ -10,6 +10,12 @@ export interface CloseDayResult {
   range: { from: string; to: string }
 }
 
+/**
+ * Default number of days to look back for backfill when no `from` is provided.
+ * Covers weekends + possible downtime.
+ */
+const BACKFILL_DAYS = 7
+
 export class CloseDayService {
   private repo: HabitRepository
 
@@ -17,8 +23,18 @@ export class CloseDayService {
     this.repo = new HabitRepository(getSupabaseClient())
   }
 
+  /**
+   * Processes habit close-day for a date range.
+   *
+   * When called without parameters (the normal cron path):
+   * - `endDate` = yesterday (based on configured timezone)
+   * - `startDate` = endDate - BACKFILL_DAYS (to catch any missed days)
+   *
+   * The operation is idempotent: existing logs are never overwritten
+   * thanks to the UNIQUE(habit_id, log_date) constraint + upsert with onConflict.
+   */
   async execute(dateParam?: string, fromParam?: string): Promise<CloseDayResult> {
-    const today = getTodayUtc()
+    const today = getTodayLocal()
     const endDate = dateParam ?? getPreviousDateUtc(today)
 
     if (endDate >= today) {
@@ -27,7 +43,13 @@ export class CloseDayService {
       })
     }
 
-    const startDate = fromParam ?? endDate
+    const defaultFrom = (() => {
+      const d = new Date(`${endDate}T12:00:00Z`)
+      d.setUTCDate(d.getUTCDate() - (BACKFILL_DAYS - 1))
+      return d.toISOString().split('T')[0] as string
+    })()
+
+    const startDate = fromParam ?? defaultFrom
 
     if (startDate > endDate) {
       throw Object.assign(new Error('O parâmetro from deve ser menor ou igual a date'), { statusCode: 400 })
