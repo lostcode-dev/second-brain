@@ -71,7 +71,7 @@ export default eventHandler(async (event) => {
     linkPath: row.link_path,
     sender: {
       id: 0,
-      name: row.sender_name || 'Second Brain',
+      name: row.sender_name || 'Kortex',
       email: row.sender_email || '',
       avatar: row.sender_avatar_url ? { src: row.sender_avatar_url } : undefined,
       status: 'subscribed',

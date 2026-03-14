@@ -1,7 +1,7 @@
-title: Seu [Second Brain]{class="text-primary"} para transformar ideias em ação
+title: Seu [Kortex]{class="text-primary"} para transformar ideias em ação
 description: Capture, organize e conecte notas, hábitos, projetos e referências em um sistema inteligente. Construído com Nuxt e Supabase — para suas ideias evoluírem com você.
 seo:
-  title: Second Brain
+  title: Kortex
   description: Um sistema pessoal de conhecimento para capturar, organizar e transformar ideias em ação. Notas, hábitos e contexto em um só lugar.
 navigation: false
 hero:
@@ -33,7 +33,7 @@ sections:
         description: Relacione ideias, projetos e referências para virar insight acionável.
         icon: i-lucide-share-2
   - title: Hábitos que viram progresso
-    description: Hábitos não são checklists. No Second Brain, eles são sinais do que você está construindo — conectados a reflexões e resultados.
+    description: Hábitos não são checklists. No Kortex, eles são sinais do que você está construindo — conectados a reflexões e resultados.
     orientation: horizontal
     reverse: true
     features:
@@ -76,65 +76,65 @@ testimonials:
     - quote: O check-in diário virou meu “fechamento” do dia. Em minutos eu registro o que importa e sigo leve.
       user:
         name: Sarah Chen
-        description: Usuária do Second Brain
+        description: Usuária do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=1
     - quote: Conectar hábitos às notas mudou tudo. Eu vejo por que falhei e o que ajustar — sem culpa.
       user:
         name: Marcus Rodriguez
-        description: Usuário do Second Brain
+        description: Usuário do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=7
     - quote: O heatmap semanal me dá consciência do ritmo. Eu paro antes de entrar em burnout.
       user:
         name: David Kumar
-        description: Usuário do Second Brain
+        description: Usuário do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=3
     - quote: O sistema é simples, mas profundo. Quanto mais eu uso, mais sentido ele faz.
       user:
         name: Emily Zhang
-        description: Usuária do Second Brain
+        description: Usuária do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=5
     - quote: Finalmente um lugar único para notas, projetos e referências — e não uma pilha de apps soltos.
       user:
         name: James Wilson
-        description: Usuário do Second Brain
+        description: Usuário do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=8
     - quote: As revisões semanais me ajudam a ajustar o sistema com base em dados e reflexão.
       user:
         name: Lisa Patel
-        description: Usuária do Second Brain
+        description: Usuária do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=9
     - quote: O foco em consistência (não perfeição) fez eu voltar a cuidar do básico.
       user:
         name: Michael Torres
-        description: Usuário do Second Brain
+        description: Usuário do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=11
     - quote: A busca é rápida mesmo com muita coisa. Eu acho minhas notas quando preciso.
       user:
         name: Rachel Kim
-        description: Usuária do Second Brain
+        description: Usuária do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=10
     - quote: A caixa de entrada virou meu “capturador” padrão. Ideia veio, eu registro e sigo.
       user:
         name: Thomas Weber
-        description: Usuário do Second Brain
+        description: Usuário do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=12
     - quote: Eu gosto de como hábitos, notas e projetos conversam. Parece um sistema vivo.
       user:
         name: Sophia Martinez
-        description: Usuária do Second Brain
+        description: Usuária do Kortex
         avatar:
           src: https://i.pravatar.cc/120?img=14
 cta:
-  title: Pronto para construir seu Second Brain?
+  title: Pronto para começar com o Kortex?
   description: Comece pequeno, mantenha consistência e deixe suas ideias evoluírem com contexto.
   links:
     - label: Criar conta

@@ -1,4 +1,4 @@
--- Stripe billing tables for Second Brain
+-- Stripe billing tables for Kortex
 
 create table if not exists public.stripe_customers (
   user_id uuid primary key references auth.users(id) on delete cascade,

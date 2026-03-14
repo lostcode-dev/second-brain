@@ -60,7 +60,7 @@ const completionTone = computed(() => {
   return '#ff8d8d'
 })
 
-const displayHandle = computed(() => props.userHandle || '@secondbrain')
+const displayHandle = computed(() => props.userHandle || '@kortex')
 const displayInitials = computed(() => props.userInitials || 'SB')
 </script>
 
@@ -75,7 +75,7 @@ const displayInitials = computed(() => props.userInitials || 'SB')
         <div class="share-card__profile">
           <div class="share-card__avatar">{{ displayInitials}}</div>
           <div class="share-card__profile-copy">
-            <p class="share-card__eyebrow">{{ props.userName || 'Second Brain' }}</p>
+            <p class="share-card__eyebrow">{{ props.userName || 'Kortex' }}</p>
             <strong class="share-card__profile-name">Meu ciclo atual</strong>
           </div>
         </div>
@@ -130,7 +130,7 @@ const displayInitials = computed(() => props.userInitials || 'SB')
       <footer class="share-card__footer">
         <div class="share-card__footer-line">
           <span class="share-card__footer-copy">Começou em {{ createdAtLabel || 'um novo ciclo' }}</span>
-          <span class="share-card__footer-copy">Second Brain</span>
+          <span class="share-card__footer-copy">Kortex</span>
         </div>
       </footer>
     </div>

@@ -2,7 +2,7 @@
 
 Updated: 2026-03-04
 
-The Knowledge Graph module is designed to act as a **Second Brain
+The Knowledge Graph module is designed to act as a **Kortex
 system** where information is stored as interconnected notes.
 
 The goal is to create a **network of knowledge**, where ideas, notes,

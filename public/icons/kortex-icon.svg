@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="104" fill="#020618"/>
+
+  <!-- Vertical spine of K -->
+  <path d="M168 120 L168 392" stroke="#12E39A" stroke-width="32" stroke-linecap="round"/>
+
+  <!-- Upper arm of K -->
+  <path d="M168 252 L356 120" stroke="#12E39A" stroke-width="32" stroke-linecap="round"/>
+
+  <!-- Lower arm of K -->
+  <path d="M168 260 L356 392" stroke="#12E39A" stroke-width="32" stroke-linecap="round"/>
+
+  <!-- Endpoint neural nodes -->
+  <circle cx="168" cy="120" r="22" fill="#12E39A"/>
+  <circle cx="168" cy="392" r="22" fill="#12E39A"/>
+  <circle cx="356" cy="120" r="22" fill="#12E39A"/>
+  <circle cx="356" cy="392" r="22" fill="#12E39A"/>
+
+  <!-- Center bifurcation node (ring — cortex branching point) -->
+  <circle cx="168" cy="256" r="18" fill="#020618" stroke="#12E39A" stroke-width="10"/>
+
+  <!-- Mid-arm accent neural nodes -->
+  <circle cx="262" cy="186" r="13" fill="#12E39A" opacity="0.55"/>
+  <circle cx="262" cy="326" r="13" fill="#12E39A" opacity="0.55"/>
+</svg>

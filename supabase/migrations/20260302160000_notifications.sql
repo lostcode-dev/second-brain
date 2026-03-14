@@ -1,4 +1,4 @@
--- Notifications table for Second Brain
+-- Notifications table for Kortex
 
 create table if not exists public.notifications (
   id bigserial primary key,

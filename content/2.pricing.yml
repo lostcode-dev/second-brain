@@ -2,7 +2,7 @@ title: Um plano para cada fase
 description: Comece simples e evolua conforme seu sistema cresce. Notas, hábitos e organização em um só lugar.
 seo:
   title: Planos
-  description: Escolha o plano ideal para o seu Second Brain.
+  description: Escolha o plano ideal para o seu Kortex.
 navigation.icon: i-lucide-credit-card
 plans:
   - title: Pessoal
@@ -69,7 +69,7 @@ faq:
   title: Perguntas frequentes
   description: Respostas rápidas para começar com confiança.
   items:
-    - label: O Second Brain é um SaaS?
+    - label: O Kortex é um SaaS?
       content: Sim. Você acessa seus dados de qualquer lugar e em qualquer dispositivo, sem se preocupar com infraestrutura.
     - label: Meus dados ficam seguros?
       content: O objetivo é manter uma arquitetura segura e server-side para integrações e banco (Supabase), com boas práticas de validação e acesso.
@@ -77,7 +77,7 @@ faq:
       content: Sim. Você pode cancelar a qualquer momento e manter o controle sobre seus dados.
     - label: Posso mudar de plano depois?
       content: Pode. Comece no Pessoal e evolua para o Duo/Família conforme sua necessidade.
-    - label: Como funcionam hábitos no Second Brain?
+    - label: Como funcionam hábitos no Kortex?
       content: Hábitos são conectados a contexto (notas/reflexões). O foco é consistência e tendência, não perfeição.
     - label: Vocês oferecem suporte?
       content: Sim — com prioridade maior nos planos Pro e Equipe.

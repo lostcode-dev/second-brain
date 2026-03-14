@@ -22,7 +22,7 @@ const items = computed(() => [{
     <template #left>
       <NuxtLink
         to="/"
-        aria-label="Second Brain"
+        aria-label="Kortex"
         class="flex items-center"
       >
         <AppLogo />

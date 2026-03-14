@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.secondbrain.app',
-  appName: 'Second Brain',
+  appId: 'com.kortex.app',
+  appName: 'Kortex',
   webDir: '.output/public',
   server: {
     androidScheme: 'https'

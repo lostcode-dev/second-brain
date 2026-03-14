@@ -24,7 +24,7 @@
                 Capture ideias, organize contexto e transforme intenção em ação.
               </h1>
               <p class="text-base leading-7 text-toned">
-                O Second Brain reúne notas, hábitos e conhecimento em um fluxo sóbrio, rápido e pensado para uso diário.
+                O Kortex reúne notas, hábitos e conhecimento em um fluxo sóbrio, rápido e pensado para uso diário.
               </p>
             </div>
           </div>

@@ -1,10 +1,10 @@
-# Copilot Instructions — Second Brain (Nuxt 4 + Nuxt UI + Supabase)
+# Copilot Instructions — Kortex (Nuxt 4 + Nuxt UI + Supabase)
 
 Estas instruções definem o padrão do projeto para que contribuições geradas com GitHub Copilot mantenham consistência, performance e qualidade.
 
 ## Contexto do produto
 
-**Second Brain** é um sistema pessoal de conhecimento para **capturar, organizar e transformar ideias em ação**. Construído com **Nuxt** e **Supabase**, funciona como uma extensão da mente — ideias não se perdem, elas evoluem.
+**Kortex** é um sistema pessoal de conhecimento para **capturar, organizar e transformar ideias em ação**. Construído com **Nuxt** e **Supabase**, funciona como uma extensão da mente — ideias não se perdem, elas evoluem.
 
 O app deve ser rápido, confiável e escalável (muitos itens/dados), com UX clara para criar/editar/buscar conteúdo como **notas, hábitos, coleções e tags**.
 
@@ -19,7 +19,7 @@ O app deve ser rápido, confiável e escalável (muitos itens/dados), com UX cla
 - Banco/serviços: **Supabase** (sempre acessado via server-side).
 - CI: `pnpm lint` e `pnpm typecheck` devem passar.
 
-> Observação: apesar de o repositório ter vindo de um template, **o produto é o Second Brain**. Para estilos, o projeto usa Tailwind/Nuxt UI; evite adicionar SCSS/SASS sem necessidade.
+> Observação: apesar de o repositório ter vindo de um template, **o produto é o Kortex**. Para estilos, o projeto usa Tailwind/Nuxt UI; evite adicionar SCSS/SASS sem necessidade.
 
 ## Padrões para SASS/SCSS (quando realmente necessário)
 

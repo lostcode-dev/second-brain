@@ -12,16 +12,16 @@ useHead({
     { key: 'theme-color', name: 'theme-color', content: color },
     { name: 'apple-mobile-web-app-capable', content: 'yes' },
     { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-    { name: 'apple-mobile-web-app-title', content: 'Second Brain' },
+    { name: 'apple-mobile-web-app-title', content: 'Kortex' },
     { name: 'mobile-web-app-capable', content: 'yes' },
     { name: 'format-detection', content: 'telephone=no' }
   ],
   link: [
-    { rel: 'icon', type: 'image/svg+xml', href: '/icons/second-brain-icon.svg' },
+    { rel: 'icon', type: 'image/svg+xml', href: '/icons/kortex-icon.svg' },
     { rel: 'alternate icon', type: 'image/png', href: '/icons/icon-192x192.png' },
     { rel: 'shortcut icon', href: '/favicon.ico' },
     { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' },
-    { rel: 'mask-icon', href: '/icons/second-brain-mono.svg', color: '#12E39A' }
+    { rel: 'mask-icon', href: '/icons/kortex-mono.svg', color: '#12E39A' }
   ],
   htmlAttrs: {
     lang: 'pt-BR'
@@ -29,7 +29,7 @@ useHead({
 })
 
 useSeoMeta({
-  titleTemplate: '%s - Second Brain',
+  titleTemplate: '%s - Kortex',
   ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/saas-light.png',
   twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/saas-light.png',
   twitterCard: 'summary_large_image'

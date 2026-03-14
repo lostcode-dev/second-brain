@@ -155,7 +155,7 @@ onMounted(async () => {
   }
 
   toast.add({
-    title: 'Usamos cookies essenciais para melhorar sua experiência no Second Brain.',
+    title: 'Usamos cookies essenciais para melhorar sua experiência no Kortex.',
     duration: 0,
     close: false,
     actions: [

@@ -17,7 +17,7 @@ defineProps<{
       v-if="!collapsed"
       class="text-sm font-semibold text-highlighted truncate"
     >
-      Second Brain
+      Kortex
     </span>
   </NuxtLink>
 </template>

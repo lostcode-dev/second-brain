@@ -66,7 +66,7 @@ const sections: Section[] = [{
   }]
 }, {
   title: 'Atualizações da conta',
-  description: 'Receba novidades sobre o Second Brain.',
+  description: 'Receba novidades sobre o Kortex.',
   fields: [{
     name: 'digest_weekly',
     label: 'Resumo semanal',

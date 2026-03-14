@@ -46,7 +46,7 @@ async function safeInsertNotification(
         type: 'system',
         body: payload.body,
         link_path: payload.link_path ?? null,
-        sender_name: payload.sender_name ?? 'Second Brain',
+        sender_name: payload.sender_name ?? 'Kortex',
         sender_email: payload.sender_email ?? null,
         sender_avatar_url: payload.sender_avatar_url ?? null,
         metadata: payload.metadata ?? {}
@@ -63,7 +63,7 @@ async function safeInsertNotification(
         is_system: true,
         body: payload.body,
         link_path: payload.link_path ?? null,
-        sender_name: payload.sender_name ?? 'Second Brain',
+        sender_name: payload.sender_name ?? 'Kortex',
         sender_email: payload.sender_email ?? null,
         sender_avatar_url: payload.sender_avatar_url ?? null,
         metadata: payload.metadata ?? {}

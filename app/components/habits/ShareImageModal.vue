@@ -24,7 +24,7 @@ const userHandle = computed(() => {
   const metadata = user.value?.user_metadata as Record<string, unknown> | undefined
   const rawHandle = metadata?.user_name || metadata?.username || metadata?.preferred_username
   const fallbackEmail = typeof user.value?.email === 'string' ? user.value.email.split('@')[0] : undefined
-  const base = (typeof rawHandle === 'string' && rawHandle.trim()) || fallbackEmail || userName.value || 'secondbrain'
+  const base = (typeof rawHandle === 'string' && rawHandle.trim()) || fallbackEmail || userName.value || 'kortex'
 
   return `@${base
     .toString()
@@ -121,7 +121,7 @@ async function shareNative() {
     try {
       await navigator.share({
         title: `Meu hábito: ${selectedHabitName.value}`,
-        text: `Construindo consistência com ${selectedHabitName.value} — Second Brain`,
+        text: `Construindo consistência com ${selectedHabitName.value} — Kortex`,
         files: [file],
       })
     } catch (err) {

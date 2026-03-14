@@ -52,8 +52,8 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Second Brain',
-      short_name: 'SecondBrain',
+      name: 'Kortex',
+      short_name: 'Kortex',
       description: 'Sistema pessoal de conhecimento para capturar, organizar e transformar ideias em ação.',
       theme_color: '#00DC82',
       background_color: '#020618',

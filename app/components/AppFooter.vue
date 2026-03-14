@@ -44,7 +44,7 @@ function onSubmit() {
 
   toast.add({
     title: 'Inscrição confirmada!',
-    description: 'Você vai receber novidades do Second Brain por email.'
+    description: 'Você vai receber novidades do Kortex por email.'
   })
 }
 </script>
@@ -63,7 +63,7 @@ function onSubmit() {
             <form @submit.prevent="onSubmit">
               <UFormField
                 name="email"
-                label="Receba novidades do Second Brain"
+                label="Receba novidades do Kortex"
                 size="lg"
               >
                 <UInput
@@ -90,7 +90,7 @@ function onSubmit() {
 
     <template #left>
       <p class="text-muted text-sm">
-        Second Brain • © {{ new Date().getFullYear() }}
+        Kortex • © {{ new Date().getFullYear() }}
       </p>
     </template>
 

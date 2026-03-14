@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
     "generate:icons": "node scripts/generate-icons.mjs",
-    "cap:init": "cap init 'Second Brain' com.secondbrain.app --web-dir .output/public",
+    "cap:init": "cap init 'Kortex' com.kortex.app --web-dir .output/public",
     "cap:add:android": "cap add android",
     "cap:add:ios": "cap add ios",
     "cap:sync": "nuxt generate && cap sync",

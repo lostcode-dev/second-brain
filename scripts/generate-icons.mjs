@@ -22,8 +22,8 @@ const sharp = (await import('sharp')).default
 const sizes = [72, 96, 128, 144, 152, 192, 384, 512]
 const maskableSizes = [192, 512]
 
-const svgIcon = await readFile(new URL('../public/icons/second-brain-icon.svg', import.meta.url), 'utf8')
-const maskableSvg = await readFile(new URL('../public/icons/second-brain-maskable.svg', import.meta.url), 'utf8')
+const svgIcon = await readFile(new URL('../public/icons/kortex-icon.svg', import.meta.url), 'utf8')
+const maskableSvg = await readFile(new URL('../public/icons/kortex-icon.svg', import.meta.url), 'utf8')
 
 const outDir = new URL('../public/icons/', import.meta.url).pathname
 
@@ -53,7 +53,7 @@ await sharp(Buffer.from(svgIcon))
 console.log('✓ apple-touch-icon.png')
 
 try {
-  execSync(`convert ${outDir}second-brain-icon.svg -background none -define icon:auto-resize=16,32,48 ${new URL('../public/favicon.ico', import.meta.url).pathname}`, { stdio: 'ignore' })
+  execSync(`convert ${outDir}kortex-icon.svg -background none -define icon:auto-resize=16,32,48 ${new URL('../public/favicon.ico', import.meta.url).pathname}`, { stdio: 'ignore' })
   console.log('✓ favicon.ico')
 } catch {
   console.log('! favicon.ico was not regenerated because ImageMagick `convert` is unavailable')
