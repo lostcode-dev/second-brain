@@ -1,9 +1,36 @@
 <script setup lang="ts">
 import { pt_br } from '@nuxt/ui/locale'
 
+const route = useRoute()
 const colorMode = useColorMode()
+const { state: preferencesState, applyBrandTheme, applyPublicTheme, applyStoredTheme } = useUserPreferences()
 
 const color = computed(() => colorMode.value === 'dark' ? '#020618' : 'white')
+const isAppRoute = computed(() => route.path.startsWith('/app'))
+
+watch(
+  () => [
+    route.path,
+    preferencesState.value.loaded,
+    preferencesState.value.primary_color,
+    preferencesState.value.neutral_color,
+    preferencesState.value.color_mode
+  ],
+  () => {
+    if (!isAppRoute.value) {
+      applyPublicTheme()
+      return
+    }
+
+    if (!preferencesState.value.loaded) {
+      applyBrandTheme()
+      return
+    }
+
+    applyStoredTheme()
+  },
+  { immediate: true }
+)
 
 useHead({
   meta: [

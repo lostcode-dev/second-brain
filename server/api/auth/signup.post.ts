@@ -49,7 +49,7 @@ export default eventHandler(async (event) => {
         .from('user_preferences')
         .upsert({
           user_id: data.user.id,
-          primary_color: 'green',
+          primary_color: 'emerald',
           neutral_color: 'slate',
           color_mode: 'dark'
         }, { onConflict: 'user_id' }),

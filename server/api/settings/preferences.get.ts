@@ -20,7 +20,7 @@ export default eventHandler(async (event) => {
 
   if (!data) {
     return {
-      primary_color: 'green',
+      primary_color: 'emerald',
       neutral_color: 'slate',
       color_mode: 'dark'
     }
