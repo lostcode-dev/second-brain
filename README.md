@@ -1,27 +1,27 @@
 # Kortex
 
-Kortex e um sistema pessoal de conhecimento para capturar, organizar e transformar ideias em acao. O produto concentra rotinas de foco, habitos, agenda, conhecimento, notificacoes e configuracoes em uma unica aplicacao baseada em Nuxt 4 + Supabase.
+Kortex is a personal knowledge system built to capture, organize, and turn ideas into action. The product brings together focus routines, habits, scheduling, knowledge management, notifications, and account settings in a single application powered by Nuxt 4 + Supabase.
 
-## Visao Geral
+## Overview
 
-- Frontend em Nuxt 4, Vue 3 e TypeScript com `script setup`.
-- UI baseada em `@nuxt/ui` e Tailwind CSS v4.
-- API interna em `server/api/**` com Nitro.
-- Persistencia e autenticacao via Supabase, sempre acessados server-side.
-- Billing e portal do cliente via Stripe.
-- PWA configurado com `@vite-pwa/nuxt`.
-- Empacotamento mobile com Capacitor.
+- Frontend built with Nuxt 4, Vue 3, and TypeScript using `script setup`.
+- UI based on `@nuxt/ui` and Tailwind CSS v4.
+- Internal API under `server/api/**` with Nitro.
+- Persistence and authentication handled through Supabase, always accessed server-side.
+- Billing and customer portal powered by Stripe.
+- PWA support configured with `@vite-pwa/nuxt`.
+- Mobile packaging through Capacitor.
 
-## Modulos Do Produto
+## Product Modules
 
-- Dashboard diario com panorama do dia, insights e areas da vida.
-- Agenda e eventos.
-- Habitos com compartilhamento visual.
-- Conhecimento, ideias, journal e fluxos de captura.
-- Feedback, notificacoes e configuracoes da conta.
-- Billing, assinatura e operacoes administrativas ligadas ao Supabase.
+- Daily dashboard with day overview, insights, and life areas.
+- Calendar and events.
+- Habits with visual sharing.
+- Knowledge, ideas, journal, and capture flows.
+- Feedback, notifications, and account settings.
+- Billing, subscription management, and Supabase-backed administrative operations.
 
-## Stack Tecnica
+## Technical Stack
 
 - Nuxt 4
 - Vue 3
@@ -34,147 +34,147 @@ Kortex e um sistema pessoal de conhecimento para capturar, organizar e transform
 - Capacitor
 - Zod
 
-## Estrutura Do Projeto
+## Project Structure
 
 ```text
 .
 |- app/
-|  |- components/       # UI por dominio e componentes compartilhados
-|  |- composables/      # estado e integracoes do cliente
-|  |- layouts/          # layouts publico, auth, docs e app
-|  |- pages/            # rotas do marketing, docs e app autenticado
-|  `- types/            # contratos TypeScript do frontend
-|- content/             # docs, blog, changelog e conteudo de marketing
-|- public/              # icones, favicon e assets publicos
+|  |- components/       # domain UI and shared components
+|  |- composables/      # client-side state and integrations
+|  |- layouts/          # public, auth, docs, and app layouts
+|  |- pages/            # marketing, docs, and authenticated app routes
+|  `- types/            # frontend TypeScript contracts
+|- content/             # docs, blog, changelog, and marketing content
+|- public/              # icons, favicon, and public assets
 |- server/
-|  |- api/              # endpoints internos
-|  `- utils/            # clientes Supabase, auth, Stripe e regras auxiliares
-|- scripts/             # scripts utilitarios, como geracao de icones
+|  |- api/              # internal endpoints
+|  `- utils/            # Supabase, auth, Stripe clients, and helper rules
+|- scripts/             # utility scripts such as icon generation
 |- supabase/
 |  |- functions/        # edge functions
 |  `- migrations/       # migrations SQL
-`- capacitor.config.ts  # configuracao mobile
+`- capacitor.config.ts  # mobile configuration
 ```
 
-## Requisitos
+## Requirements
 
 - Node.js 20+
 - pnpm 10+
-- Projeto Supabase configurado
-- Chaves do Stripe para fluxos de assinatura
+- A configured Supabase project
+- Stripe keys for subscription flows
 
-## Setup Local
+## Local Setup
 
-1. Instale as dependencias:
+1. Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-2. Copie o arquivo de ambiente:
+2. Copy the environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-3. Preencha as variaveis obrigatorias no `.env`.
+3. Fill in the required variables in `.env`.
 
-4. Inicie o projeto:
+4. Start the project:
 
 ```bash
 pnpm dev
 ```
 
-Aplicacao local: `http://localhost:3000`
+Local application: `http://localhost:3000`
 
-## Variaveis De Ambiente
+## Environment Variables
 
-O projeto le configuracoes via `runtimeConfig` em `nuxt.config.ts`.
+The project reads configuration through `runtimeConfig` in `nuxt.config.ts`.
 
-| Variavel | Obrigatoria | Uso |
+| Variable | Required | Purpose |
 | --- | --- | --- |
-| `NUXT_PUBLIC_SITE_URL` | recomendada | URL publica usada em geracao e metadados |
-| `SUPABASE_URL` | sim | URL do projeto Supabase |
-| `SUPABASE_ANON_KEY` | sim | autenticacao e chamadas anonimas server-side |
-| `SUPABASE_SERVICE_ROLE_KEY` | sim | operacoes administrativas server-side |
-| `STRIPE_SECRET_KEY` | sim para billing | integracao com Stripe |
-| `STRIPE_ALLOWED_PRICE_IDS` | sim para billing | allowlist de precos aceitos, separados por virgula |
-| `STRIPE_BILLING_PORTAL_CONFIGURATION_ID` | opcional | configuracao customizada do portal Stripe |
+| `NUXT_PUBLIC_SITE_URL` | recommended | Public URL used for generation and metadata |
+| `SUPABASE_URL` | yes | Supabase project URL |
+| `SUPABASE_ANON_KEY` | yes | server-side anonymous auth and requests |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes | server-side administrative operations |
+| `STRIPE_SECRET_KEY` | yes for billing | Stripe integration |
+| `STRIPE_ALLOWED_PRICE_IDS` | yes for billing | Comma-separated allowlist of accepted price IDs |
+| `STRIPE_BILLING_PORTAL_CONFIGURATION_ID` | optional | Custom Stripe billing portal configuration |
 
 ## Scripts
 
-| Comando | Descricao |
+| Command | Description |
 | --- | --- |
-| `pnpm dev` | sobe o ambiente de desenvolvimento |
-| `pnpm build` | gera build de producao |
-| `pnpm preview` | abre preview local do build |
-| `pnpm lint` | roda o ESLint |
-| `pnpm typecheck` | valida tipos com Nuxt TypeCheck |
-| `pnpm generate:icons` | regenera icones PWA e favicon a partir do SVG da marca |
-| `pnpm cap:init` | inicializa o projeto Capacitor |
-| `pnpm cap:add:android` | adiciona plataforma Android |
-| `pnpm cap:add:ios` | adiciona plataforma iOS |
-| `pnpm cap:sync` | gera output estatico e sincroniza com Capacitor |
-| `pnpm cap:open:android` | abre o projeto Android nativo |
-| `pnpm cap:open:ios` | abre o projeto iOS nativo |
+| `pnpm dev` | starts the development environment |
+| `pnpm build` | generates the production build |
+| `pnpm preview` | opens a local preview of the build |
+| `pnpm lint` | runs ESLint |
+| `pnpm typecheck` | validates types with Nuxt TypeCheck |
+| `pnpm generate:icons` | regenerates PWA icons and the favicon from the brand SVG |
+| `pnpm cap:init` | initializes the Capacitor project |
+| `pnpm cap:add:android` | adds the Android platform |
+| `pnpm cap:add:ios` | adds the iOS platform |
+| `pnpm cap:sync` | generates static output and syncs it with Capacitor |
+| `pnpm cap:open:android` | opens the native Android project |
+| `pnpm cap:open:ios` | opens the native iOS project |
 
-## Fluxo De Dados E Arquitetura
+## Data Flow And Architecture
 
-- O client consome apenas endpoints internos via `$fetch`, `useFetch` ou `useAsyncData`.
-- Integracoes com Supabase ficam no servidor, principalmente em `server/api/**` e `server/utils/**`.
-- Formularios usam `UForm` + Zod.
-- Feedback visual de acoes usa `useToast()`.
-- Carregamentos assicronos devem usar skeletons de pagina ou de secao.
+- The client consumes only internal endpoints through `$fetch`, `useFetch`, or `useAsyncData`.
+- Supabase integrations stay on the server, mainly under `server/api/**` and `server/utils/**`.
+- Forms use `UForm` + Zod.
+- Visual feedback for actions uses `useToast()`.
+- Async loading states should use page-level or section-level skeletons.
 
-## Convencoes Importantes
+## Important Conventions
 
-- Nao chamar Supabase diretamente no client.
-- Preferir componentes do Nuxt UI antes de UI customizada.
-- Evitar CSS local quando classes utilitarias forem suficientes.
-- Para listas grandes, usar filtros e paginacao server-side.
-- Manter tipos explicitos e evitar `any`.
+- Do not call Supabase directly from the client.
+- Prefer Nuxt UI components before building custom UI.
+- Avoid local CSS when utility classes are sufficient.
+- For large lists, use server-side filtering and pagination.
+- Keep types explicit and avoid `any`.
 
-## Banco E Supabase
+## Database And Supabase
 
-O repositorio inclui migrations em `supabase/migrations` e funcoes em `supabase/functions`.
+The repository includes migrations in `supabase/migrations` and functions in `supabase/functions`.
 
-Para ambientes novos:
+For new environments:
 
-1. Crie o projeto no Supabase.
-2. Configure as variaveis em `.env`.
-3. Aplique as migrations com a sua rotina do Supabase CLI.
+1. Create the project in Supabase.
+2. Configure the variables in `.env`.
+3. Apply the migrations using your Supabase CLI workflow.
 
 ## Billing
 
-Os fluxos de assinatura dependem de:
+Subscription flows depend on:
 
 - `STRIPE_SECRET_KEY`
 - `STRIPE_ALLOWED_PRICE_IDS`
-- `STRIPE_BILLING_PORTAL_CONFIGURATION_ID` quando houver configuracao customizada do portal
+- `STRIPE_BILLING_PORTAL_CONFIGURATION_ID` when a custom portal configuration is used
 
-Sem essas variaveis, as rotas de billing nao ficam operacionais.
+Without these variables, the billing routes will not be operational.
 
-## Mobile E PWA
+## Mobile And PWA
 
-- Manifest PWA configurado para instalacao standalone.
-- Icones gerados a partir de `public/icons/kortex-icon.svg`.
-- Capacitor configurado em `capacitor.config.ts` com `appId` `com.kortex.app`.
+- PWA manifest configured for standalone installation.
+- Icons generated from `public/icons/kortex-icon.svg`.
+- Capacitor configured in `capacitor.config.ts` with `appId` `com.kortex.app`.
 
-## Qualidade
+## Quality
 
-Antes de abrir PR ou publicar alteracoes:
+Before opening a PR or shipping changes:
 
 ```bash
 pnpm lint
 pnpm typecheck
 ```
 
-## Referencias Internas
+## Internal References
 
-- Documentacao publica do produto: `content/1.docs/**`
-- Blog e changelog: `content/3.blog/**` e `content/4.changelog/**`
-- Regras de contribuicao para Copilot: `.github/copilot-instructions.md`
+- Public product documentation: `content/1.docs/**`
+- Blog and changelog: `content/3.blog/**` and `content/4.changelog/**`
+- Copilot contribution rules: `.github/copilot-instructions.md`
 
-## Estado Atual
+## Current State
 
-O repositorio ainda preserva parte da estrutura original do template SaaS, mas o produto em si ja esta orientado ao dominio do Kortex. A documentacao acima descreve o estado real do projeto e o fluxo recomendado para desenvolvimento.
+The repository still preserves part of the original SaaS template structure, but the product itself is now oriented around the Kortex domain. The documentation above describes the real state of the project and the recommended development workflow.
