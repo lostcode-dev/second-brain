@@ -1,62 +1,180 @@
-# Nuxt SaaS Template
+# Kortex
 
-[![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+Kortex e um sistema pessoal de conhecimento para capturar, organizar e transformar ideias em acao. O produto concentra rotinas de foco, habitos, agenda, conhecimento, notificacoes e configuracoes em uma unica aplicacao baseada em Nuxt 4 + Supabase.
 
-Fully built SaaS application to launch your next project with a landing page, a pricing page, a documentation and a blog powered by [Nuxt UI](https://ui.nuxt.com) components.
+## Visao Geral
 
-- [Live demo](https://saas-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+- Frontend em Nuxt 4, Vue 3 e TypeScript com `script setup`.
+- UI baseada em `@nuxt/ui` e Tailwind CSS v4.
+- API interna em `server/api/**` com Nitro.
+- Persistencia e autenticacao via Supabase, sempre acessados server-side.
+- Billing e portal do cliente via Stripe.
+- PWA configurado com `@vite-pwa/nuxt`.
+- Empacotamento mobile com Capacitor.
 
-<a href="https://saas-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/saas-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/saas-light.png">
-    <img alt="Nuxt SaaS Template" src="https://ui.nuxt.com/assets/templates/nuxt/saas-light.png">
-  </picture>
-</a>
+## Modulos Do Produto
 
-## Quick Start
+- Dashboard diario com panorama do dia, insights e areas da vida.
+- Agenda e eventos.
+- Habitos com compartilhamento visual.
+- Conhecimento, ideias, journal e fluxos de captura.
+- Feedback, notificacoes e configuracoes da conta.
+- Billing, assinatura e operacoes administrativas ligadas ao Supabase.
 
-```bash [Terminal]
-npm create nuxt@latest -- -t github:nuxt-ui-templates/saas
+## Stack Tecnica
+
+- Nuxt 4
+- Vue 3
+- TypeScript
+- @nuxt/ui
+- Tailwind CSS v4
+- Nuxt Content
+- Supabase
+- Stripe
+- Capacitor
+- Zod
+
+## Estrutura Do Projeto
+
+```text
+.
+|- app/
+|  |- components/       # UI por dominio e componentes compartilhados
+|  |- composables/      # estado e integracoes do cliente
+|  |- layouts/          # layouts publico, auth, docs e app
+|  |- pages/            # rotas do marketing, docs e app autenticado
+|  `- types/            # contratos TypeScript do frontend
+|- content/             # docs, blog, changelog e conteudo de marketing
+|- public/              # icones, favicon e assets publicos
+|- server/
+|  |- api/              # endpoints internos
+|  `- utils/            # clientes Supabase, auth, Stripe e regras auxiliares
+|- scripts/             # scripts utilitarios, como geracao de icones
+|- supabase/
+|  |- functions/        # edge functions
+|  `- migrations/       # migrations SQL
+`- capacitor.config.ts  # configuracao mobile
 ```
 
-## Deploy your own
+## Requisitos
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=saas&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fsaas&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fsaas-dark.png&demo-url=https%3A%2F%2Fsaas-template.nuxt.dev%2F&demo-title=Nuxt%20SaaS%20Template&demo-description=A%20SaaS%20template%20with%20landing%2C%20pricing%2C%20docs%20and%20blog%20powered%20by%20Nuxt%20Content.)
+- Node.js 20+
+- pnpm 10+
+- Projeto Supabase configurado
+- Chaves do Stripe para fluxos de assinatura
 
-## Setup
+## Setup Local
 
-Make sure to install the dependencies:
+1. Instale as dependencias:
 
 ```bash
 pnpm install
 ```
 
-## Development Server
+2. Copie o arquivo de ambiente:
 
-Start the development server on `http://localhost:3000`:
+```bash
+cp .env.example .env
+```
+
+3. Preencha as variaveis obrigatorias no `.env`.
+
+4. Inicie o projeto:
 
 ```bash
 pnpm dev
 ```
 
-## Production
+Aplicacao local: `http://localhost:3000`
 
-Build the application for production:
+## Variaveis De Ambiente
+
+O projeto le configuracoes via `runtimeConfig` em `nuxt.config.ts`.
+
+| Variavel | Obrigatoria | Uso |
+| --- | --- | --- |
+| `NUXT_PUBLIC_SITE_URL` | recomendada | URL publica usada em geracao e metadados |
+| `SUPABASE_URL` | sim | URL do projeto Supabase |
+| `SUPABASE_ANON_KEY` | sim | autenticacao e chamadas anonimas server-side |
+| `SUPABASE_SERVICE_ROLE_KEY` | sim | operacoes administrativas server-side |
+| `STRIPE_SECRET_KEY` | sim para billing | integracao com Stripe |
+| `STRIPE_ALLOWED_PRICE_IDS` | sim para billing | allowlist de precos aceitos, separados por virgula |
+| `STRIPE_BILLING_PORTAL_CONFIGURATION_ID` | opcional | configuracao customizada do portal Stripe |
+
+## Scripts
+
+| Comando | Descricao |
+| --- | --- |
+| `pnpm dev` | sobe o ambiente de desenvolvimento |
+| `pnpm build` | gera build de producao |
+| `pnpm preview` | abre preview local do build |
+| `pnpm lint` | roda o ESLint |
+| `pnpm typecheck` | valida tipos com Nuxt TypeCheck |
+| `pnpm generate:icons` | regenera icones PWA e favicon a partir do SVG da marca |
+| `pnpm cap:init` | inicializa o projeto Capacitor |
+| `pnpm cap:add:android` | adiciona plataforma Android |
+| `pnpm cap:add:ios` | adiciona plataforma iOS |
+| `pnpm cap:sync` | gera output estatico e sincroniza com Capacitor |
+| `pnpm cap:open:android` | abre o projeto Android nativo |
+| `pnpm cap:open:ios` | abre o projeto iOS nativo |
+
+## Fluxo De Dados E Arquitetura
+
+- O client consome apenas endpoints internos via `$fetch`, `useFetch` ou `useAsyncData`.
+- Integracoes com Supabase ficam no servidor, principalmente em `server/api/**` e `server/utils/**`.
+- Formularios usam `UForm` + Zod.
+- Feedback visual de acoes usa `useToast()`.
+- Carregamentos assicronos devem usar skeletons de pagina ou de secao.
+
+## Convencoes Importantes
+
+- Nao chamar Supabase diretamente no client.
+- Preferir componentes do Nuxt UI antes de UI customizada.
+- Evitar CSS local quando classes utilitarias forem suficientes.
+- Para listas grandes, usar filtros e paginacao server-side.
+- Manter tipos explicitos e evitar `any`.
+
+## Banco E Supabase
+
+O repositorio inclui migrations em `supabase/migrations` e funcoes em `supabase/functions`.
+
+Para ambientes novos:
+
+1. Crie o projeto no Supabase.
+2. Configure as variaveis em `.env`.
+3. Aplique as migrations com a sua rotina do Supabase CLI.
+
+## Billing
+
+Os fluxos de assinatura dependem de:
+
+- `STRIPE_SECRET_KEY`
+- `STRIPE_ALLOWED_PRICE_IDS`
+- `STRIPE_BILLING_PORTAL_CONFIGURATION_ID` quando houver configuracao customizada do portal
+
+Sem essas variaveis, as rotas de billing nao ficam operacionais.
+
+## Mobile E PWA
+
+- Manifest PWA configurado para instalacao standalone.
+- Icones gerados a partir de `public/icons/kortex-icon.svg`.
+- Capacitor configurado em `capacitor.config.ts` com `appId` `com.kortex.app`.
+
+## Qualidade
+
+Antes de abrir PR ou publicar alteracoes:
 
 ```bash
-pnpm build
+pnpm lint
+pnpm typecheck
 ```
 
-Locally preview production build:
+## Referencias Internas
 
-```bash
-pnpm preview
-```
+- Documentacao publica do produto: `content/1.docs/**`
+- Blog e changelog: `content/3.blog/**` e `content/4.changelog/**`
+- Regras de contribuicao para Copilot: `.github/copilot-instructions.md`
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Estado Atual
 
-## Renovate integration
-
-Install [Renovate GitHub app](https://github.com/apps/renovate/installations/select_target) on your repository and you are good to go.
+O repositorio ainda preserva parte da estrutura original do template SaaS, mas o produto em si ja esta orientado ao dominio do Kortex. A documentacao acima descreve o estado real do projeto e o fluxo recomendado para desenvolvimento.
