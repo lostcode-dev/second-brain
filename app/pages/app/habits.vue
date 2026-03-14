@@ -593,14 +593,7 @@ const difficultyFilterOptions = computed(() => [
   ========================
   🔢 Lógica / Regras de Negócio
   ========================
-
-  - [OK] Corrigir cálculo do Streak.
-    Atualmente, quando um hábito não é marcado no dia, ele não está sendo contabilizado corretamente.
-    É necessário garantir que hábitos não concluídos interrompam ou atualizem o streak de forma correta.
-
-  - [OK] Criar rotina automática de fechamento do dia.
-    No final do dia, todos os hábitos que não foram marcados como concluídos devem ser automaticamente registrados como "skipped".
-
+  
   - Implementar histórico de empilhamento (habit stacking history).
     Alterações feitas hoje não devem impactar visualizações de períodos passados.
     Ao visualizar dados antigos, o sistema deve exibir as configurações válidas naquele momento histórico.
@@ -644,18 +637,50 @@ const difficultyFilterOptions = computed(() => [
     O sistema está exigindo login com muita frequência, indicando que a sessão não está sendo armazenada corretamente.
 
   ========================
-  🏷️ Organização
+   🏷️ Organização / Estrutura
   ========================
 
-  - Adicionar suporte a "tags" nos hábitos.
+  - Adicionar suporte a tags nos hábitos.
     Isso permitirá melhor organização, categorização e filtragem.
 
-  - Deve ser possível selecionat um emoji como se fosse uma avatar para o hábito.
+  - Permitir seleção de um emoji como avatar do hábito.
+    Isso facilita identificação visual e personalização da lista de hábitos.
 
-  - Só deve exibir o Streak na listagem, se o hábito estiver em sequência, por exemplo, se eu não fiz um dia,
-    então o streak deve ser zerado. Pensar em uma forma para conseguir congelar o streak e conseguir recuperar para não se tornar uma frustração.
+ ========================
+  🔔 Notificações
+  ========================
 
-  - Agora que tenho a API com Cron, também posso ter as notificações para alertar o usuário.
-  - Além da notificação pelo sistema web, tem outras formas de notificação. Verificar as possibilidades de
-  notificação. 
--->
+  - Implementar notificações para alertar o usuário sobre hábitos.
+    Agora que a API com Cron já existe, é possível evoluir esse fluxo.
+
+  - Avaliar outros canais de notificação além do sistema web.
+    Possibilidades:
+      - Push notifications (mobile / PWA)
+      - Notificações do navegador
+      - E-mail
+      - Integrações futuras
+
+  ========================
+  🚀 Onboarding
+  ========================
+
+  - Criar um fluxo de onboarding para novos usuários.
+    O objetivo é guiar o usuário nas primeiras ações dentro da aplicação,
+    como criação do primeiro hábito e entendimento da lógica de funcionamento.
+
+  - Avaliar qual ferramenta utilizar para implementação do onboarding.
+
+  ========================
+  📊 Analytics / Product Insights
+  ========================
+
+  - Integrar o PostHog para monitorar comportamento dos usuários dentro da aplicação.
+
+    Exemplos de métricas:
+      - cliques
+      - telas visitadas
+      - fluxo de navegação
+      - ações realizadas nos hábitos
+
+    O tracking deve rodar apenas em produção para evitar poluição de dados com eventos de desenvolvimento.
+ -->
