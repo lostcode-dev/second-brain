@@ -15,6 +15,11 @@ useSeoMeta({
 const toast = useToast()
 const auth = useAuth()
 const router = useRouter()
+const rememberedEmail = useCookie<string | null>('remembered-login-email', {
+  default: () => null,
+  maxAge: 60 * 60 * 24 * 90,
+  sameSite: 'lax'
+})
 
 const submitting = ref(false)
 
@@ -23,6 +28,7 @@ const fields = [{
   type: 'text' as const,
   label: 'Email',
   placeholder: 'Digite seu email',
+  defaultValue: rememberedEmail.value ?? '',
   required: true
 }, {
   name: 'password',
@@ -62,6 +68,12 @@ async function onSubmit(payload?: FormSubmitEvent<Schema>) {
   if (!payload) return
   if (submitting.value) return
   submitting.value = true
+
+  if (payload.data.remember ?? true)
+    rememberedEmail.value = payload.data.email
+  else
+    rememberedEmail.value = null
+
   try {
     await auth.login({
       email: payload.data.email,
@@ -76,8 +88,9 @@ async function onSubmit(payload?: FormSubmitEvent<Schema>) {
     })
 
     await router.push('/app')
-  } catch (error: any) {
-    const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível entrar'
+  } catch (error: unknown) {
+    const err = error as { data?: { statusMessage?: string }, statusMessage?: string }
+    const message = err?.data?.statusMessage || err?.statusMessage || 'Não foi possível entrar'
     toast.add({
       title: 'Erro',
       description: message,
