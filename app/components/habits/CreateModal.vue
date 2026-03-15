@@ -7,6 +7,7 @@ const RICH_TEXT_MAX_LENGTH = 10000;
 
 const formTabItems = [
   { label: "Principal", value: "main", icon: "i-lucide-clipboard-list" },
+  { label: "Agendamento", value: "schedule", icon: "i-lucide-clock-3" },
   { label: "4 leis", value: "strategy", icon: "i-lucide-layers-3" },
 ];
 
@@ -415,20 +416,6 @@ function getHabitTypeIcon(habitType: HabitType) {
               />
             </div>
 
-            <UFormField label="Horário programado" name="scheduledTime">
-              <UiTimePicker
-                v-model="state.scheduledTime"
-                placeholder="Horário de início"
-              />
-            </UFormField>
-
-            <UFormField label="Horário de término" name="scheduledEndTime">
-              <UiTimePicker
-                v-model="state.scheduledEndTime"
-                placeholder="Horário de término"
-              />
-            </UFormField>
-
             <UFormField label="Tags" name="tags">
               <USelectMenu
                 v-model="selectedTagIds"
@@ -439,6 +426,66 @@ function getHabitTypeIcon(habitType: HabitType) {
                 class="w-full"
               />
             </UFormField>
+          </div>
+
+          <div v-else-if="activeFormTab === 'schedule'" class="space-y-5">
+            <UCard>
+              <div class="space-y-2">
+                <p class="text-sm font-medium text-highlighted">
+                  Referência para sua agenda
+                </p>
+                <p class="text-sm text-muted">
+                  Defina um horário para o hábito aparecer como guia do seu dia. Isso ajuda a organizar a rotina sem transformar o hábito em compromisso rígido.
+                </p>
+              </div>
+            </UCard>
+
+            <div class="grid gap-4 lg:grid-cols-2">
+              <UFormField
+                label="Horário de início"
+                name="scheduledTime"
+                description="Momento ideal para começar esse hábito."
+              >
+                <UiTimePicker
+                  v-model="state.scheduledTime"
+                  placeholder="Selecione o início"
+                />
+              </UFormField>
+
+              <UFormField
+                label="Horário de término"
+                name="scheduledEndTime"
+                description="Opcional. Use quando o hábito tiver janela de execução."
+              >
+                <UiTimePicker
+                  v-model="state.scheduledEndTime"
+                  placeholder="Selecione o término"
+                />
+              </UFormField>
+            </div>
+
+            <UCard>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p class="text-sm font-medium text-highlighted">
+                    Resumo do agendamento
+                  </p>
+                  <p class="text-sm text-muted">
+                    Visualização rápida de como o hábito vai aparecer na agenda.
+                  </p>
+                </div>
+
+                <UBadge color="neutral" variant="subtle" size="lg">
+                  {{
+                    state.scheduledTime
+                      ? state.scheduledEndTime
+                        ? `${state.scheduledTime} - ${state.scheduledEndTime}`
+                        : state.scheduledTime
+                      : "Sem horário definido"
+                  }}
+                </UBadge>
+              </div>
+            </UCard>
           </div>
 
           <div v-else class="space-y-4">

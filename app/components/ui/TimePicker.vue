@@ -14,6 +14,7 @@ const emit = defineEmits<{
 }>()
 
 const popoverOpen = ref(false)
+const triggerRef = ref<HTMLElement | null>(null)
 
 const selectedHour = computed(() => {
   if (!props.modelValue) return null
@@ -27,6 +28,13 @@ const selectedMinute = computed(() => {
 
 const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
 const minutes = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'))
+const quickTimes = [
+  { label: '06:00', value: '06:00' },
+  { label: '08:00', value: '08:00' },
+  { label: '12:00', value: '12:00' },
+  { label: '18:00', value: '18:00' },
+  { label: '21:00', value: '21:00' }
+]
 
 function selectHour(hour: string) {
   const min = selectedMinute.value ?? '00'
@@ -40,6 +48,11 @@ function selectMinute(minute: string) {
 
 function clear() {
   emit('update:modelValue', undefined)
+  popoverOpen.value = false
+}
+
+function selectTime(value: string) {
+  emit('update:modelValue', value)
   popoverOpen.value = false
 }
 
@@ -70,68 +83,145 @@ function scrollToSelected() {
 </script>
 
 <template>
-  <UPopover v-model:open="popoverOpen" :content="{ align: 'start' }">
+  <UPopover
+    v-model:open="popoverOpen"
+    :content="{ align: 'start', side: 'bottom', sideOffset: 8 }"
+    :ui="{
+      content: 'z-[260] w-[min(92vw,26rem)] rounded-3xl border border-default bg-default p-0 shadow-2xl'
+    }"
+    :modal="true"
+  >
     <UButton
-      :label="displayValue || placeholder"
-      icon="i-lucide-clock"
+      ref="triggerRef"
       color="neutral"
       variant="outline"
       block
-      class="justify-start font-normal"
-      :class="{ 'text-muted': !displayValue }"
+      class="min-h-14 justify-between rounded-2xl border-default px-4 py-3 text-left"
       :disabled="disabled"
-    />
-
-    <template #content>
-      <div class="flex w-56">
-        <!-- Hours -->
-        <div class="flex-1 border-r border-default">
-          <p class="px-2 py-1.5 text-xs font-medium text-muted text-center">Hora</p>
-          <div ref="hourListRef" class="h-48 overflow-y-auto">
-            <button
-              v-for="hour in hours"
-              :key="hour"
-              :data-hour="hour"
-              type="button"
-              class="w-full px-3 py-1.5 text-sm text-center transition-colors hover:bg-elevated"
-              :class="selectedHour === hour ? 'bg-primary/10 text-primary font-semibold' : 'text-highlighted'"
-              @click="selectHour(hour)"
-            >
-              {{ hour }}
-            </button>
-          </div>
+    >
+      <div class="flex min-w-0 items-center gap-3">
+        <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-elevated ring ring-default">
+          <UIcon name="i-lucide-clock-3" class="size-4.5 text-primary" />
         </div>
 
-        <!-- Minutes -->
-        <div class="flex-1">
-          <p class="px-2 py-1.5 text-xs font-medium text-muted text-center">Min</p>
-          <div ref="minuteListRef" class="h-48 overflow-y-auto">
-            <button
-              v-for="minute in minutes"
-              :key="minute"
-              :data-minute="minute"
-              type="button"
-              class="w-full px-3 py-1.5 text-sm text-center transition-colors hover:bg-elevated"
-              :class="selectedMinute === minute ? 'bg-primary/10 text-primary font-semibold' : 'text-highlighted'"
-              @click="selectMinute(minute)"
-            >
-              {{ minute }}
-            </button>
-          </div>
+        <div class="min-w-0">
+          <p class="text-xs uppercase tracking-[0.12em] text-muted">
+            Horário
+          </p>
+          <p class="truncate text-sm font-medium" :class="displayValue ? 'text-highlighted' : 'text-muted'">
+            {{ displayValue || placeholder }}
+          </p>
         </div>
       </div>
 
-      <!-- Clear button -->
-      <div class="border-t border-default p-1.5">
-        <UButton
-          label="Limpar"
-          icon="i-lucide-x"
-          color="neutral"
-          variant="ghost"
-          size="xs"
-          block
-          @click="clear"
+      <template #trailing>
+        <UIcon
+          name="i-lucide-chevron-down"
+          class="size-4 shrink-0 text-muted transition-transform duration-200"
+          :class="{ 'rotate-180': popoverOpen }"
         />
+      </template>
+    </UButton>
+
+    <template #content>
+      <div class="overflow-hidden rounded-3xl">
+        <div class="border-b border-default px-4 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-sm font-semibold text-highlighted">
+                Selecionar horário
+              </p>
+              <p class="mt-1 text-sm text-muted">
+                Use esse horário como referência na agenda diária.
+              </p>
+            </div>
+
+            <UBadge color="neutral" variant="subtle" size="lg">
+              {{ displayValue || 'Sem horário' }}
+            </UBadge>
+          </div>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <UButton
+              v-for="time in quickTimes"
+              :key="time.value"
+              type="button"
+              :label="time.label"
+              size="xs"
+              color="neutral"
+              :variant="displayValue === time.value ? 'solid' : 'subtle'"
+              @click="selectTime(time.value)"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 divide-x divide-default">
+          <div class="min-w-0">
+            <p class="border-b border-default px-3 py-2 text-center text-xs font-medium uppercase tracking-[0.12em] text-muted">
+              Hora
+            </p>
+            <div ref="hourListRef" class="h-56 overflow-y-auto p-2">
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  v-for="hour in hours"
+                  :key="hour"
+                  :data-hour="hour"
+                  type="button"
+                  class="rounded-xl px-3 py-2 text-sm transition-colors"
+                  :class="selectedHour === hour ? 'bg-primary text-inverted font-semibold' : 'bg-elevated text-highlighted hover:bg-accented'"
+                  @click="selectHour(hour)"
+                >
+                  {{ hour }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="min-w-0">
+            <p class="border-b border-default px-3 py-2 text-center text-xs font-medium uppercase tracking-[0.12em] text-muted">
+              Min
+            </p>
+            <div ref="minuteListRef" class="h-56 overflow-y-auto p-2">
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  v-for="minute in minutes"
+                  :key="minute"
+                  :data-minute="minute"
+                  type="button"
+                  class="rounded-xl px-3 py-2 text-sm transition-colors"
+                  :class="selectedMinute === minute ? 'bg-primary text-inverted font-semibold' : 'bg-elevated text-highlighted hover:bg-accented'"
+                  @click="selectMinute(minute)"
+                >
+                  {{ minute }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-default px-3 py-3">
+          <p class="text-xs text-muted">
+            Intervalos de 5 minutos.
+          </p>
+
+          <div class="flex items-center gap-2">
+            <UButton
+              label="Fechar"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="popoverOpen = false"
+            />
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-elevated hover:text-highlighted"
+              @click="clear"
+            >
+              <UIcon name="i-lucide-x" class="size-4" />
+              Limpar
+            </button>
+          </div>
+        </div>
       </div>
     </template>
   </UPopover>
