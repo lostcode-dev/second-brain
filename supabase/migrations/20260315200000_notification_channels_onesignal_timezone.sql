@@ -5,19 +5,91 @@ do $$
 begin
   if exists (
     select 1
-    from information_schema.columns
+    from information_schema.tables
     where table_schema = 'public'
       and table_name = 'notification_preferences'
-      and column_name = 'channel_desktop'
-  ) and not exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'notification_preferences'
-      and column_name = 'channel_web_push'
   ) then
+
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'notification_preferences'
+        and column_name = 'channel_desktop'
+    ) and not exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'notification_preferences'
+        and column_name = 'channel_web_push'
+    ) then
+      alter table public.notification_preferences
+        rename column channel_desktop to channel_web_push;
+    end if;
+
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'notification_preferences'
+        and column_name = 'digest_weekly'
+    ) and not exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'notification_preferences'
+        and column_name = 'weekly_digest'
+    ) then
+      alter table public.notification_preferences
+        rename column digest_weekly to weekly_digest;
+    end if;
+
     alter table public.notification_preferences
-      rename column channel_desktop to channel_web_push;
+      add column if not exists channel_in_app boolean not null default true,
+      add column if not exists channel_mobile_push boolean not null default false,
+      add column if not exists habit_reminders boolean not null default true,
+      add column if not exists web_push_permission text not null default 'default',
+      add column if not exists mobile_push_permission text not null default 'default';
+
+    if not exists (
+      select 1
+      from pg_constraint c
+      join pg_class t on t.oid = c.conrelid
+      join pg_namespace n on n.oid = t.relnamespace
+      where c.conname = 'notification_preferences_web_push_permission_check'
+        and n.nspname = 'public'
+        and t.relname = 'notification_preferences'
+    ) then
+      alter table public.notification_preferences
+        add constraint notification_preferences_web_push_permission_check
+        check (web_push_permission in ('default', 'granted', 'denied', 'unsupported'));
+    end if;
+
+    if not exists (
+      select 1
+      from pg_constraint c
+      join pg_class t on t.oid = c.conrelid
+      join pg_namespace n on n.oid = t.relnamespace
+      where c.conname = 'notification_preferences_mobile_push_permission_check'
+        and n.nspname = 'public'
+        and t.relname = 'notification_preferences'
+    ) then
+      alter table public.notification_preferences
+        add constraint notification_preferences_mobile_push_permission_check
+        check (mobile_push_permission in ('default', 'granted', 'denied', 'unsupported'));
+    end if;
+
+    update public.notification_preferences
+    set
+      channel_in_app = coalesce(channel_in_app, true),
+      habit_reminders = coalesce(habit_reminders, true),
+      web_push_permission = coalesce(web_push_permission, 'default'),
+      mobile_push_permission = coalesce(mobile_push_permission, 'default')
+    where channel_in_app is null
+       or habit_reminders is null
+       or web_push_permission is null
+       or mobile_push_permission is null;
+
   end if;
 end $$;
 
@@ -25,100 +97,38 @@ do $$
 begin
   if exists (
     select 1
-    from information_schema.columns
+    from information_schema.tables
     where table_schema = 'public'
-      and table_name = 'notification_preferences'
-      and column_name = 'digest_weekly'
-  ) and not exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'notification_preferences'
-      and column_name = 'weekly_digest'
-  ) then
-    alter table public.notification_preferences
-      rename column digest_weekly to weekly_digest;
-  end if;
-end $$;
-
-alter table public.notification_preferences
-  add column if not exists channel_in_app boolean not null default true,
-  add column if not exists channel_mobile_push boolean not null default false,
-  add column if not exists habit_reminders boolean not null default true,
-  add column if not exists web_push_permission text not null default 'default',
-  add column if not exists mobile_push_permission text not null default 'default';
-
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_constraint c
-    join pg_class t on t.oid = c.conrelid
-    join pg_namespace n on n.oid = t.relnamespace
-    where c.conname = 'notification_preferences_web_push_permission_check'
-      and n.nspname = 'public'
-      and t.relname = 'notification_preferences'
-  ) then
-    alter table public.notification_preferences
-      add constraint notification_preferences_web_push_permission_check
-      check (web_push_permission in ('default', 'granted', 'denied', 'unsupported'));
-  end if;
-
-  if not exists (
-    select 1
-    from pg_constraint c
-    join pg_class t on t.oid = c.conrelid
-    join pg_namespace n on n.oid = t.relnamespace
-    where c.conname = 'notification_preferences_mobile_push_permission_check'
-      and n.nspname = 'public'
-      and t.relname = 'notification_preferences'
-  ) then
-    alter table public.notification_preferences
-      add constraint notification_preferences_mobile_push_permission_check
-      check (mobile_push_permission in ('default', 'granted', 'denied', 'unsupported'));
-  end if;
-end $$;
-
-update public.notification_preferences
-set
-  channel_in_app = coalesce(channel_in_app, true),
-  habit_reminders = coalesce(habit_reminders, true),
-  web_push_permission = coalesce(web_push_permission, 'default'),
-  mobile_push_permission = coalesce(mobile_push_permission, 'default')
-where channel_in_app is null
-   or habit_reminders is null
-   or web_push_permission is null
-   or mobile_push_permission is null;
-
-alter table public.notifications
-  add column if not exists channels text[] not null default array['in_app']::text[],
-  add column if not exists category text not null default 'general',
-  add column if not exists source text not null default 'internal',
-  add column if not exists external_id text;
-
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_constraint c
-    join pg_class t on t.oid = c.conrelid
-    join pg_namespace n on n.oid = t.relnamespace
-    where c.conname = 'notifications_channels_check'
-      and n.nspname = 'public'
-      and t.relname = 'notifications'
+      and table_name = 'notifications'
   ) then
     alter table public.notifications
-      add constraint notifications_channels_check
-      check (
-        cardinality(channels) > 0
-        and channels <@ array['in_app', 'email', 'web_push', 'mobile_push']::text[]
-      );
+      add column if not exists channels text[] not null default array['in_app']::text[],
+      add column if not exists category text not null default 'general',
+      add column if not exists source text not null default 'internal',
+      add column if not exists external_id text;
+
+    if not exists (
+      select 1
+      from pg_constraint c
+      join pg_class t on t.oid = c.conrelid
+      join pg_namespace n on n.oid = t.relnamespace
+      where c.conname = 'notifications_channels_check'
+        and n.nspname = 'public'
+        and t.relname = 'notifications'
+    ) then
+      alter table public.notifications
+        add constraint notifications_channels_check
+        check (
+          cardinality(channels) > 0
+          and channels <@ array['in_app', 'email', 'web_push', 'mobile_push']::text[]
+        );
+    end if;
+
+    create unique index if not exists notifications_external_id_idx
+      on public.notifications(external_id)
+      where external_id is not null;
   end if;
 end $$;
-
-create unique index if not exists notifications_external_id_idx
-  on public.notifications(external_id)
-  where external_id is not null;
 
 create table if not exists public.notification_push_subscriptions (
   id uuid primary key default gen_random_uuid(),

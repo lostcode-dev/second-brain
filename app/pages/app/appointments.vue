@@ -592,4 +592,6 @@ onMounted(() => {
 
   - Deve ser possível selecionar um icon como se fosse uma avatar para o Evento.
 
+  
+
 -->
