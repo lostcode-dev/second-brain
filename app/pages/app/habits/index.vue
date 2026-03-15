@@ -113,7 +113,6 @@ const createModalOpen = ref(false);
 const editModalOpen = ref(false);
 const archiveModalOpen = ref(false);
 const detailSlideoverOpen = ref(false);
-const identityManagerOpen = ref(false);
 const stackCreateModalOpen = ref(false);
 const stackSourceHabit = ref<Habit | null>(null);
 const selectedHabit = ref<Habit | null>(null);
@@ -125,12 +124,6 @@ watch(createModalOpen, (open) => {
   if (open) {
     ensureLoaded(identitiesStatus, refreshIdentities);
     ensureLoaded(tagsStatus, refreshTags);
-  }
-});
-
-watch(identityManagerOpen, (open) => {
-  if (open) {
-    ensureLoaded(identitiesStatus, refreshIdentities);
   }
 });
 
@@ -403,12 +396,12 @@ const difficultyFilterOptions = computed(() => [
         <template #right>
           <NotificationsButton />
           <UButton
+            to="/app/habits/identity"
             icon="i-lucide-users"
             label="Identidades"
             color="neutral"
             variant="subtle"
             class="hidden sm:inline-flex"
-            @click="identityManagerOpen = true"
           />
           <UButton
             icon="i-lucide-plus"
@@ -596,12 +589,6 @@ const difficultyFilterOptions = computed(() => [
     @update:open="archiveModalOpen = $event"
     @archived="onHabitArchived"
   />
-
-  <HabitsIdentityManagerModal
-    :open="identityManagerOpen"
-    @update:open="identityManagerOpen = $event"
-  />
-
   <HabitsStackCreateModal
     :open="stackCreateModalOpen"
     :habits="listData?.data ?? []"
