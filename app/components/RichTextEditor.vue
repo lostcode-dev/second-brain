@@ -14,6 +14,9 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+const shellRef = ref<HTMLElement | null>(null)
+const editorReady = ref(false)
+
 const toolbar = [
   [{ header: [2, 3, false] }],
   ['bold', 'italic', 'underline', 'strike'],
@@ -38,16 +41,27 @@ const content = computed<string>({
     emit('update:modelValue', normalizeRichTextValue(value))
   }
 })
+
+const editorOptions = computed(() => ({
+  bounds: shellRef.value ?? undefined
+}))
+
+onMounted(async () => {
+  await nextTick()
+  editorReady.value = true
+})
 </script>
 
 <template>
   <ClientOnly>
-    <div class="rich-text-shell rounded-lg border border-default bg-default">
+    <div ref="shellRef" class="rich-text-shell rounded-lg border border-default bg-default">
       <QuillEditor
+        v-if="editorReady"
         v-model:content="content"
         content-type="html"
         theme="bubble"
         :toolbar="toolbar"
+        :options="editorOptions"
         :placeholder="placeholder"
         class="rich-text-editor"
       />
@@ -64,10 +78,11 @@ const content = computed<string>({
 <style scoped>
 .rich-text-shell {
   position: relative;
+  overflow: visible;
 }
 
 .rich-text-shell :deep(.ql-bubble .ql-tooltip) {
-  z-index: 100;
+  z-index: 240;
 }
 
 .rich-text-shell :deep(.ql-toolbar.ql-snow) {
@@ -79,6 +94,7 @@ const content = computed<string>({
 .rich-text-shell :deep(.ql-container.ql-snow) {
   border: 0;
   font-family: inherit;
+  overflow: visible;
 }
 
 .rich-text-shell :deep(.ql-editor) {
