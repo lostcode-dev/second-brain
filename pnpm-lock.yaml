@@ -80,6 +80,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      driver.js:
+        specifier: ^1.4.0
+        version: 1.4.0
       html-to-image:
         specifier: ^1.11.13
         version: 1.11.13
@@ -4485,6 +4488,9 @@ packages:
 
   drag-event-service@2.0.0:
     resolution: {integrity: sha512-JVEnOEbbNDS3RrWd+tVVIDu2SHQZ9luhEFGSQ1hXMjl+ABw0PxhHmnkGjzPVE836Tsg+k7rkm5GM9Ln/UgbYpA==}
+
+  driver.js@1.4.0:
+    resolution: {integrity: sha512-Gm64jm6PmcU+si21sQhBrTAM1JvUrR0QhNmjkprNLxohOBzul9+pNHXgQaT9lW84gwg9GMLB3NZGuGolsz5uew==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -13212,6 +13218,8 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.28.6
       helper-js: 3.1.6
+
+  driver.js@1.4.0: {}
 
   dunder-proto@1.0.1:
     dependencies:

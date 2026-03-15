@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     enabled: true
   },
 
-  css: ['~/assets/css/main.css'],
+  css: ['driver.js/dist/driver.css', '~/assets/css/main.css'],
 
   runtimeConfig: {
     supabaseUrl: process.env.SUPABASE_URL,

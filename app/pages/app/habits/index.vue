@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import type { Habit, HabitReflection, HabitTreeSyncNode } from "~/types/habits";
-import { HabitLogStatus } from "~/types/habits";
+import type { DriveStep, Driver } from 'driver.js'
+import type { Habit, HabitReflection, HabitTreeSyncNode } from '~/types/habits'
+import { GuidedTourKey } from '~/types/guided-tour'
+import { HabitLogStatus } from '~/types/habits'
 
 definePageMeta({
-  layout: "app",
-});
+  layout: 'app'
+})
 
 useSeoMeta({
-  title: "Hábitos",
-});
+  title: 'Hábitos'
+})
 
 const {
   todayData,
@@ -41,43 +43,44 @@ const {
   removeStack,
   syncHabitTree,
   tagsStatus,
-  refreshTags,
-} = useHabits();
+  refreshTags
+} = useHabits()
+const { startIfNeeded } = useGuidedTour()
 
 // ─── Active tab ───────────────────────────────────────────────────────────────
-const activeTab = ref("today");
+const activeTab = ref('today')
 
 const tabs = [
-  { label: "Hoje", value: "today", icon: "i-lucide-sun" },
-  { label: "Todos", value: "all", icon: "i-lucide-list" },
-  { label: "Revisão", value: "review", icon: "i-lucide-notebook-pen" },
-  { label: "Insights", value: "insights", icon: "i-lucide-bar-chart-3" },
-];
+  { label: 'Hoje', value: 'today', icon: 'i-lucide-sun' },
+  { label: 'Todos', value: 'all', icon: 'i-lucide-list' },
+  { label: 'Revisão', value: 'review', icon: 'i-lucide-notebook-pen' },
+  { label: 'Insights', value: 'insights', icon: 'i-lucide-bar-chart-3' }
+]
 
 const todayDateKey = computed(
-  () => todayDate.value ?? new Date().toISOString().split("T")[0]!,
-);
+  () => todayDate.value ?? new Date().toISOString().split('T')[0]!
+)
 
 const isViewingHistoricalToday = computed(
-  () => todayDateKey.value !== new Date().toISOString().split("T")[0]!,
-);
+  () => todayDateKey.value !== new Date().toISOString().split('T')[0]!
+)
 
-const todayStacks = computed(() => todayData.value?.stacks ?? []);
+const todayStacks = computed(() => todayData.value?.stacks ?? [])
 
 const detailStacks = computed(() => {
-  if (activeTab.value === "today") {
-    return todayStacks.value;
+  if (activeTab.value === 'today') {
+    return todayStacks.value
   }
 
-  return stacks.value ?? [];
-});
+  return stacks.value ?? []
+})
 
 function ensureLoaded(
-  status: Ref<"idle" | "pending" | "success" | "error">,
-  refresh: () => Promise<unknown>,
+  status: Ref<'idle' | 'pending' | 'success' | 'error'>,
+  refresh: () => Promise<unknown>
 ) {
-  if (status.value === "idle") {
-    void refresh();
+  if (status.value === 'idle') {
+    void refresh()
   }
 }
 
@@ -85,304 +88,394 @@ function ensureLoaded(
 watch(
   activeTab,
   (tab) => {
-    if (tab === "today") {
-      ensureLoaded(todayStatus, refreshToday);
-      ensureLoaded(stacksStatus, refreshStacks);
+    if (tab === 'today') {
+      ensureLoaded(todayStatus, refreshToday)
+      ensureLoaded(stacksStatus, refreshStacks)
     }
 
-    if (tab === "all") {
-      ensureLoaded(listStatus, refreshList);
-      ensureLoaded(stacksStatus, refreshStacks);
+    if (tab === 'all') {
+      ensureLoaded(listStatus, refreshList)
+      ensureLoaded(stacksStatus, refreshStacks)
     }
 
-    if (tab === "review") {
-      reviewWeekKey.value = reviewWeekKey.value || currentWeekKey.value;
-      loadReflection(reviewWeekKey.value);
-      loadReflectionsList(true);
+    if (tab === 'review') {
+      reviewWeekKey.value = reviewWeekKey.value || currentWeekKey.value
+      loadReflection(reviewWeekKey.value)
+      loadReflectionsList(true)
     }
 
-    if (tab === "insights") {
-      ensureLoaded(insightsStatus, refreshInsights);
+    if (tab === 'insights') {
+      ensureLoaded(insightsStatus, refreshInsights)
     }
   },
-  { immediate: true },
-);
+  { immediate: true }
+)
 
 // ─── Modals ───────────────────────────────────────────────────────────────────
-const createModalOpen = ref(false);
-const editModalOpen = ref(false);
-const archiveModalOpen = ref(false);
-const detailSlideoverOpen = ref(false);
-const stackCreateModalOpen = ref(false);
-const stackSourceHabit = ref<Habit | null>(null);
-const selectedHabit = ref<Habit | null>(null);
-const settingsModalOpen = ref(false);
-const shareImageModalOpen = ref(false);
-const shareImageHabit = ref<Habit | null>(null);
+const createModalOpen = ref(false)
+const editModalOpen = ref(false)
+const archiveModalOpen = ref(false)
+const detailSlideoverOpen = ref(false)
+const stackCreateModalOpen = ref(false)
+const stackSourceHabit = ref<Habit | null>(null)
+const selectedHabit = ref<Habit | null>(null)
+const settingsModalOpen = ref(false)
+const shareImageModalOpen = ref(false)
+const shareImageHabit = ref<Habit | null>(null)
 
 watch(createModalOpen, (open) => {
   if (open) {
-    ensureLoaded(identitiesStatus, refreshIdentities);
-    ensureLoaded(tagsStatus, refreshTags);
+    ensureLoaded(identitiesStatus, refreshIdentities)
+    ensureLoaded(tagsStatus, refreshTags)
   }
-});
+})
 
 watch(stackCreateModalOpen, (open) => {
   if (open) {
-    ensureLoaded(listStatus, refreshList);
-    ensureLoaded(stacksStatus, refreshStacks);
+    ensureLoaded(listStatus, refreshList)
+    ensureLoaded(stacksStatus, refreshStacks)
   }
-});
+})
 
-const ALL_FILTER_VALUE = "__all__";
+const ALL_FILTER_VALUE = '__all__'
 
 const listFrequencyModel = computed({
   get: () => listFrequency.value || ALL_FILTER_VALUE,
   set: (value: string) => {
-    listFrequency.value = value === ALL_FILTER_VALUE ? "" : value;
-  },
-});
+    listFrequency.value = value === ALL_FILTER_VALUE ? '' : value
+  }
+})
 
 const listDifficultyModel = computed({
   get: () => listDifficulty.value || ALL_FILTER_VALUE,
   set: (value: string) => {
-    listDifficulty.value = value === ALL_FILTER_VALUE ? "" : value;
-  },
-});
+    listDifficulty.value = value === ALL_FILTER_VALUE ? '' : value
+  }
+})
 
 // ─── Today actions ────────────────────────────────────────────────────────────
 async function onToggleHabit(habitId: string, completed: boolean) {
-  const date = todayDate.value ?? new Date().toISOString().split("T")[0]!;
-  await logHabit({ habitId, logDate: date, completed });
-  await refreshInsights();
+  const date = todayDate.value ?? new Date().toISOString().split('T')[0]!
+  await logHabit({ habitId, logDate: date, completed })
+  await refreshInsights()
 }
 
 async function onLogWithNote(
   habitId: string,
   status: HabitLogStatus,
-  note: string,
+  note: string
 ) {
-  const date = todayDate.value ?? new Date().toISOString().split("T")[0]!;
-  const completed = status !== HabitLogStatus.Skipped;
-  await logHabit({ habitId, logDate: date, completed, note, status });
-  await refreshInsights();
+  const date = todayDate.value ?? new Date().toISOString().split('T')[0]!
+  const completed = status !== HabitLogStatus.Skipped
+  await logHabit({ habitId, logDate: date, completed, note, status })
+  await refreshInsights()
 }
 
-function onNavigateDate(direction: "prev" | "next") {
+function onNavigateDate(direction: 'prev' | 'next') {
   const current = new Date(
-    (todayDate.value ?? new Date().toISOString().split("T")[0]!) + "T12:00:00",
-  );
-  current.setDate(current.getDate() + (direction === "next" ? 1 : -1));
-  todayDate.value = current.toISOString().split("T")[0]!;
+    (todayDate.value ?? new Date().toISOString().split('T')[0]!) + 'T12:00:00'
+  )
+  current.setDate(current.getDate() + (direction === 'next' ? 1 : -1))
+  todayDate.value = current.toISOString().split('T')[0]!
 }
 
 async function onSelectHabit(habitId: string) {
-  if (activeTab.value === "today") {
-    const habit = todayData.value?.habits.find((item) => item.id === habitId) ?? null;
+  if (activeTab.value === 'today') {
+    const habit = todayData.value?.habits.find(item => item.id === habitId) ?? null
 
     if (habit) {
-      selectedHabit.value = habit;
-      detailSlideoverOpen.value = true;
-      return;
+      selectedHabit.value = habit
+      detailSlideoverOpen.value = true
+      return
     }
   }
 
-  const habit = await fetchHabit(habitId);
+  const habit = await fetchHabit(habitId)
   if (habit) {
-    selectedHabit.value = habit;
-    detailSlideoverOpen.value = true;
+    selectedHabit.value = habit
+    detailSlideoverOpen.value = true
   }
 }
 
 // ─── List actions ─────────────────────────────────────────────────────────────
 function onEditHabit(habit: Habit) {
-  selectedHabit.value = habit;
-  editModalOpen.value = true;
-  ensureLoaded(identitiesStatus, refreshIdentities);
-  ensureLoaded(tagsStatus, refreshTags);
+  selectedHabit.value = habit
+  editModalOpen.value = true
+  ensureLoaded(identitiesStatus, refreshIdentities)
+  ensureLoaded(tagsStatus, refreshTags)
 }
 
 function onArchiveHabit(habit: Habit) {
-  selectedHabit.value = habit;
-  archiveModalOpen.value = true;
+  selectedHabit.value = habit
+  archiveModalOpen.value = true
 }
 
 function onHabitArchived() {
-  detailSlideoverOpen.value = false;
-  selectedHabit.value = null;
+  detailSlideoverOpen.value = false
+  selectedHabit.value = null
 }
 
 // ─── Stacking actions ─────────────────────────────────────────────────────────
 async function onRemoveStack(habit: Habit) {
-  await removeStacksByTrigger(habit.id, habit.name);
+  await removeStacksByTrigger(habit.id, habit.name)
 }
 
 async function onRemoveSingleStack(stackId: string) {
-  await removeStack(stackId);
+  await removeStack(stackId)
 }
 
 function onStackHabit(habit: Habit) {
-  stackSourceHabit.value = habit;
-  stackCreateModalOpen.value = true;
+  stackSourceHabit.value = habit
+  stackCreateModalOpen.value = true
 }
 
 function onShareHabit(habit: Habit) {
-  shareImageHabit.value = habit;
-  shareImageModalOpen.value = true;
+  shareImageHabit.value = habit
+  shareImageModalOpen.value = true
 }
 
 async function onSyncHabitTree(nodes: HabitTreeSyncNode[]) {
-  await syncHabitTree(nodes);
+  await syncHabitTree(nodes)
 }
 
 // ─── Weekly Review ────────────────────────────────────────────────────────────
-const currentReflection = ref<HabitReflection | null>(null);
-const reflectionLoading = ref(false);
+const currentReflection = ref<HabitReflection | null>(null)
+const reflectionLoading = ref(false)
 
-const currentWeekKey = computed(() => getCurrentWeekKey());
-const reviewWeekKey = ref(currentWeekKey.value);
+const currentWeekKey = computed(() => getCurrentWeekKey())
+const reviewWeekKey = ref(currentWeekKey.value)
 
-const reflectionsList = ref<HabitReflection[]>([]);
-const reflectionsListLoading = ref(false);
-const reflectionsPage = ref(1);
-const reflectionsPageSize = 12;
-const reflectionsHasMore = ref(true);
+const reflectionsList = ref<HabitReflection[]>([])
+const reflectionsListLoading = ref(false)
+const reflectionsPage = ref(1)
+const reflectionsPageSize = 12
+const reflectionsHasMore = ref(true)
 
 const reviewWeekOptions = computed(() => {
-  const items: { label: string; value: string }[] = [
+  const items: { label: string, value: string }[] = [
     {
       label: `Semana atual (${currentWeekKey.value})`,
-      value: currentWeekKey.value,
-    },
-  ];
+      value: currentWeekKey.value
+    }
+  ]
 
-  const seen = new Set<string>([currentWeekKey.value]);
+  const seen = new Set<string>([currentWeekKey.value])
   for (const r of reflectionsList.value) {
-    if (!r?.weekKey) continue;
-    if (seen.has(r.weekKey)) continue;
-    seen.add(r.weekKey);
-    items.push({ label: `Semana ${r.weekKey}`, value: r.weekKey });
+    if (!r?.weekKey) continue
+    if (seen.has(r.weekKey)) continue
+    seen.add(r.weekKey)
+    items.push({ label: `Semana ${r.weekKey}`, value: r.weekKey })
   }
 
-  return items;
-});
+  return items
+})
 
 const reviewEditable = computed(
-  () => reviewWeekKey.value === currentWeekKey.value,
-);
+  () => reviewWeekKey.value === currentWeekKey.value
+)
 
 /** Navigate week for review */
-function navigateReviewWeek(direction: "prev" | "next") {
-  const match = reviewWeekKey.value.match(/^(\d{4})-W(\d{2})$/);
-  if (!match) return;
-  let year = parseInt(match[1]!);
-  let week = parseInt(match[2]!);
-  if (direction === "prev") {
-    week--;
+function navigateReviewWeek(direction: 'prev' | 'next') {
+  const match = reviewWeekKey.value.match(/^(\d{4})-W(\d{2})$/)
+  if (!match) return
+  let year = parseInt(match[1]!)
+  let week = parseInt(match[2]!)
+  if (direction === 'prev') {
+    week--
     if (week < 1) {
-      year--;
-      week = 52;
+      year--
+      week = 52
     }
   } else {
-    week++;
+    week++
     if (week > 52) {
-      year++;
-      week = 1;
+      year++
+      week = 1
     }
   }
-  reviewWeekKey.value = `${year}-W${String(week).padStart(2, "0")}`;
+  reviewWeekKey.value = `${year}-W${String(week).padStart(2, '0')}`
 }
 
 async function loadReflectionsList(reset = false) {
-  if (reflectionsListLoading.value) return;
-  reflectionsListLoading.value = true;
+  if (reflectionsListLoading.value) return
+  reflectionsListLoading.value = true
   try {
     if (reset) {
-      reflectionsPage.value = 1;
-      reflectionsHasMore.value = true;
-      reflectionsList.value = [];
+      reflectionsPage.value = 1
+      reflectionsHasMore.value = true
+      reflectionsList.value = []
     }
 
-    const data = await $fetch<HabitReflection[]>("/api/habits/reflections", {
+    const data = await $fetch<HabitReflection[]>('/api/habits/reflections', {
       query: {
         page: reflectionsPage.value,
-        pageSize: reflectionsPageSize,
-      },
-    });
+        pageSize: reflectionsPageSize
+      }
+    })
 
-    const incoming = data ?? [];
+    const incoming = data ?? []
     const byWeek = new Map(
-      reflectionsList.value.map((r) => [r.weekKey, r] as const),
-    );
+      reflectionsList.value.map(r => [r.weekKey, r] as const)
+    )
     for (const r of incoming) {
-      if (r?.weekKey) byWeek.set(r.weekKey, r);
+      if (r?.weekKey) byWeek.set(r.weekKey, r)
     }
     reflectionsList.value = Array.from(byWeek.values()).sort((a, b) =>
-      a.weekKey < b.weekKey ? 1 : -1,
-    );
+      a.weekKey < b.weekKey ? 1 : -1
+    )
 
     if (incoming.length < reflectionsPageSize) {
-      reflectionsHasMore.value = false;
+      reflectionsHasMore.value = false
     }
   } catch {
-    reflectionsHasMore.value = false;
+    reflectionsHasMore.value = false
   } finally {
-    reflectionsListLoading.value = false;
+    reflectionsListLoading.value = false
   }
 }
 
 async function onLoadMoreReflections() {
-  if (!reflectionsHasMore.value) return;
-  reflectionsPage.value += 1;
-  await loadReflectionsList(false);
+  if (!reflectionsHasMore.value) return
+  reflectionsPage.value += 1
+  await loadReflectionsList(false)
 }
 
 async function loadReflection(weekKey: string) {
-  reflectionLoading.value = true;
+  reflectionLoading.value = true
   try {
     const data = await $fetch<HabitReflection | null>(
-      "/api/habits/reflections",
+      '/api/habits/reflections',
       {
-        query: { weekKey },
-      },
-    );
-    currentReflection.value = data;
+        query: { weekKey }
+      }
+    )
+    currentReflection.value = data
   } catch {
-    currentReflection.value = null;
+    currentReflection.value = null
   } finally {
-    reflectionLoading.value = false;
+    reflectionLoading.value = false
   }
 }
 
 async function onSaveWeeklyReview(payload: {
-  weekKey: string;
-  wins?: string;
-  improvements?: string;
+  weekKey: string
+  wins?: string
+  improvements?: string
 }) {
-  const result = await saveReflection(payload);
+  const result = await saveReflection(payload)
   if (result) {
-    currentReflection.value = result;
-    await loadReflectionsList(true);
-    return true;
+    currentReflection.value = result
+    await loadReflectionsList(true)
+    return true
   }
-  return false;
+  return false
 }
 
 watch(reviewWeekKey, async (wk) => {
-  if (activeTab.value !== "review") return;
-  await loadReflection(wk);
-});
+  if (activeTab.value !== 'review') return
+  await loadReflection(wk)
+})
 
 // ─── Filter options ───────────────────────────────────────────────────────────
 const frequencyFilterOptions = computed(() => [
-  { label: "Todas", value: ALL_FILTER_VALUE },
-  ...frequencyOptions,
-]);
+  { label: 'Todas', value: ALL_FILTER_VALUE },
+  ...frequencyOptions
+])
 
 const difficultyFilterOptions = computed(() => [
-  { label: "Todas", value: ALL_FILTER_VALUE },
-  ...difficultyOptions,
-]);
+  { label: 'Todas', value: ALL_FILTER_VALUE },
+  ...difficultyOptions
+])
+
+let habitsTour: Driver | null = null
+
+function buildHabitsTourSteps(): DriveStep[] {
+  return [
+    {
+      element: '[data-tour="habits-header-actions"]',
+      popover: {
+        title: 'Comece pelos atalhos principais',
+        description:
+          'Aqui você cria um novo hábito e acessa a gestão de identidades, que ajuda a organizar os hábitos pelo tipo de pessoa que você quer se tornar.',
+        side: 'bottom',
+        align: 'end'
+      }
+    },
+    {
+      element: '[data-tour="habits-tabs"]',
+      popover: {
+        title: 'Navegue pelas áreas da tela',
+        description:
+          'Use estas abas para alternar entre o dia de hoje, a visão completa dos hábitos, a revisão semanal e os insights de consistência.',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '[data-tour="habits-today-panel"]',
+      popover: {
+        title: 'Hoje é a sua base operacional',
+        description:
+          'Nesta área você acompanha o progresso do dia, marca execuções e registra observações rápidas de cada hábito.',
+        onNextClick: async (_element, _step, { driver }) => {
+          activeTab.value = 'all'
+          await nextTick()
+          driver.moveNext()
+        }
+      }
+    },
+    {
+      element: '[data-tour="habits-all-panel"]',
+      popover: {
+        title: 'A visão completa ajuda a organizar',
+        description:
+          'Aqui você busca, filtra, edita, empilha hábitos e reorganiza a estrutura completa quando quiser revisar o sistema como um todo.',
+        onNextClick: async (_element, _step, { driver }) => {
+          activeTab.value = 'insights'
+          await nextTick()
+          driver.moveNext()
+        },
+        onPrevClick: async (_element, _step, { driver }) => {
+          activeTab.value = 'today'
+          await nextTick()
+          driver.movePrevious()
+        }
+      }
+    },
+    {
+      element: '[data-tour="habits-insights-panel"]',
+      popover: {
+        title: 'Insights mostram padrões de consistência',
+        description:
+          'Use esta área para entender desempenho, frequência, evolução por identidade e pontos de atenção da sua rotina.',
+        doneBtnText: 'Concluir',
+        onPrevClick: async (_element, _step, { driver }) => {
+          activeTab.value = 'all'
+          await nextTick()
+          driver.movePrevious()
+        }
+      }
+    }
+  ]
+}
+
+onMounted(async () => {
+  const initialTab = activeTab.value
+
+  habitsTour = await startIfNeeded({
+    key: GuidedTourKey.HabitsOverview,
+    onDestroyed: () => {
+      activeTab.value = initialTab
+      habitsTour = null
+    },
+    steps: buildHabitsTourSteps()
+  })
+})
+
+onBeforeUnmount(() => {
+  habitsTour?.destroy()
+  habitsTour = null
+})
 </script>
 
 <template>
@@ -394,27 +487,31 @@ const difficultyFilterOptions = computed(() => [
         </template>
 
         <template #right>
-          <NotificationsButton />
-          <UButton
-            to="/app/habits/identity"
-            icon="i-lucide-users"
-            label="Identidades"
-            color="neutral"
-            variant="subtle"
-            class="hidden sm:inline-flex"
-          />
-          <UButton
-            icon="i-lucide-plus"
-            square
-            class="flex sm:hidden items-center justify-center"
-            @click="createModalOpen = true"
-          />
-          <UButton
-            label="Novo hábito"
-            icon="i-lucide-plus"
-            class="hidden sm:inline-flex"
-            @click="createModalOpen = true"
-          />
+          <div class="flex items-center gap-2">
+            <NotificationsButton />
+            <div data-tour="habits-header-actions" class="flex items-center gap-2">
+              <UButton
+                to="/app/habits/identity"
+                icon="i-lucide-users"
+                label="Identidades"
+                color="neutral"
+                variant="subtle"
+                class="hidden sm:inline-flex"
+              />
+              <UButton
+                icon="i-lucide-plus"
+                square
+                class="flex sm:hidden items-center justify-center"
+                @click="createModalOpen = true"
+              />
+              <UButton
+                label="Novo hábito"
+                icon="i-lucide-plus"
+                class="hidden sm:inline-flex"
+                @click="createModalOpen = true"
+              />
+            </div>
+          </div>
         </template>
       </UDashboardNavbar>
     </template>
@@ -422,14 +519,16 @@ const difficultyFilterOptions = computed(() => [
     <template #body>
       <div class="space-y-6">
         <!-- Tabs -->
-        <UTabs
-          :items="tabs"
-          :model-value="activeTab"
-          @update:model-value="activeTab = $event as string"
-        />
+        <div data-tour="habits-tabs">
+          <UTabs
+            :items="tabs"
+            :model-value="activeTab"
+            @update:model-value="activeTab = $event as string"
+          />
+        </div>
 
         <!-- TODAY TAB -->
-        <div v-if="activeTab === 'today'">
+        <div v-if="activeTab === 'today'" data-tour="habits-today-panel">
           <HabitsTodayList
             :habits="todayData?.habits ?? []"
             :stacks="todayStacks"
@@ -445,7 +544,7 @@ const difficultyFilterOptions = computed(() => [
         </div>
 
         <!-- ALL HABITS TAB -->
-        <div v-if="activeTab === 'all'" class="space-y-4">
+        <div v-if="activeTab === 'all'" class="space-y-4" data-tour="habits-all-panel">
           <!-- Filters -->
           <div class="flex flex-wrap items-center gap-2">
             <UInput
@@ -532,7 +631,7 @@ const difficultyFilterOptions = computed(() => [
         </div>
 
         <!-- INSIGHTS TAB -->
-        <div v-if="activeTab === 'insights'">
+        <div v-if="activeTab === 'insights'" data-tour="habits-insights-panel">
           <HabitsInsightsPanel
             :insights="insights ?? null"
             :loading="insightsStatus === 'pending'"
@@ -676,7 +775,7 @@ const difficultyFilterOptions = computed(() => [
   - No Mobile o menu está ficando como se estivesse fechado.
   - Não consigo ver o fundo de qualquer página.
   - ⁠Mudar  o comportamento quando é mobile em hábitos, checkbox pequeno e fica sem espaço para ficar empilhado
-   
+
   - Remover a identidade da listagem, é um conteúdo grande para ficar exibindo, pode ser usado em notificações, e para entender melhor sobre o hábito.
 
   - Modal está ocupando mais espaço na altura, sendo que deveria ocupar uma altura máxima,
