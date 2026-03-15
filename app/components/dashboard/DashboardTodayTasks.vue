@@ -23,7 +23,9 @@ function priorityLabel(priority: string): string {
 
 function isOverdue(dueDate: string | null): boolean {
   if (!dueDate) return false
-  const today = new Date().toISOString().split('T')[0]!
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Fortaleza'
+  }).format(new Date())
   return dueDate < today
 }
 </script>

@@ -24,11 +24,15 @@ const {
 const isLoading = computed(() => dashboardStatus.value === 'pending')
 const isInsightsLoading = computed(() => insightsStatus.value === 'pending')
 const isRefreshing = computed(() => isLoading.value || isInsightsLoading.value)
-
-const todayFormatted = computed(() => {
-  const d = new Date()
-  return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-})
+const todayFormatted = useState('life-os-today-formatted', () =>
+  new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'America/Fortaleza'
+  }).format(new Date())
+)
 
 async function handleRefresh() {
   if (isRefreshing.value) return
