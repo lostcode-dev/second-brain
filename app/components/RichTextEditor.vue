@@ -82,7 +82,7 @@ onMounted(async () => {
 }
 
 .rich-text-shell :deep(.ql-bubble .ql-tooltip) {
-  z-index: 240;
+  z-index: 340;
 }
 
 .rich-text-shell :deep(.ql-toolbar.ql-snow) {

@@ -257,23 +257,23 @@ function getHabitTypeIcon(habitType: HabitType) {
 <template>
   <UModal
     :open="props.open"
+    scrollable
     title="Novo hábito"
     description="Comece pequeno. Um passo de cada vez."
     :ui="{
       overlay: 'z-[200] bg-elevated/75',
-      content: 'z-[210]'
+      content: 'z-[210] w-[calc(100vw-2rem)] max-w-4xl overflow-visible'
     }"
     @update:open="onClose"
   >
     <template #body>
-      <div class="max-h-[70vh] overflow-y-auto pr-1">
-        <UForm
-          :id="FORM_ID"
-          :schema="schema"
-          :state="state"
-          class="space-y-4"
-          @submit="onSubmit"
-        >
+      <UForm
+        :id="FORM_ID"
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
           <UTabs
             v-model="activeFormTab"
             :items="formTabItems"
@@ -521,8 +521,7 @@ function getHabitTypeIcon(habitType: HabitType) {
               />
             </UFormField>
           </div>
-        </UForm>
-      </div>
+      </UForm>
     </template>
 
     <template #footer>
