@@ -50,12 +50,26 @@ export function useAuth() {
 
   function parseUserCookie(): AuthUserCookiePayload | null {
     const raw = userCookie.value
-    if (!raw)
+    if (!raw) {
+      log('parseUserCookie:empty')
       return null
+    }
 
     try {
-      return JSON.parse(decodeURIComponent(raw)) as AuthUserCookiePayload
-    } catch {
+      const parsed = JSON.parse(decodeURIComponent(raw)) as AuthUserCookiePayload
+      log('parseUserCookie:success', {
+        userId: parsed.user?.id ?? null,
+        expiresAt: parsed.expiresAt,
+        syncedAt: parsed.syncedAt
+      })
+      return parsed
+    } catch (error: unknown) {
+      const err = error as { message?: string }
+      log('parseUserCookie:error', {
+        message: err?.message ?? null,
+        rawLength: raw.length,
+        rawPreview: raw.slice(0, 80)
+      })
       return null
     }
   }
