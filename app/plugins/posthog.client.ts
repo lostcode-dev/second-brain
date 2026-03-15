@@ -1,6 +1,39 @@
 import posthog from 'posthog-js'
 import { setPostHogClient, usePostHog } from '~/composables/usePostHog'
 
+const POSTHOG_TOOLBAR_ID = '__POSTHOG_TOOLBAR__'
+const POSTHOG_TOOLBAR_CONTAINER_CLASS = 'toolbar-global-fade-container'
+const POSTHOG_TOOLBAR_STORAGE_KEY = '_postHogToolbarParams'
+
+function getAuthState(userId: string | null) {
+  return userId ? 'authenticated' : 'anonymous'
+}
+
+function clearToolbarHashParams() {
+  const hash = window.location.hash
+  if (!hash.includes('__posthog=') && !hash.includes('state='))
+    return
+
+  const hashParams = new URLSearchParams(hash.slice(1))
+  const removedPostHog = hashParams.delete('__posthog')
+  const removedState = hashParams.delete('state')
+
+  if (!removedPostHog && !removedState)
+    return
+
+  const nextHash = hashParams.toString()
+  const nextUrl = `${window.location.pathname}${window.location.search}${nextHash ? `#${nextHash}` : ''}`
+  window.history.replaceState(window.history.state, '', nextUrl)
+}
+
+function cleanupPostHogToolbar() {
+  window.localStorage.removeItem(POSTHOG_TOOLBAR_STORAGE_KEY)
+  clearToolbarHashParams()
+
+  document.getElementById(POSTHOG_TOOLBAR_ID)?.remove()
+  document.querySelector(`.${POSTHOG_TOOLBAR_CONTAINER_CLASS}`)?.remove()
+}
+
 export default defineNuxtPlugin(() => {
   const runtimeConfig = useRuntimeConfig()
   const auth = useAuth()
@@ -24,16 +57,21 @@ export default defineNuxtPlugin(() => {
     return
   }
 
+  cleanupPostHogToolbar()
+
   posthog.init(runtimeConfig.public.posthogKey, {
+    advanced_disable_toolbar_metrics: true,
     api_host: runtimeConfig.public.posthogHost,
     autocapture: true,
     capture_pageleave: true,
     capture_pageview: false,
+    disable_external_dependency_loading: false,
     person_profiles: 'identified_only',
     loaded: (client) => {
       client.register({
         app_name: 'kortex',
-        app_runtime: 'nuxt-web'
+        app_runtime: 'nuxt-web',
+        auth_state: getAuthState(auth.user.value?.id ?? null)
       })
       client.register_for_session({
         deployment_environment: 'production'
@@ -54,12 +92,19 @@ export default defineNuxtPlugin(() => {
         return
 
       if (user) {
+        posthog.register({
+          auth_state: 'authenticated'
+        })
         identifyUser(user)
         return
       }
 
       if (lastIdentifiedUserId.value)
         resetUser()
+
+      posthog.register({
+        auth_state: 'anonymous'
+      })
     },
     { immediate: true }
   )
@@ -68,13 +113,20 @@ export default defineNuxtPlugin(() => {
     if (failure)
       return
 
-    captureNavigation(from, to)
+    cleanupPostHogToolbar()
+
+    const authState = getAuthState(lastIdentifiedUserId.value)
+    captureNavigation(from, to, authState)
     capturePageView(to, {
+      authState,
       referrer: from.fullPath ? new URL(from.fullPath, window.location.origin).toString() : undefined
     })
   })
 
   onNuxtReady(() => {
-    capturePageView(router.currentRoute.value)
+    cleanupPostHogToolbar()
+    capturePageView(router.currentRoute.value, {
+      authState: getAuthState(lastIdentifiedUserId.value)
+    })
   })
 })

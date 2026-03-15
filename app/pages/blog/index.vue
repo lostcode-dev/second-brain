@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { PostHogEvent } from '~/types/analytics'
+
 const route = useRoute()
+const { capture } = usePostHog()
 
 const { data: page } = await useAsyncData('blog', () => queryCollection('blog').first())
 const { data: posts } = await useAsyncData(route.path, () => queryCollection('posts').all())
@@ -15,6 +18,13 @@ useSeoMeta({
 })
 
 defineOgImageComponent('Saas')
+
+function trackPostClick(post: { path?: string, title?: string }, index: number) {
+  capture(PostHogEvent.BlogPostOpened, {
+    index,
+    post_path: post.path
+  })
+}
 </script>
 
 <template>
@@ -42,6 +52,7 @@ defineOgImageComponent('Saas')
           :ui="{
             description: 'line-clamp-2'
           }"
+          @click="trackPostClick(post, index)"
         />
       </UBlogPosts>
     </UPageBody>

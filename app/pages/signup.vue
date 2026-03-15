@@ -2,6 +2,7 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { useAuth } from '~/composables/useAuth'
+import { PostHogEvent } from '~/types/analytics'
 
 definePageMeta({
   layout: 'auth'
@@ -15,6 +16,7 @@ useSeoMeta({
 const toast = useToast()
 const auth = useAuth()
 const router = useRouter()
+const { capture } = usePostHog()
 
 const submitting = ref(false)
 
@@ -39,12 +41,20 @@ const providers = [{
   label: 'Google',
   icon: 'i-simple-icons-google',
   onClick: () => {
+    capture(PostHogEvent.AuthProviderSelected, {
+      provider: 'google',
+      source: 'signup'
+    })
     navigateTo('/api/auth/oauth/start?provider=google')
   }
 }, {
   label: 'GitHub',
   icon: 'i-simple-icons-github',
   onClick: () => {
+    capture(PostHogEvent.AuthProviderSelected, {
+      provider: 'github',
+      source: 'signup'
+    })
     navigateTo('/api/auth/oauth/start?provider=github')
   }
 }]
@@ -56,10 +66,19 @@ const schema = z.object({
 })
 
 type Schema = z.output<typeof schema>
+type FetchErrorLike = {
+  data?: {
+    statusMessage?: string
+  }
+  statusMessage?: string
+}
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   if (submitting.value) return
   submitting.value = true
+  capture(PostHogEvent.AuthSignupSubmitted, {
+    source: 'signup'
+  })
   try {
     const response = await auth.signup({
       name: payload.data.name,
@@ -83,8 +102,9 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       color: 'success'
     })
     await router.push('/app')
-  } catch (error: any) {
-    const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível criar a conta'
+  } catch (error: unknown) {
+    const err = error as FetchErrorLike
+    const message = err?.data?.statusMessage || err?.statusMessage || 'Não foi possível criar a conta'
     toast.add({
       title: 'Erro',
       description: message,

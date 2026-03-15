@@ -1,10 +1,30 @@
 <script setup lang="ts">
 import { useAuth } from '~/composables/useAuth'
+import { PostHogEvent } from '~/types/analytics'
 
 type PricingPage = {
   title: string
   description: string
-  plans: any[]
+  plans: PricingPlan[]
+}
+
+type PricingPlan = {
+  button?: Record<string, unknown>
+  price?: {
+    month?: string
+    year?: string
+  }
+  stripePriceId?: {
+    month?: string
+    year?: string
+  }
+} & Record<string, unknown>
+
+type FetchErrorLike = {
+  data?: {
+    statusMessage?: string
+  }
+  statusMessage?: string
 }
 
 const props = withDefaults(defineProps<{
@@ -25,16 +45,24 @@ const items = ref([
 
 const toast = useToast()
 const auth = useAuth()
+const { capture } = usePostHog()
 
 async function startCheckout(priceId: string) {
   await auth.ensureReady()
 
   if (!auth.isAuthenticated.value) {
+    capture(PostHogEvent.PricingLoginRedirected, {
+      price_id: priceId
+    })
     await navigateTo('/login')
     return
   }
 
   try {
+    capture(PostHogEvent.PricingCheckoutStarted, {
+      billing_interval: isYearly.value === '1' ? 'yearly' : 'monthly',
+      price_id: priceId
+    })
     const { url } = await $fetch<{ url: string }>('/api/billing/checkout', {
       method: 'POST',
       body: {
@@ -45,14 +73,15 @@ async function startCheckout(priceId: string) {
     })
 
     await navigateTo(url, { external: true })
-  } catch (error: any) {
-    const message = error?.data?.statusMessage || error?.statusMessage || 'Não foi possível iniciar o checkout'
+  } catch (error: unknown) {
+    const err = error as FetchErrorLike
+    const message = err?.data?.statusMessage || err?.statusMessage || 'Não foi possível iniciar o checkout'
     toast.add({ title: 'Erro', description: message, color: 'error' })
   }
 }
 
 const plansWithActions = computed(() => {
-  const plans = (props.page?.plans || []) as any[]
+  const plans = props.page?.plans || []
 
   return plans.map((plan) => {
     const priceId = isYearly.value === '1' ? plan?.stripePriceId?.year : plan?.stripePriceId?.month
@@ -66,6 +95,15 @@ const plansWithActions = computed(() => {
         onClick: () => startCheckout(priceId)
       }
     }
+  })
+})
+
+watch(isYearly, (value, previousValue) => {
+  if (value === previousValue)
+    return
+
+  capture(PostHogEvent.PricingBillingIntervalChanged, {
+    billing_interval: value === '1' ? 'yearly' : 'monthly'
   })
 })
 </script>

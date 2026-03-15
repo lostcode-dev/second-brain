@@ -664,27 +664,7 @@ const difficultyFilterOptions = computed(() => [
 
   - Avaliar qual ferramenta utilizar para implementação do onboarding.
 
-  ========================
-  📊 Analytics / Product Insights
-  ========================
-
-  - Integrar o PostHog para monitorar comportamento dos usuários dentro da aplicação.
-
-    Exemplos de métricas:
-      - cliques
-      - telas visitadas
-      - fluxo de navegação
-      - ações realizadas nos hábitos
-
-  - Adiciona na documentação para toda tela ter métricas do PostHog no copilot-instructions.md
-  - Cria o composable para uso do Posthog;
-  - Identifica o user quando faz login ou quando inicia a sessão;
-  - Remove a idenficação do usuário quando faz logout;
-  - Aplique os melhores padrões do PostHog para garantir a qualidade dos dados coletados.
-  - Também vou usar o Posthog para feature flag;
-
-    O tracking deve rodar apenas em produção para evitar poluição de dados com eventos de desenvolvimento.
- -->
+  -->
 
  <!--
 

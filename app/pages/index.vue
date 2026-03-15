@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { PostHogEvent } from '~/types/analytics'
+
 const { data: page } = await useAsyncData('index', () => queryCollection('index').first())
+const { capture } = usePostHog()
 
 const title = page.value?.seo?.title || page.value?.title
 const description = page.value?.seo?.description || page.value?.description
@@ -11,6 +14,38 @@ useSeoMeta({
   description,
   ogDescription: description
 })
+
+const heroLinks = computed(() => (page.value?.hero?.links ?? []).map((link: Record<string, unknown>, index: number) => ({
+  ...link,
+  onClick: () => {
+    capture(PostHogEvent.PublicHeroCtaClicked, {
+      cta_index: index,
+      location: 'hero',
+      target: typeof link.to === 'string' ? link.to : undefined,
+      target_label: typeof link.label === 'string' ? link.label : undefined
+    })
+  }
+})))
+
+const ctaProps = computed(() => {
+  if (!page.value?.cta)
+    return undefined
+
+  return {
+    ...page.value.cta,
+    links: (page.value.cta.links ?? []).map((link: Record<string, unknown>, index: number) => ({
+      ...link,
+      onClick: () => {
+        capture(PostHogEvent.PublicFinalCtaClicked, {
+          cta_index: index,
+          location: 'page-bottom',
+          target: typeof link.to === 'string' ? link.to : undefined,
+          target_label: typeof link.label === 'string' ? link.label : undefined
+        })
+      }
+    }))
+  }
+})
 </script>
 
 <template>
@@ -18,7 +53,7 @@ useSeoMeta({
     <UPageHero
       :title="page.title"
       :description="page.description"
-      :links="page.hero.links"
+      :links="heroLinks"
     >
       <template #top>
         <HeroBackground />
@@ -87,7 +122,7 @@ useSeoMeta({
     <USeparator />
 
     <UPageCTA
-      v-bind="page.cta"
+      v-bind="ctaProps"
       variant="naked"
       class="overflow-hidden"
     >

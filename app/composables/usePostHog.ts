@@ -14,6 +14,7 @@ type PostHogRouteLocation = {
   query?: Record<string, unknown>
 }
 type PostHogPageViewOptions = {
+  authState?: 'anonymous' | 'authenticated'
   referrer?: string
 }
 
@@ -84,16 +85,18 @@ export function usePostHog() {
     lastTrackedPath.value = route.fullPath
 
     capture(PostHogEvent.PageViewed, {
+      auth_state: options.authState,
       current_url: import.meta.client ? window.location.href : route.fullPath,
       hash: route.hash || undefined,
       path: route.path,
       query_count: route.query ? Object.keys(route.query).length : 0,
       referrer: options.referrer || (import.meta.client ? document.referrer || undefined : undefined),
+      route_scope: route.path.startsWith('/app') ? 'app' : 'public',
       route_name: route.name ? String(route.name) : undefined
     })
   }
 
-  function captureNavigation(from: PostHogRouteLocation, to: PostHogRouteLocation) {
+  function captureNavigation(from: PostHogRouteLocation, to: PostHogRouteLocation, authState?: 'anonymous' | 'authenticated') {
     if (!isEnabled.value || !posthogClient)
       return
 
@@ -101,10 +104,13 @@ export function usePostHog() {
       return
 
     capture(PostHogEvent.NavigationTransition, {
+      auth_state: authState,
       from_path: from.path,
       from_route_name: from.name ? String(from.name) : undefined,
+      from_scope: from.path.startsWith('/app') ? 'app' : 'public',
       to_path: to.path,
-      to_route_name: to.name ? String(to.name) : undefined
+      to_route_name: to.name ? String(to.name) : undefined,
+      to_scope: to.path.startsWith('/app') ? 'app' : 'public'
     })
   }
 

@@ -2,6 +2,7 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { useAuth } from '~/composables/useAuth'
+import { PostHogEvent } from '~/types/analytics'
 
 definePageMeta({
   layout: 'auth'
@@ -15,6 +16,7 @@ useSeoMeta({
 const toast = useToast()
 const auth = useAuth()
 const router = useRouter()
+const { capture } = usePostHog()
 const rememberedEmail = useCookie<string | null>('remembered-login-email', {
   default: () => null,
   maxAge: 60 * 60 * 24 * 90,
@@ -46,12 +48,20 @@ const providers = [{
   label: 'Google',
   icon: 'i-simple-icons-google',
   onClick: () => {
+    capture(PostHogEvent.AuthProviderSelected, {
+      provider: 'google',
+      source: 'login'
+    })
     navigateTo('/api/auth/oauth/start?provider=google')
   }
 }, {
   label: 'GitHub',
   icon: 'i-simple-icons-github',
   onClick: () => {
+    capture(PostHogEvent.AuthProviderSelected, {
+      provider: 'github',
+      source: 'login'
+    })
     navigateTo('/api/auth/oauth/start?provider=github')
   }
 }]
@@ -73,6 +83,10 @@ async function onSubmit(payload?: FormSubmitEvent<Schema>) {
     rememberedEmail.value = payload.data.email
   else
     rememberedEmail.value = null
+
+  capture(PostHogEvent.AuthLoginSubmitted, {
+    remember: payload.data.remember ?? true
+  })
 
   try {
     await auth.login({

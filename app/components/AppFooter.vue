@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { PostHogEvent } from '~/types/analytics'
+
 const columns = [{
   label: 'Recursos',
   children: [{
@@ -35,12 +37,17 @@ const columns = [{
 }]
 
 const toast = useToast()
+const { capture } = usePostHog()
 
 const email = ref('')
 const loading = ref(false)
 
 function onSubmit() {
   loading.value = true
+  capture(PostHogEvent.PublicNewsletterSubmitted, {
+    has_email: Boolean(email.value.trim()),
+    location: 'footer'
+  })
 
   toast.add({
     title: 'Inscrição confirmada!',
@@ -101,6 +108,7 @@ function onSubmit() {
         aria-label="Abrir documentação"
         color="neutral"
         variant="ghost"
+        @click="capture(PostHogEvent.PublicFooterCtaClicked, { location: 'footer', target: '/docs/getting-started', target_label: 'Documentation' })"
       />
       <UButton
         to="/changelog"
@@ -108,6 +116,7 @@ function onSubmit() {
         aria-label="Ver novidades"
         color="neutral"
         variant="ghost"
+        @click="capture(PostHogEvent.PublicFooterCtaClicked, { location: 'footer', target: '/changelog', target_label: 'Changelog' })"
       />
       <UButton
         to="/blog"
@@ -115,6 +124,7 @@ function onSubmit() {
         aria-label="Abrir blog"
         color="neutral"
         variant="ghost"
+        @click="capture(PostHogEvent.PublicFooterCtaClicked, { location: 'footer', target: '/blog', target_label: 'Blog' })"
       />
     </template>
   </UFooter>

@@ -1,19 +1,34 @@
 <script setup lang="ts">
+import { PostHogEvent } from '~/types/analytics'
+
 const route = useRoute()
+const { capture } = usePostHog()
+
+function trackNavigation(label: string, target: string, location: 'header' | 'header-mobile') {
+  capture(PostHogEvent.PublicNavigationClicked, {
+    location,
+    target,
+    target_label: label
+  })
+}
 
 const items = computed(() => [{
   label: 'Documentação',
   to: '/docs',
-  active: route.path.startsWith('/docs')
+  active: route.path.startsWith('/docs'),
+  onSelect: () => trackNavigation('Documentation', '/docs', 'header')
 }, {
   label: 'Planos',
-  to: '/pricing'
+  to: '/pricing',
+  onSelect: () => trackNavigation('Pricing', '/pricing', 'header')
 }, {
   label: 'Blog',
-  to: '/blog'
+  to: '/blog',
+  onSelect: () => trackNavigation('Blog', '/blog', 'header')
 }, {
   label: 'Novidades',
-  to: '/changelog'
+  to: '/changelog',
+  onSelect: () => trackNavigation('Changelog', '/changelog', 'header')
 }])
 </script>
 
@@ -41,6 +56,7 @@ const items = computed(() => [{
         variant="ghost"
         to="/login"
         class="lg:hidden"
+        @click="trackNavigation('Login', '/login', 'header')"
       />
 
       <UButton
@@ -49,6 +65,7 @@ const items = computed(() => [{
         variant="outline"
         to="/login"
         class="hidden lg:inline-flex"
+        @click="trackNavigation('Login', '/login', 'header')"
       />
 
       <UButton
@@ -57,6 +74,7 @@ const items = computed(() => [{
         trailing-icon="i-lucide-arrow-right"
         class="hidden lg:inline-flex"
         to="/signup"
+        @click="trackNavigation('Signup', '/signup', 'header')"
       />
     </template>
 
@@ -76,12 +94,14 @@ const items = computed(() => [{
         to="/login"
         block
         class="mb-3"
+        @click="trackNavigation('Login', '/login', 'header-mobile')"
       />
       <UButton
         label="Criar conta"
         color="neutral"
         to="/signup"
         block
+        @click="trackNavigation('Signup', '/signup', 'header-mobile')"
       />
     </template>
   </UHeader>
