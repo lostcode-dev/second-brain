@@ -25,6 +25,7 @@ const pendingFetchMap = new WeakMap<object, Promise<AuthUser | null>>()
 const pendingEnsureMap = new WeakMap<object, Promise<void>>()
 
 export function useAuth() {
+  const requestFetch = useRequestFetch()
   const nuxtApp = useNuxtApp()
   const userCookie = useCookie<string | null>('sb-user', { default: () => null })
 
@@ -88,7 +89,7 @@ export function useAuth() {
       })
 
       try {
-        const response = await $fetch<{ user: AuthUser | null, session: AuthSession | null }>('/api/auth/me', { credentials: 'include' })
+        const response = await requestFetch<{ user: AuthUser | null, session: AuthSession | null }>('/api/auth/me', { credentials: 'include' })
 
         if (response.user)
           setUserCookie(response.user, response.session)

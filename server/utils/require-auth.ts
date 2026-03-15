@@ -58,7 +58,6 @@ export async function requireAuthUser(event: H3Event) {
     }
 
     if (!refreshError && refreshed.session) {
-      setAuthCookies(event, refreshed.session)
       const expiresAt = resolveSessionExpiresAt({
         accessToken: refreshed.session.access_token,
         sessionExpiresAt: refreshed.session.expires_at ?? null
@@ -81,6 +80,7 @@ export async function requireAuthUser(event: H3Event) {
           expiresAt,
           syncedAt: Date.now()
         })
+        setAuthCookies(event, refreshed.session)
         console.log('[auth/require] refresh-success', {
           userId: userData.user.id,
           expiresAt

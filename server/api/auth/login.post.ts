@@ -45,13 +45,13 @@ export default eventHandler(async (event) => {
     })
   }
 
-  setAuthCookies(event, data.session, { persistent: parsed.data.remember })
-
   setAuthUserCookie(event, {
     user: toAuthUser(data.user),
     expiresAt: data.session.expires_at ?? null,
     syncedAt: Date.now()
   }, { persistent: parsed.data.remember })
+
+  setAuthCookies(event, data.session, { persistent: parsed.data.remember })
 
   console.log('[auth/login] success', {
     userId: data.user.id,

@@ -99,8 +99,6 @@ export default eventHandler(async (event) => {
     user: null
   } as unknown as Session
 
-  setAuthCookies(event, session)
-
   const supabase = getSupabaseAnonClient()
   const { data: userData } = await supabase.auth.getUser(tokenResponse.access_token)
   if (userData.user) {
@@ -140,6 +138,8 @@ export default eventHandler(async (event) => {
       syncedAt: Date.now()
     })
   }
+
+  setAuthCookies(event, session)
 
   return sendRedirect(event, '/app', 302)
 })

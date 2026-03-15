@@ -74,7 +74,6 @@ export default eventHandler(async (event) => {
   }
 
   if (data.session) {
-    setAuthCookies(event, data.session)
     if (data.user) {
       setAuthUserCookie(event, {
         user: toAuthUser(data.user),
@@ -82,6 +81,8 @@ export default eventHandler(async (event) => {
         syncedAt: Date.now()
       })
     }
+
+    setAuthCookies(event, data.session)
   }
 
   return {

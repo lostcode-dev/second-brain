@@ -84,7 +84,6 @@ export default eventHandler(async (event) => {
     return { user: null, session: null }
   }
 
-  setAuthCookies(event, refreshed.session)
   const expiresAt = resolveSessionExpiresAt({
     accessToken: refreshed.session.access_token,
     sessionExpiresAt: refreshed.session.expires_at ?? null
@@ -116,6 +115,8 @@ export default eventHandler(async (event) => {
       expiresAt,
       syncedAt: Date.now()
     })
+
+    setAuthCookies(event, refreshed.session)
 
     console.log('[auth/me] refresh-success', {
       userId: userData.user.id,
