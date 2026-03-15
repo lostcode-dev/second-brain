@@ -654,10 +654,6 @@ const difficultyFilterOptions = computed(() => [
   🔢 Lógica / Regras de Negócio
   ========================
 
-  - Implementar histórico de empilhamento (habit stacking history).
-    Alterações feitas hoje não devem impactar visualizações de períodos passados.
-    Ao visualizar dados antigos, o sistema deve exibir as configurações válidas naquele momento histórico.
-
   - Revisar fluxo de "Identificadores".
     O fluxo apresenta diversos bugs, tanto relacionados a dados quanto ao layout.
 
