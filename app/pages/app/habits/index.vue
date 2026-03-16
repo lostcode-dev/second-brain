@@ -875,9 +875,6 @@ onBeforeUnmount(() => {
     - Incluir mais informações relevantes para o usuário.
     - Tornar a seção totalmente responsiva.
 
-  - Melhorar o campo de horário do hábito.
-    O objetivo é permitir que o usuário utilize o horário como referência na agenda diária.
-
   - Alterar o layout do TimePicker e como foi construído, deve ser um componente generico.
 
   - Dentro do Forms, no lugar de ser por tabs, poderia ser por accordion, para facilitar a navegação entre as seções do formulário.

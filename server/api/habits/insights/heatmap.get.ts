@@ -2,20 +2,41 @@ import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../../utils/supabase'
 import { requireAuthUser } from '../../../utils/require-auth'
 
+const currentYear = new Date().getFullYear()
+
 const querySchema = z.object({
-  months: z.coerce.number().min(1).max(12).default(6)
+  year: z.coerce.number().int().min(2000).max(currentYear).default(currentYear)
 })
 
 export default eventHandler(async (event) => {
   const user = await requireAuthUser(event)
-  const { months } = querySchema.parse(getQuery(event))
+  const { year } = querySchema.parse(getQuery(event))
   const supabase = getSupabaseAdminClient()
 
   const now = new Date()
+  const nowYear = now.getFullYear()
   const today = now.toISOString().split('T')[0]!
-  const startDate = new Date(now)
-  startDate.setMonth(startDate.getMonth() - months)
+  const startDate = new Date(Date.UTC(year, 0, 1, 12, 0, 0))
+  const endDate = year === nowYear
+    ? new Date(`${today}T12:00:00`)
+    : new Date(Date.UTC(year, 11, 31, 12, 0, 0))
   const start = startDate.toISOString().split('T')[0]!
+  const end = endDate.toISOString().split('T')[0]!
+
+  const { data: earliestLogRows } = await supabase
+    .from('habit_logs')
+    .select('log_date')
+    .eq('user_id', user.id)
+    .order('log_date', { ascending: true })
+    .limit(1)
+
+  const earliestYear = earliestLogRows?.[0]?.log_date
+    ? new Date(`${earliestLogRows[0].log_date as string}T12:00:00`).getFullYear()
+    : nowYear
+  const availableYears = Array.from(
+    { length: nowYear - earliestYear + 1 },
+    (_, index) => nowYear - index,
+  )
 
   // Get active habit count
   const { count: habitCount } = await supabase
@@ -30,7 +51,7 @@ export default eventHandler(async (event) => {
     .select('log_date, completed')
     .eq('user_id', user.id)
     .gte('log_date', start)
-    .lte('log_date', today)
+    .lte('log_date', end)
 
   // Group by date
   const dateMap: Record<string, { completed: number, total: number }> = {}
@@ -50,7 +71,6 @@ export default eventHandler(async (event) => {
   const days: Array<{ date: string, count: number, total: number, level: number }> = []
 
   const cursor = new Date(start + 'T12:00:00')
-  const endDate = new Date(today + 'T12:00:00')
 
   while (cursor <= endDate) {
     const dateStr = cursor.toISOString().split('T')[0]!
@@ -69,14 +89,16 @@ export default eventHandler(async (event) => {
     cursor.setDate(cursor.getDate() + 1)
   }
 
-  // Weekly completion rate trend (last N weeks)
+  // Weekly completion rate trend for the selected year
   const weeklyRates: Array<{ week: string, rate: number }> = []
-  const weeksCount = Math.ceil(months * 4.33)
-  for (let w = weeksCount - 1; w >= 0; w--) {
-    const weekEnd = new Date(now)
-    weekEnd.setDate(weekEnd.getDate() - w * 7)
-    const weekStart = new Date(weekEnd)
-    weekStart.setDate(weekStart.getDate() - 6)
+  const weekCursor = new Date(start + 'T12:00:00')
+  while (weekCursor <= endDate) {
+    const weekStart = new Date(weekCursor)
+    const weekEnd = new Date(weekCursor)
+    weekEnd.setDate(weekEnd.getDate() + 6)
+    if (weekEnd > endDate) {
+      weekEnd.setTime(endDate.getTime())
+    }
 
     const weekStartStr = weekStart.toISOString().split('T')[0]!
     const weekEndStr = weekEnd.toISOString().split('T')[0]!
@@ -90,7 +112,14 @@ export default eventHandler(async (event) => {
 
     const label = weekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
     weeklyRates.push({ week: label, rate })
+    weekCursor.setDate(weekCursor.getDate() + 7)
   }
 
-  return { days, weeklyRates, totalHabits }
+  return {
+    days,
+    weeklyRates,
+    totalHabits,
+    selectedYear: year,
+    availableYears,
+  }
 })

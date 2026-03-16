@@ -6,10 +6,30 @@ const props = defineProps<{
   loading: boolean
 }>()
 
+const currentYear = new Date().getFullYear()
+const selectedHeatmapYear = ref(currentYear)
+
 const { data: heatmapData, status: heatmapStatus } = useFetch<HeatmapData>('/api/habits/insights/heatmap', {
   lazy: true,
-  key: 'habits-heatmap',
-  query: { months: 6 }
+  key: computed(() => `habits-heatmap-${selectedHeatmapYear.value}`),
+  query: computed(() => ({ year: selectedHeatmapYear.value })),
+  watch: [selectedHeatmapYear]
+})
+
+const availableHeatmapYears = computed(() => heatmapData.value?.availableYears ?? [currentYear])
+
+const selectedHeatmapYearIndex = computed(() =>
+  availableHeatmapYears.value.findIndex(year => year === selectedHeatmapYear.value)
+)
+
+const canViewOlderYear = computed(() => {
+  const index = selectedHeatmapYearIndex.value
+  return index >= 0 && index < availableHeatmapYears.value.length - 1
+})
+
+const canViewNewerYear = computed(() => {
+  const index = selectedHeatmapYearIndex.value
+  return index > 0
 })
 
 const completedDays = computed(() =>
@@ -103,10 +123,13 @@ const stats = computed(() => {
 
 const quickHighlights = computed(() => {
   const strongest = strongestDay.value
+  const weeklyTitle = selectedHeatmapYear.value === currentYear
+    ? 'Semana atual'
+    : 'Última semana do ano'
 
   return [
     {
-      title: 'Semana atual',
+      title: weeklyTitle,
       value: currentWeeklyRate.value != null ? `${currentWeeklyRate.value}%` : '—',
       note: weeklyDelta.value == null
         ? 'Sem base suficiente para comparar'
@@ -144,14 +167,29 @@ function formatDayLabel(dateStr: string): string {
     month: 'short',
   })
 }
+
+function navigateHeatmapYear(direction: 'older' | 'newer') {
+  const index = selectedHeatmapYearIndex.value
+  if (index < 0) {
+    selectedHeatmapYear.value = currentYear
+    return
+  }
+
+  const targetIndex = direction === 'older' ? index + 1 : index - 1
+  const targetYear = availableHeatmapYears.value[targetIndex]
+
+  if (targetYear) {
+    selectedHeatmapYear.value = targetYear
+  }
+}
 </script>
 
 <template>
   <div class="space-y-5 lg:space-y-6">
-    <div class="grid gap-4 xl:grid-cols-[minmax(0,1.75fr)_minmax(320px,1fr)]">
+    <div class="grid gap-4 xl:items-start xl:grid-cols-[minmax(0,1.75fr)_minmax(300px,0.95fr)]">
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <template v-if="loading">
-          <UCard v-for="i in 6" :key="i" class="min-h-32">
+          <UCard v-for="i in 6" :key="i" class="min-h-28">
             <div class="space-y-3">
               <USkeleton class="h-4 w-24" />
               <USkeleton class="h-8 w-20" />
@@ -164,7 +202,7 @@ function formatDayLabel(dateStr: string): string {
           <UCard
             v-for="stat in stats"
             :key="stat.title"
-            class="min-h-32"
+            class="min-h-28"
           >
             <div class="flex h-full items-start gap-3">
               <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-elevated ring ring-default">
@@ -175,7 +213,7 @@ function formatDayLabel(dateStr: string): string {
                 <p class="text-xs uppercase tracking-[0.14em] text-muted">
                   {{ stat.title }}
                 </p>
-                <p class="text-2xl font-semibold leading-none text-highlighted">
+                <p class="text-xl font-semibold leading-none text-highlighted sm:text-2xl">
                   {{ stat.value }}
                 </p>
                 <p class="text-sm leading-5 text-muted">
@@ -187,7 +225,7 @@ function formatDayLabel(dateStr: string): string {
         </template>
       </div>
 
-      <UCard class="overflow-hidden">
+      <UCard class="self-start overflow-hidden">
         <template #header>
           <div class="flex items-center gap-2">
             <UIcon name="i-lucide-sparkles" class="size-5 text-primary" />
@@ -262,15 +300,44 @@ function formatDayLabel(dateStr: string): string {
     <div class="grid gap-4 2xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
       <UCard class="overflow-hidden">
         <template #header>
-          <div class="flex items-center gap-2">
-            <UIcon name="i-lucide-calendar" class="size-5 text-primary" />
-            <div>
-              <p class="font-medium text-highlighted">
-                Mapa de atividades
-              </p>
-              <p class="text-sm text-muted">
-                Visão dos últimos 6 meses para localizar padrão, lacunas e picos.
-              </p>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-calendar" class="size-5 text-primary" />
+              <div>
+                <p class="font-medium text-highlighted">
+                  Mapa de atividades
+                </p>
+                <p class="text-sm text-muted">
+                  Visão do ano para localizar padrão, lacunas e picos.
+                </p>
+              </div>
+            </div>
+
+            <div
+              v-if="availableHeatmapYears.length > 1"
+              class="flex items-center gap-2 self-end sm:self-auto"
+            >
+              <UButton
+                icon="i-lucide-chevron-left"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                :disabled="!canViewOlderYear"
+                aria-label="Ver ano anterior"
+                @click="navigateHeatmapYear('older')"
+              />
+              <div class="min-w-20 text-center text-sm font-medium text-highlighted">
+                {{ selectedHeatmapYear }}
+              </div>
+              <UButton
+                icon="i-lucide-chevron-right"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                :disabled="!canViewNewerYear"
+                aria-label="Ver ano seguinte"
+                @click="navigateHeatmapYear('newer')"
+              />
             </div>
           </div>
         </template>
@@ -287,7 +354,7 @@ function formatDayLabel(dateStr: string): string {
         </template>
 
         <div v-else class="py-8 text-center text-sm text-muted">
-          Sem dados de atividade ainda.
+          Sem dados de atividade em {{ selectedHeatmapYear }}.
         </div>
       </UCard>
 

@@ -406,4 +406,6 @@ export interface HeatmapData {
   days: HeatmapDay[]
   weeklyRates: WeeklyRate[]
   totalHabits: number
+  selectedYear: number
+  availableYears: number[]
 }
