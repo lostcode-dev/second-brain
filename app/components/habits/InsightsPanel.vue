@@ -322,68 +322,7 @@ function formatDayLabel(dateStr: string): string {
         </div>
       </UCard>
     </div>
-
-    <UCard v-if="!loading && insights?.identityProgress?.length" class="overflow-hidden">
-      <template #header>
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-user-check" class="size-5 text-primary" />
-          <div>
-            <p class="font-medium text-highlighted">
-              Progresso por identidade
-            </p>
-            <p class="text-sm text-muted">
-              Compare quais identidades estão sendo reforçadas com mais consistência.
-            </p>
-          </div>
-        </div>
-      </template>
-
-      <div class="grid gap-3 md:grid-cols-2">
-        <div
-          v-for="ip in insights.identityProgress"
-          :key="ip.identity.id"
-          class="rounded-2xl border border-default p-4"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="truncate font-medium text-highlighted">
-                {{ ip.identity.name }}
-              </p>
-              <p class="text-sm text-muted">
-                {{ ip.totalHabits }} hábitos vinculados
-              </p>
-            </div>
-
-            <UBadge color="neutral" variant="subtle">
-              {{ ip.score }}%
-            </UBadge>
-          </div>
-
-          <UProgress :model-value="Number(ip.score)" :max="100" size="sm" class="mt-4" />
-
-          <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
-            <div class="rounded-xl bg-muted/40 p-3">
-              <p class="text-xs uppercase tracking-[0.12em] text-muted">
-                Concluídos
-              </p>
-              <p class="mt-1 font-semibold text-highlighted">
-                {{ ip.completedLogs }}
-              </p>
-            </div>
-
-            <div class="rounded-xl bg-muted/40 p-3">
-              <p class="text-xs uppercase tracking-[0.12em] text-muted">
-                Registros
-              </p>
-              <p class="mt-1 font-semibold text-highlighted">
-                {{ ip.scheduledLogs }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </UCard>
-
+    
     <div
       v-if="!loading && !hasAnyInsightData"
       class="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-default py-12"
