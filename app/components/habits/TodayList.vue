@@ -169,26 +169,6 @@ watch(
   { immediate: true, deep: true }
 )
 
-function expandAll() {
-  collapsedIds.value = []
-  treeRef.value?.openAll()
-}
-
-function collapseAll() {
-  const ids: string[] = []
-
-  function collect(nodes: TodayTreeNode[]) {
-    for (const node of nodes) {
-      ids.push(node.id)
-      collect(node.children)
-    }
-  }
-
-  collect(treeData.value)
-  collapsedIds.value = ids
-  treeRef.value?.closeAll()
-}
-
 function onTreeOpened(stat: TreeStat) {
   collapsedIds.value = collapsedIds.value.filter((id) => id !== stat.data.id)
 }

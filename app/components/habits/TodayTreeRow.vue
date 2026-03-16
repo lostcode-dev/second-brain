@@ -208,14 +208,6 @@ const logStatusMeta = computed(() => {
             </template>
           </UBadge>
 
-          <UBadge
-            v-if="node.habit.identity"
-            :label="node.habit.identity.name"
-            variant="subtle"
-            color="primary"
-            size="sm"
-          />
-
           <UTooltip
             v-for="hint in lawHints"
             :key="hint.key"
