@@ -320,33 +320,6 @@ function getHabitTypeIcon(habitType: HabitType) {
               <div class="space-y-3">
                 <div class="flex flex-wrap gap-2">
                   <UButton
-                    type="button"
-                    label="Todos os dias"
-                    size="sm"
-                    color="neutral"
-                    variant="subtle"
-                    @click="setSelectedDays(ALL_WEEK_DAYS)"
-                  />
-                  <UButton
-                    type="button"
-                    label="Dias úteis"
-                    size="sm"
-                    color="neutral"
-                    variant="subtle"
-                    @click="setSelectedDays(WEEKDAY_ONLY)"
-                  />
-                  <UButton
-                    type="button"
-                    label="Fim de semana"
-                    size="sm"
-                    color="neutral"
-                    variant="subtle"
-                    @click="setSelectedDays(WEEKEND_ONLY)"
-                  />
-                </div>
-
-                <div class="flex flex-wrap gap-2">
-                  <UButton
                     v-for="day in dayOptions"
                     :key="day.value"
                     type="button"
@@ -361,10 +334,6 @@ function getHabitTypeIcon(habitType: HabitType) {
                     @click="toggleDay(day.value)"
                   />
                 </div>
-
-                <p class="text-sm text-muted">
-                  {{ selectedDaysSummary || "Nenhum dia selecionado" }}
-                </p>
               </div>
             </UFormField>
 
@@ -449,29 +418,6 @@ function getHabitTypeIcon(habitType: HabitType) {
                 />
               </UFormField>
             </div>
-
-            <UCard>
-              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p class="text-sm font-medium text-highlighted">
-                    Resumo do agendamento
-                  </p>
-                  <p class="text-sm text-muted">
-                    Como esse hábito vai aparecer como referência no seu dia.
-                  </p>
-                </div>
-
-                <UBadge color="neutral" variant="subtle" size="lg">
-                  {{
-                    state.scheduledTime
-                      ? state.scheduledEndTime
-                        ? `${state.scheduledTime} - ${state.scheduledEndTime}`
-                        : state.scheduledTime
-                      : "Sem horário definido"
-                  }}
-                </UBadge>
-              </div>
-            </UCard>
           </div>
 
           <div v-else class="space-y-4">

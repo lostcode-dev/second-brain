@@ -486,33 +486,6 @@ onBeforeUnmount(() => {
             <div class="space-y-3">
               <div class="flex flex-wrap gap-2">
                 <UButton
-                  type="button"
-                  label="Todos os dias"
-                  size="sm"
-                  color="neutral"
-                  variant="subtle"
-                  @click="setSelectedDays(ALL_WEEK_DAYS)"
-                />
-                <UButton
-                  type="button"
-                  label="Dias úteis"
-                  size="sm"
-                  color="neutral"
-                  variant="subtle"
-                  @click="setSelectedDays(WEEKDAY_ONLY)"
-                />
-                <UButton
-                  type="button"
-                  label="Fim de semana"
-                  size="sm"
-                  color="neutral"
-                  variant="subtle"
-                  @click="setSelectedDays(WEEKEND_ONLY)"
-                />
-              </div>
-
-              <div class="flex flex-wrap gap-2">
-                <UButton
                   v-for="day in dayOptions"
                   :key="day.value"
                   type="button"
@@ -527,14 +500,10 @@ onBeforeUnmount(() => {
                   @click="toggleDay(day.value)"
                 />
               </div>
-
-              <p class="text-sm text-muted">
-                {{ selectedDaysSummary || "Nenhum dia selecionado" }}
-              </p>
             </div>
           </UFormField>
 
-          <div class="space-y-4">
+          <div class="space-y-4 grid gap-4 lg:grid-cols-2">
             <UFormField label="Dificuldade" name="difficulty">
               <div class="flex flex-wrap gap-2">
                 <UButton
@@ -608,7 +577,7 @@ onBeforeUnmount(() => {
             <UFormField
               label="Horário de término"
               name="scheduledEndTime"
-              description="Opcional. Use quando o hábito tiver janela de execução."
+              description="Use quando o hábito tiver janela de execução."
             >
               <UiTimePicker
                 v-model="state.scheduledEndTime"
@@ -616,29 +585,6 @@ onBeforeUnmount(() => {
               />
             </UFormField>
           </div>
-
-          <UCard>
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p class="text-sm font-medium text-highlighted">
-                  Resumo do agendamento
-                </p>
-                <p class="text-sm text-muted">
-                  Visualização rápida de como o hábito vai aparecer na agenda.
-                </p>
-              </div>
-
-              <UBadge color="neutral" variant="subtle" size="lg">
-                {{
-                  state.scheduledTime
-                    ? state.scheduledEndTime
-                      ? `${state.scheduledTime} - ${state.scheduledEndTime}`
-                      : state.scheduledTime
-                    : "Sem horário definido"
-                }}
-              </UBadge>
-            </div>
-          </UCard>
         </div>
 
         <div v-else class="space-y-4">
