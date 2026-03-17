@@ -13,7 +13,7 @@ export default eventHandler(async (event) => {
 
   const { data: habit } = await supabase
     .from('habits')
-    .select('id, name, description, frequency, difficulty, habit_type, scheduled_time, created_at, identity:identities(name), streak:habit_streaks(current_streak)')
+    .select('id, name, avatar_emoji, description, frequency, difficulty, habit_type, scheduled_time, created_at, identity:identities(name), streak:habit_streaks(current_streak)')
     .eq('user_id', user.id)
     .eq('id', habitId)
     .is('archived_at', null)
@@ -66,6 +66,7 @@ export default eventHandler(async (event) => {
     habit: {
       id: habit.id as string,
       name: habit.name as string,
+      avatarEmoji: (habit.avatar_emoji as string | null) ?? null,
       description: (habit.description as string | null) ?? null,
       frequency: habit.frequency as string,
       difficulty: habit.difficulty as string,

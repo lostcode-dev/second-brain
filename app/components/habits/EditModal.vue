@@ -2,6 +2,7 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { Calendar } from '~/types/appointments'
+import { HABIT_EMOJI_OPTIONS } from '~/constants/habit-emoji-options'
 import type { Habit } from '~/types/habits'
 import { HabitFrequency, HabitDifficulty, HabitType } from '~/types/habits'
 
@@ -46,6 +47,7 @@ const {
 const schema = z
   .object({
     name: z.string().min(1, 'Nome é obrigatório').max(200),
+    avatarEmoji: z.string().max(16).optional(),
     description: z.string().max(RICH_TEXT_MAX_LENGTH).optional(),
     obviousStrategy: z.string().max(RICH_TEXT_MAX_LENGTH).optional(),
     attractiveStrategy: z.string().max(RICH_TEXT_MAX_LENGTH).optional(),
@@ -64,6 +66,7 @@ type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
   name: '',
+  avatarEmoji: undefined,
   description: '',
   obviousStrategy: '',
   attractiveStrategy: '',
@@ -81,12 +84,14 @@ const state = reactive<Partial<Schema>>({
 const loading = ref(false)
 const activeFormTab = ref('schedule')
 const selectedTagIds = ref<string[]>([])
+const avatarPopoverOpen = ref(false)
 
 watch(
   () => props.habit,
   (habit) => {
     if (habit) {
       state.name = habit.name
+      state.avatarEmoji = habit.avatarEmoji ?? undefined
       state.description = habit.description ?? ''
       state.obviousStrategy = habit.obviousStrategy ?? ''
       state.attractiveStrategy = habit.attractiveStrategy ?? ''
@@ -165,6 +170,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     const frequencySelection = normalizeFrequencySelection(event.data.customDays)
     const result = await updateHabit(props.habit.id, {
       name: event.data.name,
+      avatarEmoji: event.data.avatarEmoji ?? null,
       description: normalizeRichText(event.data.description) ?? null,
       obviousStrategy: normalizeRichText(event.data.obviousStrategy) ?? null,
       attractiveStrategy: normalizeRichText(event.data.attractiveStrategy) ?? null,
@@ -191,6 +197,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 function onClose() {
   activeFormTab.value = 'schedule'
+  avatarPopoverOpen.value = false
   emit('update:open', false)
 }
 
@@ -297,6 +304,84 @@ function getHabitTypeIcon(habitType: HabitType) {
         @submit="onSubmit"
       >
         <div class="space-y-4">
+          <UFormField
+            label="Avatar"
+            name="avatarEmoji"
+            description="Escolha um emoji para identificar o hábito com mais rapidez."
+          >
+            <UPopover
+              v-model:open="avatarPopoverOpen"
+              :content="{ align: 'start', side: 'bottom', sideOffset: 8 }"
+              :ui="{
+                content: 'z-[260] w-[min(92vw,30rem)] rounded-3xl border border-default bg-default p-0 shadow-2xl'
+              }"
+            >
+              <UButton
+                type="button"
+                color="neutral"
+                variant="outline"
+                block
+                class="min-h-14 justify-between rounded-2xl border-default px-4 py-3 text-left"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-elevated ring ring-default text-xl">
+                    {{ state.avatarEmoji || '🙂' }}
+                  </div>
+
+                  <div class="min-w-0">
+                    <p class="text-xs uppercase tracking-[0.12em] text-muted">
+                      Avatar
+                    </p>
+                    <p class="truncate text-sm font-medium" :class="state.avatarEmoji ? 'text-highlighted' : 'text-muted'">
+                      {{ state.avatarEmoji ? `Selecionado: ${state.avatarEmoji}` : 'Selecionar emoji' }}
+                    </p>
+                  </div>
+                </div>
+
+                <template #trailing>
+                  <UIcon
+                    name="i-lucide-chevron-down"
+                    class="size-4 shrink-0 text-muted transition-transform duration-200"
+                    :class="{ 'rotate-180': avatarPopoverOpen }"
+                  />
+                </template>
+              </UButton>
+
+              <template #content>
+                <div class="overflow-hidden rounded-3xl">
+                  <div class="border-b border-default px-4 py-4">
+                    <p class="text-sm font-semibold text-highlighted">
+                      Selecionar avatar do hábito
+                    </p>
+                  </div>
+
+                  <div class="max-h-80 overflow-y-auto p-3">
+                    <div class="grid grid-cols-6 gap-2 sm:grid-cols-8">
+                      <button
+                        type="button"
+                        class="flex h-11 items-center justify-center rounded-xl border border-default bg-elevated text-lg transition-colors hover:bg-accented"
+                        :class="!state.avatarEmoji ? 'border-primary bg-primary/10' : ''"
+                        @click="state.avatarEmoji = undefined; avatarPopoverOpen = false"
+                      >
+                        <UIcon name="i-lucide-x" class="size-4 text-muted" />
+                      </button>
+                      <button
+                        v-for="emoji in HABIT_EMOJI_OPTIONS"
+                        :key="emoji"
+                        type="button"
+                        class="flex h-11 items-center justify-center rounded-xl border border-default bg-elevated text-xl transition-colors hover:bg-accented"
+                        :class="state.avatarEmoji === emoji ? 'border-primary bg-primary/10' : ''"
+                        @click="state.avatarEmoji = emoji; avatarPopoverOpen = false"
+                      >
+                        {{ emoji }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </UPopover>
+          </UFormField>
+
           <UFormField label="Nome" name="name">
             <UInput v-model="state.name" class="w-full" />
           </UFormField>
@@ -432,7 +517,6 @@ function getHabitTypeIcon(habitType: HabitType) {
               <UFormField
                 label="Calendário"
                 name="calendarId"
-                description="Se não selecionar, o hábito vai para o primeiro calendário disponível. Se não existir nenhum, o sistema cria o calendário Hábitos."
               >
                 <USelect
                   v-model="calendarIdModel"

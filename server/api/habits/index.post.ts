@@ -8,6 +8,7 @@ import { syncHabitLinkedEvent } from '../../utils/habit-event-sync'
 
 const bodySchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(200),
+  avatarEmoji: z.string().max(16).optional(),
   description: z.string().max(5000).optional(),
   obviousStrategy: z.string().max(5000).optional(),
   attractiveStrategy: z.string().max(5000).optional(),
@@ -54,6 +55,7 @@ export default eventHandler(async (event) => {
     .insert({
       user_id: user.id,
       name: parsed.name,
+      avatar_emoji: parsed.avatarEmoji ?? null,
       description: sanitizeRichTextHtml(parsed.description),
       obvious_strategy: sanitizeRichTextHtml(parsed.obviousStrategy),
       attractive_strategy: sanitizeRichTextHtml(parsed.attractiveStrategy),

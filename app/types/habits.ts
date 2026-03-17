@@ -90,6 +90,7 @@ export interface Habit {
   userId: string
   identityId: string | null
   name: string
+  avatarEmoji: string | null
   description: string | null
   obviousStrategy: string | null
   attractiveStrategy: string | null
@@ -230,6 +231,7 @@ export interface HabitReflection {
 
 export interface CreateHabitPayload {
   name: string
+  avatarEmoji?: string
   description?: string
   obviousStrategy?: string
   attractiveStrategy?: string
@@ -248,6 +250,7 @@ export interface CreateHabitPayload {
 
 export interface UpdateHabitPayload {
   name?: string
+  avatarEmoji?: string | null
   description?: string | null
   obviousStrategy?: string | null
   attractiveStrategy?: string | null
@@ -323,6 +326,7 @@ export interface SharedHabitCardData {
   habit: {
     id: string
     name: string
+    avatarEmoji: string | null
     description: string | null
     frequency: string
     difficulty: string

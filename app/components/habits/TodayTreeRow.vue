@@ -27,8 +27,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  toggle: [habitId: string, completed: boolean]
-  select: [habitId: string]
+  'toggle': [habitId: string, completed: boolean]
+  'select': [habitId: string]
   'open-note': [habitId: string, completed: boolean]
 }>()
 
@@ -161,7 +161,14 @@ const scheduledTimeLabel = computed(() => {
       <div class="min-w-0 flex-1">
         <!-- Row 1: Name + right-side actions -->
         <div class="flex items-center gap-2">
+          <span
+            v-if="node.habit.avatarEmoji"
+            class="inline-flex size-5 shrink-0 items-center justify-center text-base"
+          >
+            {{ node.habit.avatarEmoji }}
+          </span>
           <UIcon
+            v-else
             :name="HABIT_TYPE_META[node.habit.habitType ?? 'positive'].icon"
             class="size-4 shrink-0"
             :class="node.habit.habitType === 'negative' ? 'text-error' : 'text-success'"

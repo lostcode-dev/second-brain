@@ -12,6 +12,7 @@ const paramsSchema = z.object({
 
 const bodySchema = z.object({
   name: z.string().min(1).max(200).optional(),
+  avatarEmoji: z.string().max(16).nullable().optional(),
   description: z.string().max(5000).nullable().optional(),
   obviousStrategy: z.string().max(5000).nullable().optional(),
   attractiveStrategy: z.string().max(5000).nullable().optional(),
@@ -57,7 +58,7 @@ export default eventHandler(async (event) => {
   // Fetch current habit to compare tracked fields
   const { data: current, error: fetchError } = await supabase
     .from('habits')
-    .select('id, user_id, identity_id, name, description, obvious_strategy, attractive_strategy, easy_strategy, satisfying_strategy, frequency, difficulty, habit_type, custom_days, sort_order, timezone, calendar_id, scheduled_time, scheduled_end_time')
+    .select('id, user_id, identity_id, name, avatar_emoji, description, obvious_strategy, attractive_strategy, easy_strategy, satisfying_strategy, frequency, difficulty, habit_type, custom_days, sort_order, timezone, calendar_id, scheduled_time, scheduled_end_time')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
@@ -69,6 +70,7 @@ export default eventHandler(async (event) => {
   const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
 
   if (parsed.name !== undefined) updateData.name = parsed.name
+  if (parsed.avatarEmoji !== undefined) updateData.avatar_emoji = parsed.avatarEmoji
   if (parsed.description !== undefined) updateData.description = sanitizeRichTextHtml(parsed.description)
   if (parsed.obviousStrategy !== undefined) updateData.obvious_strategy = sanitizeRichTextHtml(parsed.obviousStrategy)
   if (parsed.attractiveStrategy !== undefined) updateData.attractive_strategy = sanitizeRichTextHtml(parsed.attractiveStrategy)

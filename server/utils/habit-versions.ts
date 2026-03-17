@@ -5,6 +5,7 @@ type HabitVersionShape = {
   user_id: string
   identity_id: string | null
   name: string
+  avatar_emoji: string | null
   description: string | null
   obvious_strategy: string | null
   attractive_strategy: string | null
@@ -55,6 +56,7 @@ export function toHabitVersionShape(row: Record<string, unknown>): HabitVersionS
     user_id: String(row.user_id ?? row.userId),
     identity_id: (row.identity_id ?? row.identityId ?? null) as string | null,
     name: String(row.name ?? ''),
+    avatar_emoji: (row.avatar_emoji ?? row.avatarEmoji ?? null) as string | null,
     description: (row.description ?? null) as string | null,
     obvious_strategy: (row.obvious_strategy ?? row.obviousStrategy ?? null) as string | null,
     attractive_strategy: (row.attractive_strategy ?? row.attractiveStrategy ?? null) as string | null,
@@ -78,6 +80,7 @@ export function hasVersionedHabitChanges(current: Record<string, unknown>, next:
 
   return currentVersion.identity_id !== nextVersion.identity_id
     || currentVersion.name !== nextVersion.name
+    || currentVersion.avatar_emoji !== nextVersion.avatar_emoji
     || currentVersion.description !== nextVersion.description
     || currentVersion.obvious_strategy !== nextVersion.obvious_strategy
     || currentVersion.attractive_strategy !== nextVersion.attractive_strategy

@@ -118,7 +118,14 @@ const incomingStacks = computed(() =>
         <div class="flex items-start justify-between">
           <div class="space-y-1 min-w-0">
             <div class="flex items-center gap-2">
+              <span
+                v-if="habit.avatarEmoji"
+                class="inline-flex size-7 shrink-0 items-center justify-center rounded-xl bg-elevated text-xl"
+              >
+                {{ habit.avatarEmoji }}
+              </span>
               <UIcon
+                v-else
                 :name="HABIT_TYPE_META[habit.habitType ?? 'positive'].icon"
                 class="size-5 shrink-0"
                 :class="habit.habitType === 'negative' ? 'text-error' : 'text-success'"

@@ -60,7 +60,6 @@ const completionTone = computed(() => {
   return '#ff8d8d'
 })
 
-const displayHandle = computed(() => props.userHandle || '@kortex')
 const displayInitials = computed(() => props.userInitials || 'SB')
 </script>
 
@@ -73,23 +72,35 @@ const displayInitials = computed(() => props.userInitials || 'SB')
     <div class="share-card__content">
       <header class="share-card__header">
         <div class="share-card__profile">
-          <div class="share-card__avatar">{{ displayInitials}}</div>
+          <div class="share-card__avatar">
+            {{ habit.avatarEmoji || displayInitials }}
+          </div>
           <div class="share-card__profile-copy">
-            <p class="share-card__eyebrow">{{ props.userName || 'Kortex' }}</p>
+            <p class="share-card__eyebrow">
+              {{ props.userName || 'Kortex' }}
+            </p>
             <strong class="share-card__profile-name">Meu ciclo atual</strong>
           </div>
         </div>
 
         <div class="share-card__header-meta">
-          <p class="share-card__date">{{ shareDateLabel }}</p>
+          <p class="share-card__date">
+            {{ shareDateLabel }}
+          </p>
         </div>
       </header>
 
       <section class="share-card__hero">
         <div class="share-card__hero-copy">
-          <p class="share-card__hero-label">o hábito que está movendo sua fase</p>
-          <h1 class="share-card__habit-name">{{ habit.name }}</h1>
-          <p class="share-card__description">{{ motivationalQuote }}</p>
+          <p class="share-card__hero-label">
+            o hábito que está movendo sua fase
+          </p>
+          <h1 class="share-card__habit-name">
+            {{ habit.name }}
+          </h1>
+          <p class="share-card__description">
+            {{ motivationalQuote }}
+          </p>
         </div>
 
         <div class="share-card__meter">

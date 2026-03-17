@@ -20,18 +20,18 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  select: [habitId: string]
-  edit: [habit: Habit]
-  stack: [habit: Habit]
-  share: [habit: Habit]
+  'select': [habitId: string]
+  'edit': [habit: Habit]
+  'stack': [habit: Habit]
+  'share': [habit: Habit]
   'remove-stacks': [habit: Habit]
-  archive: [habit: Habit]
+  'archive': [habit: Habit]
 }>()
 
 const dayLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 function getOutgoingStacks(habit: Habit): HabitStack[] {
-  return props.stacks.filter((stack) => stack.triggerHabitId === habit.id)
+  return props.stacks.filter(stack => stack.triggerHabitId === habit.id)
 }
 
 function getRowItems(habit: Habit) {
@@ -95,7 +95,14 @@ function getRowItems(habit: Habit) {
         </button>
       </div>
 
+      <span
+        v-if="node.habit.avatarEmoji"
+        class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center text-lg"
+      >
+        {{ node.habit.avatarEmoji }}
+      </span>
       <UIcon
+        v-else
         :name="HABIT_TYPE_META[node.habit.habitType ?? 'positive'].icon"
         class="mt-1 size-4 shrink-0"
         :class="node.habit.habitType === 'negative' ? 'text-error' : 'text-success'"
@@ -108,7 +115,13 @@ function getRowItems(habit: Habit) {
           </p>
 
           <UDropdownMenu class="shrink-0 sm:hidden" :items="getRowItems(node.habit)" :content="{ align: 'end' }">
-            <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" size="xs" @click.stop />
+            <UButton
+              icon="i-lucide-ellipsis-vertical"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              @click.stop
+            />
           </UDropdownMenu>
         </div>
 
@@ -133,7 +146,12 @@ function getRowItems(habit: Habit) {
             {{ node.habit.customDays.map((day: number) => dayLabels[day]).join(', ') }}
           </span>
 
-          <UBadge class="sm:hidden" :color="DIFFICULTY_META[node.habit.difficulty].color" variant="subtle" size="sm">
+          <UBadge
+            class="sm:hidden"
+            :color="DIFFICULTY_META[node.habit.difficulty].color"
+            variant="subtle"
+            size="sm"
+          >
             <template #leading>
               <UIcon :name="DIFFICULTY_META[node.habit.difficulty].icon" class="size-3.5" />
             </template>
@@ -167,7 +185,13 @@ function getRowItems(habit: Habit) {
         </div>
 
         <UDropdownMenu :items="getRowItems(node.habit)" :content="{ align: 'end' }">
-          <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" size="xs" @click.stop />
+          <UButton
+            icon="i-lucide-ellipsis-vertical"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            @click.stop
+          />
         </UDropdownMenu>
       </div>
     </div>
