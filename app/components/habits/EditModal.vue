@@ -310,7 +310,7 @@ function getHabitTypeIcon(habitType: HabitType) {
               :content="{ align: 'start', side: 'bottom', sideOffset: 8 }"
               :ui="{
                 content:
-                  'z-[260] w-[min(92vw,30rem)] rounded-3xl border border-default bg-default p-0 shadow-2xl',
+                  'z-[260] w-[min(92vw,30rem)] rounded-3xl border border-default bg-default p-0 shadow-2xl'
               }"
             >
               <button
@@ -367,7 +367,7 @@ function getHabitTypeIcon(habitType: HabitType) {
               </template>
             </UPopover>
           </UFormField>
-          
+
           <UFormField label="Nome" name="name">
             <UInput v-model="state.name" class="w-full" />
           </UFormField>
