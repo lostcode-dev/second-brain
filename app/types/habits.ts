@@ -22,7 +22,7 @@ export enum HabitLogStatus {
   Skipped = 'skipped'
 }
 
-export const LOG_STATUS_META: Record<HabitLogStatus, { label: string; icon: string; color: 'success' | 'warning' | 'error' }> = {
+export const LOG_STATUS_META: Record<HabitLogStatus, { label: string, icon: string, color: 'success' | 'warning' | 'error' }> = {
   [HabitLogStatus.Done]: { label: 'Feito', icon: 'i-lucide-check-circle', color: 'success' },
   [HabitLogStatus.Skipped]: { label: 'Não feito', icon: 'i-lucide-x-circle', color: 'error' }
 }
@@ -42,19 +42,19 @@ export enum RewardType {
 
 // ─── Icon & Color Mappings ────────────────────────────────────────────────────
 
-export const DIFFICULTY_META: Record<HabitDifficulty, { label: string; icon: string; color: 'success' | 'warning' | 'error' }> = {
+export const DIFFICULTY_META: Record<HabitDifficulty, { label: string, icon: string, color: 'success' | 'warning' | 'error' }> = {
   [HabitDifficulty.Tiny]: { label: 'Pequeno', icon: 'i-lucide-feather', color: 'success' },
   [HabitDifficulty.Normal]: { label: 'Normal', icon: 'i-lucide-shield', color: 'warning' },
   [HabitDifficulty.Hard]: { label: 'Difícil', icon: 'i-lucide-mountain', color: 'error' }
 }
 
-export const FREQUENCY_META: Record<HabitFrequency, { label: string; icon: string }> = {
+export const FREQUENCY_META: Record<HabitFrequency, { label: string, icon: string }> = {
   [HabitFrequency.Daily]: { label: 'Diário', icon: 'i-lucide-calendar-days' },
   [HabitFrequency.Weekly]: { label: 'Semanal', icon: 'i-lucide-calendar-range' },
   [HabitFrequency.Custom]: { label: 'Personalizado', icon: 'i-lucide-calendar-cog' }
 }
 
-export const HABIT_TYPE_META: Record<HabitType, { label: string; icon: string; color: 'success' | 'error' }> = {
+export const HABIT_TYPE_META: Record<HabitType, { label: string, icon: string, color: 'success' | 'error' }> = {
   [HabitType.Positive]: { label: 'Positivo', icon: 'i-lucide-thumbs-up', color: 'success' },
   [HabitType.Negative]: { label: 'Negativo', icon: 'i-lucide-thumbs-down', color: 'error' }
 }
@@ -101,6 +101,7 @@ export interface Habit {
   customDays: number[] | null
   sortOrder: number
   timezone: string | null
+  calendarId: string | null
   scheduledTime: string | null
   scheduledEndTime: string | null
   archivedAt: string | null
@@ -197,6 +198,7 @@ export interface HabitVersion {
   customDays: number[] | null
   sortOrder: number
   timezone: string | null
+  calendarId: string | null
   scheduledTime: string | null
   scheduledEndTime: string | null
   validFrom: string
@@ -237,6 +239,7 @@ export interface CreateHabitPayload {
   difficulty: HabitDifficulty
   habitType?: HabitType
   identityId?: string
+  calendarId?: string
   customDays?: number[]
   scheduledTime?: string
   scheduledEndTime?: string
@@ -254,6 +257,7 @@ export interface UpdateHabitPayload {
   difficulty?: HabitDifficulty
   habitType?: HabitType
   identityId?: string | null
+  calendarId?: string | null
   customDays?: number[]
   sortOrder?: number
   scheduledTime?: string | null
@@ -309,7 +313,7 @@ export interface UpdateHabitUserSettingsPayload {
 }
 
 export interface SharedHabitsProgress {
-  habits: { name: string; frequency: string; difficulty: string; streakCurrent: number }[]
+  habits: { name: string, frequency: string, difficulty: string, streakCurrent: number }[]
   completionRate7d: number
   completionRate30d: number
   totalHabits: number

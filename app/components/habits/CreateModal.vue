@@ -2,6 +2,7 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { DriveStep, Driver } from 'driver.js'
+import type { Calendar } from '~/types/appointments'
 import { HabitFrequency, HabitDifficulty, HabitType } from '~/types/habits'
 import { GuidedTourKey } from '~/types/guided-tour'
 
@@ -52,6 +53,11 @@ const {
   tagsStatus,
   refreshTags
 } = useHabits()
+const {
+  calendars,
+  calendarsStatus,
+  refreshCalendars
+} = useAppointments()
 const { startIfNeeded } = useGuidedTour()
 
 const schema = z
@@ -65,6 +71,7 @@ const schema = z
     difficulty: z.nativeEnum(HabitDifficulty).default(HabitDifficulty.Normal),
     habitType: z.nativeEnum(HabitType).default(HabitType.Positive),
     identityId: z.string().uuid().optional(),
+    calendarId: z.string().uuid().optional(),
     customDays: z.array(z.number().int().min(0).max(6)).min(1, 'Selecione ao menos um dia'),
     scheduledTime: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:mm').optional(),
     scheduledEndTime: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:mm').optional()
@@ -82,6 +89,7 @@ const state = reactive<Partial<Schema>>({
   difficulty: HabitDifficulty.Normal,
   habitType: HabitType.Positive,
   identityId: undefined,
+  calendarId: undefined,
   customDays: [...ALL_WEEK_DAYS],
   scheduledTime: undefined,
   scheduledEndTime: undefined
@@ -102,6 +110,10 @@ watch(
 
       if (tagsStatus.value === 'idle') {
         void refreshTags()
+      }
+
+      if (calendarsStatus.value === 'idle') {
+        void refreshCalendars()
       }
 
       if (props.guidedTourEnabled) {
@@ -125,11 +137,29 @@ watch(
 )
 
 const NONE_IDENTITY_VALUE = '__none__'
+const AUTO_CALENDAR_VALUE = '__auto__'
 
 const identityIdModel = computed<string | undefined>({
   get: () => state.identityId,
   set: (value) => {
     state.identityId = value === NONE_IDENTITY_VALUE ? undefined : value
+  }
+})
+
+const calendarItems = computed(() => {
+  return [
+    { label: 'Automático', value: AUTO_CALENDAR_VALUE },
+    ...((calendars.value ?? []).map((calendar: Calendar) => ({
+      label: calendar.name,
+      value: calendar.id
+    })))
+  ]
+})
+
+const calendarIdModel = computed<string>({
+  get: () => state.calendarId || AUTO_CALENDAR_VALUE,
+  set: (value) => {
+    state.calendarId = value === AUTO_CALENDAR_VALUE ? undefined : value
   }
 })
 
@@ -153,6 +183,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       difficulty: event.data.difficulty,
       habitType: event.data.habitType,
       identityId: event.data.identityId,
+      calendarId: event.data.calendarId,
       frequency: frequencySelection.frequency,
       customDays: frequencySelection.customDays,
       scheduledTime: event.data.scheduledTime || undefined,
@@ -178,6 +209,7 @@ function resetForm() {
   state.difficulty = HabitDifficulty.Normal
   state.habitType = HabitType.Positive
   state.identityId = undefined
+  state.calendarId = undefined
   state.customDays = [...ALL_WEEK_DAYS]
   state.scheduledTime = undefined
   state.scheduledEndTime = undefined
@@ -580,6 +612,20 @@ onBeforeUnmount(() => {
                   />
                 </UFormField>
               </div>
+
+              <UFormField
+                label="Calendário"
+                name="calendarId"
+                description="Se não selecionar, o hábito vai para o primeiro calendário disponível. Se não existir nenhum, o sistema cria o calendário Hábitos."
+              >
+                <USelect
+                  v-model="calendarIdModel"
+                  :items="calendarItems"
+                  value-key="value"
+                  placeholder="Selecione..."
+                  class="w-full"
+                />
+              </UFormField>
             </div>
           </template>
 

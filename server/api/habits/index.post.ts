@@ -4,6 +4,7 @@ import { requireAuthUser } from '../../utils/require-auth'
 import { sanitizeRichTextHtml } from '../../utils/rich-text'
 import { mapHabit, fetchHabitTagMap } from '../../utils/habits'
 import { createInitialHabitVersion } from '../../utils/habit-versions'
+import { syncHabitLinkedEvent } from '../../utils/habit-event-sync'
 
 const bodySchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(200),
@@ -16,6 +17,7 @@ const bodySchema = z.object({
   difficulty: z.enum(['tiny', 'normal', 'hard']).default('normal'),
   habitType: z.enum(['positive', 'negative']).default('positive'),
   identityId: z.string().uuid().optional(),
+  calendarId: z.string().uuid().optional(),
   customDays: z.array(z.number().int().min(0).max(6)).optional(),
   scheduledTime: z.string().regex(/^\d{2}:\d{2}$/, 'Horário deve estar no formato HH:mm').optional(),
   scheduledEndTime: z.string().regex(/^\d{2}:\d{2}$/, 'Horário deve estar no formato HH:mm').optional(),
@@ -32,6 +34,20 @@ export default eventHandler(async (event) => {
 
   const supabase = getSupabaseAdminClient()
 
+  if (parsed.calendarId) {
+    const { data: calendar, error: calendarError } = await supabase
+      .from('calendars')
+      .select('id')
+      .eq('id', parsed.calendarId)
+      .eq('owner_user_id', user.id)
+      .is('archived_at', null)
+      .single()
+
+    if (calendarError || !calendar) {
+      throw createError({ statusCode: 404, statusMessage: 'Calendário não encontrado' })
+    }
+  }
+
   // Create the habit
   const { data: habit, error } = await supabase
     .from('habits')
@@ -47,6 +63,7 @@ export default eventHandler(async (event) => {
       difficulty: parsed.difficulty,
       habit_type: parsed.habitType,
       identity_id: parsed.identityId ?? null,
+      calendar_id: parsed.calendarId ?? null,
       custom_days: parsed.customDays ?? null,
       scheduled_time: parsed.scheduledTime ?? null,
       scheduled_end_time: parsed.scheduledEndTime ?? null
@@ -75,6 +92,8 @@ export default eventHandler(async (event) => {
       parsed.tagIds.map(tagId => ({ habit_id: habit.id, tag_id: tagId }))
     )
   }
+
+  await syncHabitLinkedEvent(supabase, user.id, habit as Record<string, unknown>)
 
   const tagMap = await fetchHabitTagMap(supabase, [habit.id as string])
 

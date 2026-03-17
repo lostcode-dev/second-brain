@@ -6,7 +6,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   modelValue: undefined,
   placeholder: 'HH:mm',
-  disabled: false,
+  disabled: false
 })
 
 const emit = defineEmits<{
@@ -15,14 +15,30 @@ const emit = defineEmits<{
 
 const popoverOpen = ref(false)
 
+function normalizeTimeValue(value?: string | null): string | null {
+  if (!value) return null
+
+  const normalized = value.trim()
+  if (!normalized) return null
+
+  const timeMatch = normalized.match(/^(\d{2}):(\d{2})(?::\d{2})?$/)
+  if (timeMatch) {
+    return `${timeMatch[1]}:${timeMatch[2]}`
+  }
+
+  return normalized
+}
+
 const selectedHour = computed(() => {
-  if (!props.modelValue) return null
-  return props.modelValue.split(':')[0] ?? null
+  const value = normalizeTimeValue(props.modelValue)
+  if (!value) return null
+  return value.split(':')[0] ?? null
 })
 
 const selectedMinute = computed(() => {
-  if (!props.modelValue) return null
-  return props.modelValue.split(':')[1] ?? null
+  const value = normalizeTimeValue(props.modelValue)
+  if (!value) return null
+  return value.split(':')[1] ?? null
 })
 
 const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
@@ -43,14 +59,8 @@ function clear() {
   popoverOpen.value = false
 }
 
-function selectTime(value: string) {
-  emit('update:modelValue', value)
-  popoverOpen.value = false
-}
-
 const displayValue = computed(() => {
-  if (!props.modelValue) return ''
-  return props.modelValue
+  return normalizeTimeValue(props.modelValue) ?? ''
 })
 
 const hourListRef = ref<HTMLElement | null>(null)

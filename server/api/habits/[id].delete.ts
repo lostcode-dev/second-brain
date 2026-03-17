@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getSupabaseAdminClient } from '../../utils/supabase'
 import { requireAuthUser } from '../../utils/require-auth'
+import { archiveHabitLinkedEvent } from '../../utils/habit-event-sync'
 
 const paramsSchema = z.object({
   id: z.string().uuid()
@@ -22,6 +23,8 @@ export default eventHandler(async (event) => {
   if (error) {
     throw createError({ statusCode: 500, statusMessage: 'Falha ao arquivar hábito', data: error.message })
   }
+
+  await archiveHabitLinkedEvent(supabase, user.id, id)
 
   return { success: true }
 })

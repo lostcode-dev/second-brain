@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { Calendar } from '~/types/appointments'
 import type { Habit } from '~/types/habits'
 import { HabitFrequency, HabitDifficulty, HabitType } from '~/types/habits'
 
@@ -37,6 +38,11 @@ const {
   tagsStatus,
   refreshTags
 } = useHabits()
+const {
+  calendars,
+  calendarsStatus,
+  refreshCalendars
+} = useAppointments()
 
 const schema = z
   .object({
@@ -49,6 +55,7 @@ const schema = z
     difficulty: z.nativeEnum(HabitDifficulty),
     habitType: z.nativeEnum(HabitType),
     identityId: z.string().uuid().optional(),
+    calendarId: z.string().uuid().optional(),
     customDays: z.array(z.number().int().min(0).max(6)).min(1, 'Selecione ao menos um dia'),
     scheduledTime: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:mm').optional(),
     scheduledEndTime: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:mm').optional()
@@ -66,6 +73,7 @@ const state = reactive<Partial<Schema>>({
   difficulty: HabitDifficulty.Normal,
   habitType: HabitType.Positive,
   identityId: undefined,
+  calendarId: undefined,
   customDays: [...ALL_WEEK_DAYS],
   scheduledTime: undefined,
   scheduledEndTime: undefined
@@ -88,6 +96,7 @@ watch(
       state.difficulty = habit.difficulty
       state.habitType = habit.habitType ?? HabitType.Positive
       state.identityId = habit.identityId ?? undefined
+      state.calendarId = habit.calendarId ?? undefined
       state.customDays = toSelectedDays(habit.frequency, habit.customDays)
       state.scheduledTime = habit.scheduledTime ?? undefined
       state.scheduledEndTime = habit.scheduledEndTime ?? undefined
@@ -108,6 +117,10 @@ watch(
       if (tagsStatus.value === 'idle') {
         void refreshTags()
       }
+
+      if (calendarsStatus.value === 'idle') {
+        void refreshCalendars()
+      }
     }
 
     if (!open) activeFormTab.value = 'main'
@@ -115,11 +128,29 @@ watch(
 )
 
 const NONE_IDENTITY_VALUE = '__none__'
+const AUTO_CALENDAR_VALUE = '__auto__'
 
 const identityIdModel = computed<string | undefined>({
   get: () => state.identityId,
   set: (value) => {
     state.identityId = value === NONE_IDENTITY_VALUE ? undefined : value
+  }
+})
+
+const calendarItems = computed(() => {
+  return [
+    { label: 'Automático', value: AUTO_CALENDAR_VALUE },
+    ...((calendars.value ?? []).map((calendar: Calendar) => ({
+      label: calendar.name,
+      value: calendar.id
+    })))
+  ]
+})
+
+const calendarIdModel = computed<string>({
+  get: () => state.calendarId || AUTO_CALENDAR_VALUE,
+  set: (value) => {
+    state.calendarId = value === AUTO_CALENDAR_VALUE ? undefined : value
   }
 })
 
@@ -143,6 +174,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       difficulty: event.data.difficulty,
       habitType: event.data.habitType,
       identityId: event.data.identityId ?? null,
+      calendarId: event.data.calendarId ?? null,
       frequency: frequencySelection.frequency,
       customDays: frequencySelection.customDays,
       scheduledTime: event.data.scheduledTime || null,
@@ -398,6 +430,20 @@ function getHabitTypeIcon(habitType: HabitType) {
                   />
                 </UFormField>
               </div>
+
+              <UFormField
+                label="Calendário"
+                name="calendarId"
+                description="Se não selecionar, o hábito vai para o primeiro calendário disponível. Se não existir nenhum, o sistema cria o calendário Hábitos."
+              >
+                <USelect
+                  v-model="calendarIdModel"
+                  :items="calendarItems"
+                  value-key="value"
+                  placeholder="Selecione..."
+                  class="w-full"
+                />
+              </UFormField>
             </div>
           </template>
 

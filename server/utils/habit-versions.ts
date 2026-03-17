@@ -16,6 +16,7 @@ type HabitVersionShape = {
   custom_days: number[] | null
   sort_order: number
   timezone: string | null
+  calendar_id: string | null
   scheduled_time: string | null
   scheduled_end_time: string | null
 }
@@ -38,7 +39,7 @@ function getPreviousDate(date: string): string {
 
 function normalizeCustomDays(value: unknown): number[] | null {
   if (!Array.isArray(value) || value.length === 0) return null
-  return value.map((day) => Number(day))
+  return value.map(day => Number(day))
 }
 
 function areArraysEqual(left: number[] | null, right: number[] | null): boolean {
@@ -65,6 +66,7 @@ export function toHabitVersionShape(row: Record<string, unknown>): HabitVersionS
     custom_days: normalizeCustomDays(row.custom_days ?? row.customDays ?? null),
     sort_order: Number(row.sort_order ?? row.sortOrder ?? 0),
     timezone: (row.timezone ?? null) as string | null,
+    calendar_id: (row.calendar_id ?? row.calendarId ?? null) as string | null,
     scheduled_time: (row.scheduled_time ?? row.scheduledTime ?? null) as string | null,
     scheduled_end_time: (row.scheduled_end_time ?? row.scheduledEndTime ?? null) as string | null
   }
@@ -74,21 +76,22 @@ export function hasVersionedHabitChanges(current: Record<string, unknown>, next:
   const currentVersion = toHabitVersionShape(current)
   const nextVersion = toHabitVersionShape(next)
 
-  return currentVersion.identity_id !== nextVersion.identity_id ||
-    currentVersion.name !== nextVersion.name ||
-    currentVersion.description !== nextVersion.description ||
-    currentVersion.obvious_strategy !== nextVersion.obvious_strategy ||
-    currentVersion.attractive_strategy !== nextVersion.attractive_strategy ||
-    currentVersion.easy_strategy !== nextVersion.easy_strategy ||
-    currentVersion.satisfying_strategy !== nextVersion.satisfying_strategy ||
-    currentVersion.frequency !== nextVersion.frequency ||
-    currentVersion.difficulty !== nextVersion.difficulty ||
-    currentVersion.habit_type !== nextVersion.habit_type ||
-    !areArraysEqual(currentVersion.custom_days, nextVersion.custom_days) ||
-    currentVersion.sort_order !== nextVersion.sort_order ||
-    currentVersion.timezone !== nextVersion.timezone ||
-    currentVersion.scheduled_time !== nextVersion.scheduled_time ||
-    currentVersion.scheduled_end_time !== nextVersion.scheduled_end_time
+  return currentVersion.identity_id !== nextVersion.identity_id
+    || currentVersion.name !== nextVersion.name
+    || currentVersion.description !== nextVersion.description
+    || currentVersion.obvious_strategy !== nextVersion.obvious_strategy
+    || currentVersion.attractive_strategy !== nextVersion.attractive_strategy
+    || currentVersion.easy_strategy !== nextVersion.easy_strategy
+    || currentVersion.satisfying_strategy !== nextVersion.satisfying_strategy
+    || currentVersion.frequency !== nextVersion.frequency
+    || currentVersion.difficulty !== nextVersion.difficulty
+    || currentVersion.habit_type !== nextVersion.habit_type
+    || !areArraysEqual(currentVersion.custom_days, nextVersion.custom_days)
+    || currentVersion.sort_order !== nextVersion.sort_order
+    || currentVersion.timezone !== nextVersion.timezone
+    || currentVersion.calendar_id !== nextVersion.calendar_id
+    || currentVersion.scheduled_time !== nextVersion.scheduled_time
+    || currentVersion.scheduled_end_time !== nextVersion.scheduled_end_time
 }
 
 export async function createInitialHabitVersion(

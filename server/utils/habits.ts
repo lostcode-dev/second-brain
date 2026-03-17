@@ -25,7 +25,7 @@ function mapStreak(row: Record<string, unknown> | null | undefined): Record<stri
   }
 }
 
-export function mapHabit(row: Record<string, unknown>, tags?: Array<{ id: string; name: string; color: string | null }>): Record<string, unknown> {
+export function mapHabit(row: Record<string, unknown>, tags?: Array<{ id: string, name: string, color: string | null }>): Record<string, unknown> {
   return {
     id: row.id,
     userId: row.userId ?? row.user_id,
@@ -42,6 +42,7 @@ export function mapHabit(row: Record<string, unknown>, tags?: Array<{ id: string
     customDays: row.customDays ?? row.custom_days ?? null,
     sortOrder: row.sortOrder ?? row.sort_order ?? 0,
     timezone: row.timezone ?? null,
+    calendarId: row.calendarId ?? row.calendar_id ?? null,
     scheduledTime: row.scheduledTime ?? row.scheduled_time ?? null,
     scheduledEndTime: row.scheduledEndTime ?? row.scheduled_end_time ?? null,
     archivedAt: row.archivedAt ?? row.archived_at ?? null,
@@ -62,7 +63,7 @@ export function mapHabitFromVersion(
   identity: Record<string, unknown> | null | undefined,
   streak: Record<string, unknown> | null | undefined,
   archivedAt: string | null,
-  tags?: Array<{ id: string; name: string; color: string | null }>
+  tags?: Array<{ id: string, name: string, color: string | null }>
 ): Record<string, unknown> {
   return {
     id: version.habit_id,
@@ -80,6 +81,7 @@ export function mapHabitFromVersion(
     customDays: version.custom_days ?? null,
     sortOrder: version.sort_order ?? 0,
     timezone: version.timezone ?? null,
+    calendarId: version.calendar_id ?? null,
     scheduledTime: version.scheduled_time ?? null,
     scheduledEndTime: version.scheduled_end_time ?? null,
     archivedAt,
@@ -93,7 +95,7 @@ export function mapHabitFromVersion(
 
 export function mapHabitList(
   rows: Record<string, unknown>[] | null | undefined,
-  tagMap?: Map<string, Array<{ id: string; name: string; color: string | null }>>
+  tagMap?: Map<string, Array<{ id: string, name: string, color: string | null }>>
 ): Record<string, unknown>[] {
   return (rows ?? []).map(row => mapHabit(row, tagMap?.get(String(row.id))))
 }
@@ -104,8 +106,8 @@ export function mapHabitList(
 export async function fetchHabitTagMap(
   supabase: ReturnType<typeof import('./supabase').getSupabaseAdminClient>,
   habitIds: string[]
-): Promise<Map<string, Array<{ id: string; name: string; color: string | null }>>> {
-  const tagMap = new Map<string, Array<{ id: string; name: string; color: string | null }>>()
+): Promise<Map<string, Array<{ id: string, name: string, color: string | null }>>> {
+  const tagMap = new Map<string, Array<{ id: string, name: string, color: string | null }>>()
   if (habitIds.length === 0) return tagMap
 
   const { data: tagLinks } = await supabase
@@ -115,7 +117,7 @@ export async function fetchHabitTagMap(
 
   for (const link of (tagLinks ?? []) as Array<Record<string, unknown>>) {
     const habitId = String(link.habit_id)
-    const tag = link.tag as { id: string; name: string; color: string | null } | null
+    const tag = link.tag as { id: string, name: string, color: string | null } | null
     if (!tag) continue
     if (!tagMap.has(habitId)) tagMap.set(habitId, [])
     tagMap.get(habitId)!.push({ id: tag.id, name: tag.name, color: tag.color ?? null })
