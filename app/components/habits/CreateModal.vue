@@ -7,16 +7,29 @@ import { GuidedTourKey } from '~/types/guided-tour'
 
 const RICH_TEXT_MAX_LENGTH = 10000
 
-const formTabItems = [
-  { label: 'Principal', value: 'main', icon: 'i-lucide-clipboard-list' },
-  { label: 'Agendamento', value: 'schedule', icon: 'i-lucide-clock-3' },
-  { label: '4 leis', value: 'strategy', icon: 'i-lucide-layers-3' }
+const formSectionItems = [
+  {
+    label: 'Principal',
+    value: 'main',
+    slot: 'main',
+    icon: 'i-lucide-clipboard-list'
+  },
+  {
+    label: 'Agendamento',
+    value: 'schedule',
+    slot: 'schedule',
+    icon: 'i-lucide-clock-3'
+  },
+  {
+    label: '4 leis',
+    value: 'strategy',
+    slot: 'strategy',
+    icon: 'i-lucide-layers-3'
+  }
 ]
 
 const FORM_ID = 'habit-create-form'
 const ALL_WEEK_DAYS = [0, 1, 2, 3, 4, 5, 6]
-const WEEKDAY_ONLY = [1, 2, 3, 4, 5]
-const WEEKEND_ONLY = [0, 6]
 
 const props = defineProps<{
   open: boolean
@@ -189,10 +202,6 @@ function toggleDay(day: number) {
   }
 }
 
-function setSelectedDays(days: number[]) {
-  state.customDays = [...days].sort((a, b) => a - b)
-}
-
 function normalizeFrequencySelection(days: number[]) {
   const uniqueDays = [...new Set(days)].sort((a, b) => a - b)
 
@@ -208,24 +217,6 @@ function normalizeFrequencySelection(days: number[]) {
     customDays: uniqueDays
   }
 }
-
-const selectedDaysSummary = computed(() => {
-  const selectedDays = state.customDays ?? []
-
-  if (selectedDays.length === ALL_WEEK_DAYS.length) {
-    return 'Todos os dias'
-  }
-
-  if (selectedDays.length === WEEKDAY_ONLY.length && WEEKDAY_ONLY.every(day => selectedDays.includes(day))) {
-    return 'Dias úteis'
-  }
-
-  if (selectedDays.length === WEEKEND_ONLY.length && WEEKEND_ONLY.every(day => selectedDays.includes(day))) {
-    return 'Fim de semana'
-  }
-
-  return selectedDays.map(day => dayOptions.find(option => option.value === day)?.label ?? '').filter(Boolean).join(', ')
-})
 
 const identityItems = computed(() => {
   return [
@@ -287,31 +278,31 @@ function getVisibleElement(
   return null
 }
 
-function getCreateFormTabElement(value: string): HTMLElement | null {
-  const tabsRoot = document.querySelector('[data-tour="habit-create-tabs"]')
-  if (!tabsRoot) {
+function getCreateFormSectionElement(value: string): HTMLElement | null {
+  const sectionsRoot = document.querySelector('[data-tour="habit-create-sections"]')
+  if (!sectionsRoot) {
     return null
   }
 
-  const tabLabels: Record<string, string> = {
+  const sectionLabels: Record<string, string> = {
     main: 'Principal',
     schedule: 'Agendamento',
     strategy: '4 leis'
   }
 
   return (
-    Array.from(tabsRoot.querySelectorAll<HTMLElement>('[role="tab"]')).find(
-      (tab) => {
-        const tabValue = tab.getAttribute('data-value')
-        const tabText = tab.textContent?.trim()
+    Array.from(sectionsRoot.querySelectorAll<HTMLElement>('[data-slot="trigger"]')).find(
+      (trigger) => {
+        const triggerValue = trigger.getAttribute('data-value')
+        const triggerText = trigger.textContent?.trim()
 
-        return tabValue === value || tabText === tabLabels[value]
+        return triggerValue === value || triggerText === sectionLabels[value]
       }
     ) ?? null
   )
 }
 
-async function focusCreateFormTab(value: string) {
+async function focusCreateFormSection(value: string) {
   activeFormTab.value = value
   await nextTick()
 }
@@ -319,11 +310,11 @@ async function focusCreateFormTab(value: string) {
 function buildCreateHabitTourSteps(): DriveStep[] {
   return [
     {
-      element: '[data-tour="habit-create-tabs"]',
+      element: '[data-tour="habit-create-sections"]',
       popover: {
-        title: 'O formulário está dividido por contexto',
+        title: 'O formulário está dividido por seções',
         description:
-          'Use estas abas para separar dados principais, agendamento e as 4 leis sem concentrar tudo em uma única etapa.',
+          'Use este accordion para navegar entre dados principais, agendamento e as 4 leis sem concentrar tudo em uma única etapa.',
         showButtons: ['next', 'close'],
         side: 'bottom',
         align: 'start'
@@ -344,22 +335,22 @@ function buildCreateHabitTourSteps(): DriveStep[] {
         description:
           'Selecione os dias da semana em que o hábito deve aparecer. Os atalhos ajudam a montar rotinas diárias, dias úteis ou fim de semana.',
         onNextClick: async (_element, _step, { driver }) => {
-          await focusCreateFormTab('schedule')
+          await focusCreateFormSection('schedule')
           driver.moveNext()
         }
       }
     },
     {
-      element: () => getCreateFormTabElement('schedule'),
+      element: () => getCreateFormSectionElement('schedule'),
       popover: {
-        title: 'Agendamento fica em uma aba própria',
+        title: 'Agendamento fica em uma seção própria',
         description:
           'Aqui você define a referência de horário que vai posicionar o hábito na agenda diária do usuário.',
         onNextClick: async (_element, _step, { driver }) => {
           driver.moveNext()
         },
         onPrevClick: async (_element, _step, { driver }) => {
-          await focusCreateFormTab('main')
+          await focusCreateFormSection('main')
           driver.movePrevious()
         }
       }
@@ -371,7 +362,7 @@ function buildCreateHabitTourSteps(): DriveStep[] {
         description:
           'O horário de início e, se necessário, o de término ajudam a distribuir o hábito no dia sem torná-lo um compromisso rígido.',
         onNextClick: async (_element, _step, { driver }) => {
-          await focusCreateFormTab('strategy')
+          await focusCreateFormSection('strategy')
           driver.moveNext()
         },
         onPrevClick: async (_element, _step, { driver }) => {
@@ -380,16 +371,16 @@ function buildCreateHabitTourSteps(): DriveStep[] {
       }
     },
     {
-      element: () => getCreateFormTabElement('strategy'),
+      element: () => getCreateFormSectionElement('strategy'),
       popover: {
-        title: 'As 4 leis ficam concentradas nesta aba',
+        title: 'As 4 leis ficam concentradas nesta seção',
         description:
           'Nesta etapa você associa a identidade e descreve como tornar o hábito óbvio, atraente, fácil e satisfatório.',
         onNextClick: async (_element, _step, { driver }) => {
           driver.moveNext()
         },
         onPrevClick: async (_element, _step, { driver }) => {
-          await focusCreateFormTab('schedule')
+          await focusCreateFormSection('schedule')
           driver.movePrevious()
         }
       }
@@ -448,189 +439,197 @@ onBeforeUnmount(() => {
         class="space-y-4"
         @submit="onSubmit"
       >
-        <UTabs
+        <UAccordion
           v-model="activeFormTab"
-          :items="formTabItems"
-          color="neutral"
+          :items="formSectionItems"
           class="w-full"
-          data-tour="habit-create-tabs"
+          data-tour="habit-create-sections"
+          :unmount-on-hide="false"
           :ui="{
-            list: 'inline-flex rounded-lg ring ring-default p-1',
-            indicator: 'rounded-md'
+            item: 'rounded-lg border border-default bg-default/40',
+            trigger: 'gap-3 rounded-lg px-4 py-3 text-sm font-medium text-highlighted hover:bg-elevated/60',
+            content: 'px-4 pb-4',
+            body: 'pt-2'
           }"
-        />
-
-        <div v-if="activeFormTab === 'main'" class="space-y-4">
-          <UFormField label="Nome" name="name">
-            <UInput
-              v-model="state.name"
-              data-tour="habit-create-name"
-              placeholder="Ex: Ler 10 páginas"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Descrição" name="description">
-            <RichTextEditor
-              v-model="state.description"
-              placeholder="Por que esse hábito é importante?"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField
-            label="Dias do hábito"
-            name="customDays"
-            data-tour="habit-create-days"
-          >
-            <div class="space-y-3">
-              <div class="flex flex-wrap gap-2">
-                <UButton
-                  v-for="day in dayOptions"
-                  :key="day.value"
-                  type="button"
-                  :label="day.label"
-                  size="sm"
-                  :color="
-                    state.customDays?.includes(day.value) ? 'primary' : 'neutral'
-                  "
-                  :variant="
-                    state.customDays?.includes(day.value) ? 'solid' : 'outline'
-                  "
-                  @click="toggleDay(day.value)"
+        >
+          <template #main-body>
+            <div class="space-y-4">
+              <UFormField label="Nome" name="name">
+                <UInput
+                  v-model="state.name"
+                  data-tour="habit-create-name"
+                  placeholder="Ex: Ler 10 páginas"
+                  class="w-full"
                 />
+              </UFormField>
+
+              <UFormField label="Descrição" name="description">
+                <RichTextEditor
+                  v-model="state.description"
+                  placeholder="Por que esse hábito é importante?"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField
+                label="Dias do hábito"
+                name="customDays"
+                data-tour="habit-create-days"
+              >
+                <div class="space-y-3">
+                  <div class="flex flex-wrap gap-2">
+                    <UButton
+                      v-for="day in dayOptions"
+                      :key="day.value"
+                      type="button"
+                      :label="day.label"
+                      size="sm"
+                      :color="
+                        state.customDays?.includes(day.value) ? 'primary' : 'neutral'
+                      "
+                      :variant="
+                        state.customDays?.includes(day.value) ? 'solid' : 'outline'
+                      "
+                      @click="toggleDay(day.value)"
+                    />
+                  </div>
+                </div>
+              </UFormField>
+
+              <div class="space-y-4 grid gap-4 lg:grid-cols-2">
+                <UFormField label="Dificuldade" name="difficulty">
+                  <div class="flex flex-wrap gap-2">
+                    <UButton
+                      v-for="opt in difficultyOptions"
+                      :key="opt.value"
+                      type="button"
+                      :label="opt.label"
+                      :icon="getHabitDifficultyIcon(opt.value)"
+                      size="sm"
+                      :color="state.difficulty === opt.value ? 'primary' : 'neutral'"
+                      :variant="state.difficulty === opt.value ? 'solid' : 'outline'"
+                      @click="state.difficulty = opt.value"
+                    />
+                  </div>
+                </UFormField>
+
+                <UFormField label="Tipo" name="habitType">
+                  <div class="flex flex-wrap gap-2">
+                    <UButton
+                      v-for="opt in habitTypeOptions"
+                      :key="opt.value"
+                      type="button"
+                      :label="opt.label"
+                      :icon="getHabitTypeIcon(opt.value)"
+                      size="sm"
+                      :color="state.habitType === opt.value ? (opt.value === HabitType.Positive ? 'success' : 'error') : 'neutral'"
+                      :variant="state.habitType === opt.value ? 'solid' : 'outline'"
+                      @click="state.habitType = opt.value"
+                    />
+                  </div>
+                </UFormField>
+              </div>
+
+              <UFormField label="Tags" name="tags">
+                <USelectMenu
+                  v-model="selectedTagIds"
+                  :items="(tags ?? []).map(t => ({ label: t.name, value: t.id }))"
+                  value-key="value"
+                  placeholder="Selecione tags..."
+                  multiple
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+          </template>
+
+          <template #schedule-body>
+            <div class="space-y-5">
+              <UCard>
+                <div class="space-y-2">
+                  <p class="text-sm font-medium text-highlighted">
+                    Referência para sua agenda
+                  </p>
+                  <p class="text-sm text-muted">
+                    Defina um horário para o hábito aparecer como guia do seu dia. Isso ajuda a organizar a rotina sem transformar o hábito em compromisso rígido.
+                  </p>
+                </div>
+              </UCard>
+
+              <div class="grid gap-4 lg:grid-cols-2">
+                <UFormField
+                  label="Horário de início"
+                  name="scheduledTime"
+                  data-tour="habit-create-schedule-time"
+                  description="Momento ideal para começar esse hábito."
+                >
+                  <UiTimePicker
+                    v-model="state.scheduledTime"
+                    placeholder="Selecione o início"
+                  />
+                </UFormField>
+
+                <UFormField
+                  label="Horário de término"
+                  name="scheduledEndTime"
+                  description="Use quando o hábito tiver janela de execução."
+                >
+                  <UiTimePicker
+                    v-model="state.scheduledEndTime"
+                    placeholder="Selecione o término"
+                  />
+                </UFormField>
               </div>
             </div>
-          </UFormField>
+          </template>
 
-          <div class="space-y-4 grid gap-4 lg:grid-cols-2">
-            <UFormField label="Dificuldade" name="difficulty">
-              <div class="flex flex-wrap gap-2">
-                <UButton
-                  v-for="opt in difficultyOptions"
-                  :key="opt.value"
-                  type="button"
-                  :label="opt.label"
-                  :icon="getHabitDifficultyIcon(opt.value)"
-                  size="sm"
-                  :color="state.difficulty === opt.value ? 'primary' : 'neutral'"
-                  :variant="state.difficulty === opt.value ? 'solid' : 'outline'"
-                  @click="state.difficulty = opt.value"
+          <template #strategy-body>
+            <div class="space-y-4">
+              <UFormField label="Identidade" name="identityId">
+                <USelect
+                  v-model="identityIdModel"
+                  data-tour="habit-create-identity"
+                  :items="identityItems"
+                  value-key="value"
+                  placeholder="Quem você quer se tornar?"
+                  class="w-full"
                 />
-              </div>
-            </UFormField>
+              </UFormField>
 
-            <UFormField label="Tipo" name="habitType">
-              <div class="flex flex-wrap gap-2">
-                <UButton
-                  v-for="opt in habitTypeOptions"
-                  :key="opt.value"
-                  type="button"
-                  :label="opt.label"
-                  :icon="getHabitTypeIcon(opt.value)"
-                  size="sm"
-                  :color="state.habitType === opt.value ? (opt.value === HabitType.Positive ? 'success' : 'error') : 'neutral'"
-                  :variant="state.habitType === opt.value ? 'solid' : 'outline'"
-                  @click="state.habitType = opt.value"
+              <UFormField label="Tornar Óbvio" name="obviousStrategy">
+                <RichTextEditor
+                  v-model="state.obviousStrategy"
+                  placeholder="Como esse hábito vai ficar visível no seu ambiente e na sua rotina?"
+                  class="w-full"
                 />
-              </div>
-            </UFormField>
-          </div>
+              </UFormField>
 
-          <UFormField label="Tags" name="tags">
-            <USelectMenu
-              v-model="selectedTagIds"
-              :items="(tags ?? []).map(t => ({ label: t.name, value: t.id }))"
-              value-key="value"
-              placeholder="Selecione tags..."
-              multiple
-              class="w-full"
-            />
-          </UFormField>
-        </div>
+              <UFormField label="Tornar Atraente" name="attractiveStrategy">
+                <RichTextEditor
+                  v-model="state.attractiveStrategy"
+                  placeholder="O que pode tornar esse hábito mais desejável ou prazeroso?"
+                  class="w-full"
+                />
+              </UFormField>
 
-        <div v-else-if="activeFormTab === 'schedule'" class="space-y-5">
-          <UCard>
-            <div class="space-y-2">
-              <p class="text-sm font-medium text-highlighted">
-                Referência para sua agenda
-              </p>
-              <p class="text-sm text-muted">
-                Defina um horário para o hábito aparecer como guia do seu dia. Isso ajuda a organizar a rotina sem transformar o hábito em compromisso rígido.
-              </p>
+              <UFormField label="Tornar Fácil" name="easyStrategy">
+                <RichTextEditor
+                  v-model="state.easyStrategy"
+                  placeholder="Como reduzir atrito e deixar a ação mais simples de começar?"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField label="Tornar Satisfatório" name="satisfyingStrategy">
+                <RichTextEditor
+                  v-model="state.satisfyingStrategy"
+                  placeholder="Qual recompensa imediata vai reforçar a repetição desse hábito?"
+                  class="w-full"
+                />
+              </UFormField>
             </div>
-          </UCard>
-
-          <div class="grid gap-4 lg:grid-cols-2">
-            <UFormField
-              label="Horário de início"
-              name="scheduledTime"
-              data-tour="habit-create-schedule-time"
-              description="Momento ideal para começar esse hábito."
-            >
-              <UiTimePicker
-                v-model="state.scheduledTime"
-                placeholder="Selecione o início"
-              />
-            </UFormField>
-
-            <UFormField
-              label="Horário de término"
-              name="scheduledEndTime"
-              description="Use quando o hábito tiver janela de execução."
-            >
-              <UiTimePicker
-                v-model="state.scheduledEndTime"
-                placeholder="Selecione o término"
-              />
-            </UFormField>
-          </div>
-        </div>
-
-        <div v-else class="space-y-4">
-          <UFormField label="Identidade" name="identityId">
-            <USelect
-              v-model="identityIdModel"
-              data-tour="habit-create-identity"
-              :items="identityItems"
-              value-key="value"
-              placeholder="Quem você quer se tornar?"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Tornar Óbvio" name="obviousStrategy">
-            <RichTextEditor
-              v-model="state.obviousStrategy"
-              placeholder="Como esse hábito vai ficar visível no seu ambiente e na sua rotina?"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Tornar Atraente" name="attractiveStrategy">
-            <RichTextEditor
-              v-model="state.attractiveStrategy"
-              placeholder="O que pode tornar esse hábito mais desejável ou prazeroso?"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Tornar Fácil" name="easyStrategy">
-            <RichTextEditor
-              v-model="state.easyStrategy"
-              placeholder="Como reduzir atrito e deixar a ação mais simples de começar?"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Tornar Satisfatório" name="satisfyingStrategy">
-            <RichTextEditor
-              v-model="state.satisfyingStrategy"
-              placeholder="Qual recompensa imediata vai reforçar a repetição desse hábito?"
-              class="w-full"
-            />
-          </UFormField>
-        </div>
+          </template>
+        </UAccordion>
       </UForm>
     </template>
 
