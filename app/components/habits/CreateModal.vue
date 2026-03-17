@@ -467,7 +467,9 @@ onBeforeUnmount(() => {
     description="Comece pequeno. Um passo de cada vez."
     :ui="{
       overlay: 'z-[200] bg-elevated/75',
-      content: 'z-[210] w-[calc(100vw-2rem)] max-w-4xl overflow-visible'
+      content: 'z-[210] w-[calc(100vw-2rem)] max-w-4xl overflow-visible',
+      body: 'px-6 py-5 sm:px-6 sm:py-5 pb-6',
+      footer: 'border-t border-default px-6 py-4'
     }"
     @update:open="onClose"
   >
