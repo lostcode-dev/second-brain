@@ -98,6 +98,30 @@ const logStatusMeta = computed(() => {
   if (!status) return null
   return LOG_STATUS_META[status] ?? null
 })
+
+function formatHabitTime(value: string | null | undefined): string | null {
+  if (!value) return null
+
+  const normalized = value.trim()
+  if (!normalized) return null
+
+  const timeMatch = normalized.match(/^(\d{2}):(\d{2})(?::\d{2})?$/)
+  if (timeMatch) {
+    return `${timeMatch[1]}:${timeMatch[2]}`
+  }
+
+  return normalized
+}
+
+const scheduledTimeLabel = computed(() => {
+  const start = formatHabitTime(props.node.habit.scheduledTime)
+  const end = formatHabitTime(props.node.habit.scheduledEndTime)
+
+  if (!start) return null
+  if (!end) return start
+
+  return `${start} - ${end}`
+})
 </script>
 
 <template>
@@ -174,8 +198,8 @@ const logStatusMeta = computed(() => {
         <!-- Row 2: Metadata badges -->
         <div class="mt-1.5 flex flex-wrap items-center gap-1.5 pl-6">
           <UBadge
-            v-if="node.habit.scheduledTime"
-            :label="node.habit.scheduledEndTime ? `${node.habit.scheduledTime} – ${node.habit.scheduledEndTime}` : node.habit.scheduledTime"
+            v-if="scheduledTimeLabel"
+            :label="scheduledTimeLabel"
             variant="subtle"
             color="neutral"
             size="sm"
