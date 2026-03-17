@@ -304,67 +304,43 @@ function getHabitTypeIcon(habitType: HabitType) {
         @submit="onSubmit"
       >
         <div class="space-y-4">
-          <UFormField
-            label="Avatar"
-            name="avatarEmoji"
-            description="Escolha um emoji para identificar o hábito com mais rapidez."
-          >
+          <UFormField name="avatarEmoji">
             <UPopover
               v-model:open="avatarPopoverOpen"
               :content="{ align: 'start', side: 'bottom', sideOffset: 8 }"
               :ui="{
-                content: 'z-[260] w-[min(92vw,30rem)] rounded-3xl border border-default bg-default p-0 shadow-2xl'
+                content:
+                  'z-[260] w-[min(92vw,30rem)] rounded-3xl border border-default bg-default p-0 shadow-2xl',
               }"
             >
-              <UButton
+              <button
                 type="button"
-                color="neutral"
-                variant="outline"
-                block
-                class="min-h-14 justify-between rounded-2xl border-default px-4 py-3 text-left"
+                class="relative flex w-full flex-col items-center justify-center gap-3 rounded-2xl bg-default px-2 py-2 text-center"
               >
-                <div class="flex min-w-0 items-center gap-3">
-                  <UAvatar
-                    :text="state.avatarEmoji || '🙂'"
-                    alt="Avatar do hábito"
-                    size="lg"
-                    class="shrink-0 ring ring-default"
-                  />
-
-                  <div class="min-w-0">
-                    <p class="text-xs uppercase tracking-[0.12em] text-muted">
-                      Avatar
-                    </p>
-                    <p class="truncate text-sm font-medium" :class="state.avatarEmoji ? 'text-highlighted' : 'text-muted'">
-                      {{ state.avatarEmoji ? `Selecionado: ${state.avatarEmoji}` : 'Selecionar emoji' }}
-                    </p>
-                  </div>
-                </div>
-
-                <template #trailing>
-                  <UIcon
-                    name="i-lucide-chevron-down"
-                    class="size-4 shrink-0 text-muted transition-transform duration-200"
-                    :class="{ 'rotate-180': avatarPopoverOpen }"
-                  />
-                </template>
-              </UButton>
+                <UAvatar
+                  :text="state.avatarEmoji || '🙂'"
+                  alt="Avatar do hábito"
+                  size="2xl"
+                  class="size-24 shrink-0 ring ring-default text-[32px]"
+                />
+              </button>
 
               <template #content>
                 <div class="overflow-hidden rounded-3xl">
-                  <div class="border-b border-default px-4 py-4">
-                    <p class="text-sm font-semibold text-highlighted">
-                      Selecionar avatar do hábito
-                    </p>
-                  </div>
-
                   <div class="max-h-80 overflow-y-auto p-3">
                     <div class="grid grid-cols-6 gap-2 sm:grid-cols-8">
                       <button
                         type="button"
                         class="flex h-11 items-center justify-center rounded-xl border border-default bg-elevated text-lg transition-colors hover:bg-accented"
-                        :class="!state.avatarEmoji ? 'border-primary bg-primary/10' : ''"
-                        @click="state.avatarEmoji = undefined; avatarPopoverOpen = false"
+                        :class="
+                          !state.avatarEmoji
+                            ? 'border-primary bg-primary/10'
+                            : ''
+                        "
+                        @click="
+                          state.avatarEmoji = undefined;
+                          avatarPopoverOpen = false;
+                        "
                       >
                         <UIcon name="i-lucide-x" class="size-4 text-muted" />
                       </button>
@@ -373,8 +349,15 @@ function getHabitTypeIcon(habitType: HabitType) {
                         :key="emoji"
                         type="button"
                         class="flex h-11 items-center justify-center rounded-xl border border-default bg-elevated text-xl transition-colors hover:bg-accented"
-                        :class="state.avatarEmoji === emoji ? 'border-primary bg-primary/10' : ''"
-                        @click="state.avatarEmoji = emoji; avatarPopoverOpen = false"
+                        :class="
+                          state.avatarEmoji === emoji
+                            ? 'border-primary bg-primary/10'
+                            : ''
+                        "
+                        @click="
+                          state.avatarEmoji = emoji;
+                          avatarPopoverOpen = false;
+                        "
                       >
                         {{ emoji }}
                       </button>
@@ -384,7 +367,7 @@ function getHabitTypeIcon(habitType: HabitType) {
               </template>
             </UPopover>
           </UFormField>
-
+          
           <UFormField label="Nome" name="name">
             <UInput v-model="state.name" class="w-full" />
           </UFormField>

@@ -1,40 +1,40 @@
 <script setup lang="ts">
-import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
-import type { DriveStep, Driver } from 'driver.js'
-import type { Calendar } from '~/types/appointments'
-import { HABIT_EMOJI_OPTIONS } from '~/constants/habit-emoji-options'
-import { HabitFrequency, HabitDifficulty, HabitType } from '~/types/habits'
-import { GuidedTourKey } from '~/types/guided-tour'
+import * as z from "zod";
+import type { FormSubmitEvent } from "@nuxt/ui";
+import type { DriveStep, Driver } from "driver.js";
+import type { Calendar } from "~/types/appointments";
+import { HABIT_EMOJI_OPTIONS } from "~/constants/habit-emoji-options";
+import { HabitFrequency, HabitDifficulty, HabitType } from "~/types/habits";
+import { GuidedTourKey } from "~/types/guided-tour";
 
-const RICH_TEXT_MAX_LENGTH = 10000
+const RICH_TEXT_MAX_LENGTH = 10000;
 
 const formSectionItems = [
   {
-    label: 'Agendamento',
-    value: 'schedule',
-    slot: 'schedule',
-    icon: 'i-lucide-clock-3'
+    label: "Agendamento",
+    value: "schedule",
+    slot: "schedule",
+    icon: "i-lucide-clock-3",
   },
   {
-    label: '4 leis',
-    value: 'strategy',
-    slot: 'strategy',
-    icon: 'i-lucide-layers-3'
-  }
-]
+    label: "4 leis",
+    value: "strategy",
+    slot: "strategy",
+    icon: "i-lucide-layers-3",
+  },
+];
 
-const FORM_ID = 'habit-create-form'
-const ALL_WEEK_DAYS = [0, 1, 2, 3, 4, 5, 6]
+const FORM_ID = "habit-create-form";
+const ALL_WEEK_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
 const props = defineProps<{
-  open: boolean
-  guidedTourEnabled?: boolean
-}>()
+  open: boolean;
+  guidedTourEnabled?: boolean;
+}>();
 
 const emit = defineEmits<{
-  'update:open': [value: boolean]
-}>()
+  "update:open": [value: boolean];
+}>();
 
 const {
   createHabit,
@@ -46,13 +46,13 @@ const {
   refreshIdentities,
   tags,
   tagsStatus,
-  refreshTags
-} = useHabits()
-const { calendars, calendarsStatus, refreshCalendars } = useAppointments()
-const { startIfNeeded } = useGuidedTour()
+  refreshTags,
+} = useHabits();
+const { calendars, calendarsStatus, refreshCalendars } = useAppointments();
+const { startIfNeeded } = useGuidedTour();
 
 const schema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório').max(200),
+  name: z.string().min(1, "Nome é obrigatório").max(200),
   avatarEmoji: z.string().max(16).optional(),
   description: z.string().max(RICH_TEXT_MAX_LENGTH).optional(),
   obviousStrategy: z.string().max(RICH_TEXT_MAX_LENGTH).optional(),
@@ -65,117 +65,117 @@ const schema = z.object({
   calendarId: z.string().uuid().optional(),
   customDays: z
     .array(z.number().int().min(0).max(6))
-    .min(1, 'Selecione ao menos um dia'),
+    .min(1, "Selecione ao menos um dia"),
   scheduledTime: z
     .string()
-    .regex(/^\d{2}:\d{2}$/, 'Formato HH:mm')
+    .regex(/^\d{2}:\d{2}$/, "Formato HH:mm")
     .optional(),
   scheduledEndTime: z
     .string()
-    .regex(/^\d{2}:\d{2}$/, 'Formato HH:mm')
-    .optional()
-})
+    .regex(/^\d{2}:\d{2}$/, "Formato HH:mm")
+    .optional(),
+});
 
-type Schema = z.output<typeof schema>
+type Schema = z.output<typeof schema>;
 
 const state = reactive<Partial<Schema>>({
-  name: '',
+  name: "",
   avatarEmoji: undefined,
-  description: '',
-  obviousStrategy: '',
-  attractiveStrategy: '',
-  easyStrategy: '',
-  satisfyingStrategy: '',
+  description: "",
+  obviousStrategy: "",
+  attractiveStrategy: "",
+  easyStrategy: "",
+  satisfyingStrategy: "",
   difficulty: HabitDifficulty.Normal,
   habitType: HabitType.Positive,
   identityId: undefined,
   calendarId: undefined,
   customDays: [...ALL_WEEK_DAYS],
   scheduledTime: undefined,
-  scheduledEndTime: undefined
-})
+  scheduledEndTime: undefined,
+});
 
-const loading = ref(false)
-const activeFormTab = ref('schedule')
-const selectedTagIds = ref<string[]>([])
-const avatarPopoverOpen = ref(false)
-let createHabitTour: Driver | null = null
+const loading = ref(false);
+const activeFormTab = ref("schedule");
+const selectedTagIds = ref<string[]>([]);
+const avatarPopoverOpen = ref(false);
+let createHabitTour: Driver | null = null;
 
 watch(
   () => props.open,
   async (open) => {
     if (open) {
-      if (identitiesStatus.value === 'idle') {
-        void refreshIdentities()
+      if (identitiesStatus.value === "idle") {
+        void refreshIdentities();
       }
 
-      if (tagsStatus.value === 'idle') {
-        void refreshTags()
+      if (tagsStatus.value === "idle") {
+        void refreshTags();
       }
 
-      if (calendarsStatus.value === 'idle') {
-        void refreshCalendars()
+      if (calendarsStatus.value === "idle") {
+        void refreshCalendars();
       }
 
       if (props.guidedTourEnabled) {
         createHabitTour = await startIfNeeded({
           key: GuidedTourKey.HabitsFirstHabitCreate,
           onDestroyed: () => {
-            createHabitTour = null
-            activeFormTab.value = 'schedule'
+            createHabitTour = null;
+            activeFormTab.value = "schedule";
           },
-          steps: buildCreateHabitTourSteps()
-        })
+          steps: buildCreateHabitTourSteps(),
+        });
       }
     }
 
     if (!open) {
-      createHabitTour?.destroy()
-      createHabitTour = null
-      activeFormTab.value = 'schedule'
+      createHabitTour?.destroy();
+      createHabitTour = null;
+      activeFormTab.value = "schedule";
     }
-  }
-)
+  },
+);
 
-const NONE_IDENTITY_VALUE = '__none__'
-const AUTO_CALENDAR_VALUE = '__auto__'
+const NONE_IDENTITY_VALUE = "__none__";
+const AUTO_CALENDAR_VALUE = "__auto__";
 
 const identityIdModel = computed<string | undefined>({
   get: () => state.identityId,
   set: (value) => {
-    state.identityId = value === NONE_IDENTITY_VALUE ? undefined : value
-  }
-})
+    state.identityId = value === NONE_IDENTITY_VALUE ? undefined : value;
+  },
+});
 
 const calendarItems = computed(() => {
   return [
-    { label: 'Automático', value: AUTO_CALENDAR_VALUE },
+    { label: "Automático", value: AUTO_CALENDAR_VALUE },
     ...(calendars.value ?? []).map((calendar: Calendar) => ({
       label: calendar.name,
-      value: calendar.id
-    }))
-  ]
-})
+      value: calendar.id,
+    })),
+  ];
+});
 
 const calendarIdModel = computed<string>({
   get: () => state.calendarId || AUTO_CALENDAR_VALUE,
   set: (value) => {
-    state.calendarId = value === AUTO_CALENDAR_VALUE ? undefined : value
-  }
-})
+    state.calendarId = value === AUTO_CALENDAR_VALUE ? undefined : value;
+  },
+});
 
 function normalizeRichText(value?: string | null) {
-  const normalized = value?.trim()
-  return normalized ? normalized : undefined
+  const normalized = value?.trim();
+  return normalized ? normalized : undefined;
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (loading.value) return
-  loading.value = true
+  if (loading.value) return;
+  loading.value = true;
   try {
     const frequencySelection = normalizeFrequencySelection(
-      event.data.customDays
-    )
+      event.data.customDays,
+    );
     const result = await createHabit({
       description: normalizeRichText(event.data.description),
       obviousStrategy: normalizeRichText(event.data.obviousStrategy),
@@ -193,160 +193,160 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       scheduledTime: event.data.scheduledTime || undefined,
       scheduledEndTime: event.data.scheduledEndTime || undefined,
       tagIds:
-        selectedTagIds.value.length > 0 ? selectedTagIds.value : undefined
-    })
+        selectedTagIds.value.length > 0 ? selectedTagIds.value : undefined,
+    });
     if (result) {
-      resetForm()
-      emit('update:open', false)
+      resetForm();
+      emit("update:open", false);
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 function resetForm() {
-  state.name = ''
-  state.avatarEmoji = undefined
-  state.description = ''
-  state.obviousStrategy = ''
-  state.attractiveStrategy = ''
-  state.easyStrategy = ''
-  state.satisfyingStrategy = ''
-  state.difficulty = HabitDifficulty.Normal
-  state.habitType = HabitType.Positive
-  state.identityId = undefined
-  state.calendarId = undefined
-  state.customDays = [...ALL_WEEK_DAYS]
-  state.scheduledTime = undefined
-  state.scheduledEndTime = undefined
-  selectedTagIds.value = []
-  activeFormTab.value = 'schedule'
-  avatarPopoverOpen.value = false
+  state.name = "";
+  state.avatarEmoji = undefined;
+  state.description = "";
+  state.obviousStrategy = "";
+  state.attractiveStrategy = "";
+  state.easyStrategy = "";
+  state.satisfyingStrategy = "";
+  state.difficulty = HabitDifficulty.Normal;
+  state.habitType = HabitType.Positive;
+  state.identityId = undefined;
+  state.calendarId = undefined;
+  state.customDays = [...ALL_WEEK_DAYS];
+  state.scheduledTime = undefined;
+  state.scheduledEndTime = undefined;
+  selectedTagIds.value = [];
+  activeFormTab.value = "schedule";
+  avatarPopoverOpen.value = false;
 }
 
 function onClose() {
-  createHabitTour?.destroy()
-  createHabitTour = null
-  activeFormTab.value = 'schedule'
-  emit('update:open', false)
+  createHabitTour?.destroy();
+  createHabitTour = null;
+  activeFormTab.value = "schedule";
+  emit("update:open", false);
 }
 
 function toggleDay(day: number) {
-  if (!state.customDays) state.customDays = []
-  const idx = state.customDays.indexOf(day)
+  if (!state.customDays) state.customDays = [];
+  const idx = state.customDays.indexOf(day);
   if (idx >= 0) {
-    state.customDays.splice(idx, 1)
+    state.customDays.splice(idx, 1);
   } else {
-    state.customDays.push(day)
+    state.customDays.push(day);
   }
 }
 
 function normalizeFrequencySelection(days: number[]) {
-  const uniqueDays = [...new Set(days)].sort((a, b) => a - b)
+  const uniqueDays = [...new Set(days)].sort((a, b) => a - b);
 
   if (uniqueDays.length === ALL_WEEK_DAYS.length) {
     return {
       frequency: HabitFrequency.Daily,
-      customDays: undefined
-    }
+      customDays: undefined,
+    };
   }
 
   return {
     frequency: HabitFrequency.Custom,
-    customDays: uniqueDays
-  }
+    customDays: uniqueDays,
+  };
 }
 
 const identityItems = computed(() => {
   return [
-    { label: 'Nenhuma', value: NONE_IDENTITY_VALUE },
-    ...(identities.value ?? []).map(i => ({ label: i.name, value: i.id }))
-  ]
-})
+    { label: "Nenhuma", value: NONE_IDENTITY_VALUE },
+    ...(identities.value ?? []).map((i) => ({ label: i.name, value: i.id })),
+  ];
+});
 
 watch(
   identities,
   (items) => {
-    if (!state.identityId) return
+    if (!state.identityId) return;
     const exists = (items ?? []).some(
-      identity => identity.id === state.identityId
-    )
+      (identity) => identity.id === state.identityId,
+    );
     if (!exists) {
-      state.identityId = undefined
+      state.identityId = undefined;
     }
   },
-  { deep: false }
-)
+  { deep: false },
+);
 
 function getHabitDifficultyIcon(difficulty: HabitDifficulty) {
   switch (difficulty) {
     case HabitDifficulty.Tiny:
-      return 'i-lucide-feather'
+      return "i-lucide-feather";
     case HabitDifficulty.Normal:
-      return 'i-lucide-shield'
+      return "i-lucide-shield";
     case HabitDifficulty.Hard:
-      return 'i-lucide-mountain'
+      return "i-lucide-mountain";
     default:
-      return ''
+      return "";
   }
 }
 
 function getHabitTypeIcon(habitType: HabitType) {
   switch (habitType) {
     case HabitType.Positive:
-      return 'i-lucide-thumbs-up'
+      return "i-lucide-thumbs-up";
     case HabitType.Negative:
-      return 'i-lucide-thumbs-down'
+      return "i-lucide-thumbs-down";
     default:
-      return ''
+      return "";
   }
 }
 
 function getVisibleElement(selectors: string | string[]): HTMLElement | null {
-  const selectorList = Array.isArray(selectors) ? selectors : [selectors]
+  const selectorList = Array.isArray(selectors) ? selectors : [selectors];
 
   for (const selector of selectorList) {
     const elements = Array.from(
-      document.querySelectorAll<HTMLElement>(selector)
-    )
-    const visible = elements.find(element => element.offsetParent !== null)
+      document.querySelectorAll<HTMLElement>(selector),
+    );
+    const visible = elements.find((element) => element.offsetParent !== null);
 
     if (visible) {
-      return visible
+      return visible;
     }
   }
 
-  return null
+  return null;
 }
 
 function getCreateFormSectionElement(value: string): HTMLElement | null {
   const sectionsRoot = document.querySelector(
-    '[data-tour="habit-create-sections"]'
-  )
+    '[data-tour="habit-create-sections"]',
+  );
   if (!sectionsRoot) {
-    return null
+    return null;
   }
 
   const sectionLabels: Record<string, string> = {
-    schedule: 'Agendamento',
-    strategy: '4 leis'
-  }
+    schedule: "Agendamento",
+    strategy: "4 leis",
+  };
 
   return (
     Array.from(
-      sectionsRoot.querySelectorAll<HTMLElement>('[data-slot="trigger"]')
+      sectionsRoot.querySelectorAll<HTMLElement>('[data-slot="trigger"]'),
     ).find((trigger) => {
-      const triggerValue = trigger.getAttribute('data-value')
-      const triggerText = trigger.textContent?.trim()
+      const triggerValue = trigger.getAttribute("data-value");
+      const triggerText = trigger.textContent?.trim();
 
-      return triggerValue === value || triggerText === sectionLabels[value]
+      return triggerValue === value || triggerText === sectionLabels[value];
     }) ?? null
-  )
+  );
 }
 
 async function focusCreateFormSection(value: string) {
-  activeFormTab.value = value
-  await nextTick()
+  activeFormTab.value = value;
+  await nextTick();
 }
 
 function buildCreateHabitTourSteps(): DriveStep[] {
@@ -354,109 +354,109 @@ function buildCreateHabitTourSteps(): DriveStep[] {
     {
       element: '[data-tour="habit-create-sections"]',
       popover: {
-        title: 'O formulário está dividido por seções',
+        title: "O formulário está dividido por seções",
         description:
-          'Use este accordion para navegar entre dados principais, agendamento e as 4 leis sem concentrar tudo em uma única etapa.',
-        showButtons: ['next', 'close'],
-        side: 'bottom',
-        align: 'start'
-      }
+          "Use este accordion para navegar entre dados principais, agendamento e as 4 leis sem concentrar tudo em uma única etapa.",
+        showButtons: ["next", "close"],
+        side: "bottom",
+        align: "start",
+      },
     },
     {
       element: '[data-tour="habit-create-name"]',
       popover: {
-        title: 'Dê um nome claro ao hábito',
+        title: "Dê um nome claro ao hábito",
         description:
-          'Escreva a ação de forma objetiva. Isso ajuda na execução diária e também na leitura das notificações e da agenda.'
-      }
+          "Escreva a ação de forma objetiva. Isso ajuda na execução diária e também na leitura das notificações e da agenda.",
+      },
     },
     {
       element: '[data-tour="habit-create-days"]',
       popover: {
-        title: 'Defina quando o hábito acontece',
+        title: "Defina quando o hábito acontece",
         description:
-          'Selecione os dias da semana em que o hábito deve aparecer. Os atalhos ajudam a montar rotinas diárias, dias úteis ou fim de semana.',
+          "Selecione os dias da semana em que o hábito deve aparecer. Os atalhos ajudam a montar rotinas diárias, dias úteis ou fim de semana.",
         onNextClick: async (_element, _step, { driver }) => {
-          await focusCreateFormSection('schedule')
-          driver.moveNext()
-        }
-      }
+          await focusCreateFormSection("schedule");
+          driver.moveNext();
+        },
+      },
     },
     {
-      element: () => getCreateFormSectionElement('schedule'),
+      element: () => getCreateFormSectionElement("schedule"),
       popover: {
-        title: 'Agendamento fica em uma seção própria',
+        title: "Agendamento fica em uma seção própria",
         description:
-          'Aqui você define a referência de horário que vai posicionar o hábito na agenda diária do usuário.',
+          "Aqui você define a referência de horário que vai posicionar o hábito na agenda diária do usuário.",
         onNextClick: async (_element, _step, { driver }) => {
-          driver.moveNext()
+          driver.moveNext();
         },
         onPrevClick: async (_element, _step, { driver }) => {
-          driver.movePrevious()
-        }
-      }
+          driver.movePrevious();
+        },
+      },
     },
     {
       element: '[data-tour="habit-create-schedule-time"]',
       popover: {
-        title: 'Use horário como referência de agenda',
+        title: "Use horário como referência de agenda",
         description:
-          'O horário de início e, se necessário, o de término ajudam a distribuir o hábito no dia sem torná-lo um compromisso rígido.',
+          "O horário de início e, se necessário, o de término ajudam a distribuir o hábito no dia sem torná-lo um compromisso rígido.",
         onNextClick: async (_element, _step, { driver }) => {
-          await focusCreateFormSection('strategy')
-          driver.moveNext()
+          await focusCreateFormSection("strategy");
+          driver.moveNext();
         },
         onPrevClick: async (_element, _step, { driver }) => {
-          driver.movePrevious()
-        }
-      }
+          driver.movePrevious();
+        },
+      },
     },
     {
-      element: () => getCreateFormSectionElement('strategy'),
+      element: () => getCreateFormSectionElement("strategy"),
       popover: {
-        title: 'As 4 leis ficam concentradas nesta seção',
+        title: "As 4 leis ficam concentradas nesta seção",
         description:
-          'Nesta etapa você associa a identidade e descreve como tornar o hábito óbvio, atraente, fácil e satisfatório.',
+          "Nesta etapa você associa a identidade e descreve como tornar o hábito óbvio, atraente, fácil e satisfatório.",
         onNextClick: async (_element, _step, { driver }) => {
-          driver.moveNext()
+          driver.moveNext();
         },
         onPrevClick: async (_element, _step, { driver }) => {
-          await focusCreateFormSection('schedule')
-          driver.movePrevious()
-        }
-      }
+          await focusCreateFormSection("schedule");
+          driver.movePrevious();
+        },
+      },
     },
     {
       element: '[data-tour="habit-create-identity"]',
       popover: {
-        title: 'Selecione a identidade certa',
+        title: "Selecione a identidade certa",
         description:
-          'A identidade conecta o hábito ao tipo de pessoa que o usuário quer se tornar, o que melhora leitura dos insights e da revisão.',
+          "A identidade conecta o hábito ao tipo de pessoa que o usuário quer se tornar, o que melhora leitura dos insights e da revisão.",
         onPrevClick: async (_element, _step, { driver }) => {
-          driver.movePrevious()
-        }
-      }
+          driver.movePrevious();
+        },
+      },
     },
     {
       element: () => getVisibleElement('[data-tour="habit-create-submit"]'),
       popover: {
-        title: 'Salve para começar a acompanhar',
+        title: "Salve para começar a acompanhar",
         description:
-          'Quando terminar, salve o hábito para ele entrar na rotina diária, nas notificações e nas próximas análises da tela.',
-        doneBtnText: 'Concluir',
-        showButtons: ['previous', 'next', 'close'],
+          "Quando terminar, salve o hábito para ele entrar na rotina diária, nas notificações e nas próximas análises da tela.",
+        doneBtnText: "Concluir",
+        showButtons: ["previous", "next", "close"],
         onPrevClick: async (_element, _step, { driver }) => {
-          driver.movePrevious()
-        }
-      }
-    }
-  ]
+          driver.movePrevious();
+        },
+      },
+    },
+  ];
 }
 
 onBeforeUnmount(() => {
-  createHabitTour?.destroy()
-  createHabitTour = null
-})
+  createHabitTour?.destroy();
+  createHabitTour = null;
+});
 </script>
 
 <template>
@@ -467,7 +467,7 @@ onBeforeUnmount(() => {
     description="Comece pequeno. Um passo de cada vez."
     :ui="{
       overlay: 'z-[200] bg-elevated/75',
-      content: 'z-[210] w-[calc(100vw-2rem)] max-w-4xl overflow-visible'
+      content: 'z-[210] w-[calc(100vw-2rem)] max-w-4xl overflow-visible',
     }"
     @update:open="onClose"
   >
@@ -480,67 +480,43 @@ onBeforeUnmount(() => {
         @submit="onSubmit"
       >
         <div class="space-y-4">
-          <UFormField
-            label="Avatar"
-            name="avatarEmoji"
-            description="Escolha um emoji para identificar o hábito com mais rapidez."
-          >
+          <UFormField name="avatarEmoji">
             <UPopover
               v-model:open="avatarPopoverOpen"
               :content="{ align: 'start', side: 'bottom', sideOffset: 8 }"
               :ui="{
-                content: 'z-[260] w-[min(92vw,30rem)] rounded-3xl border border-default bg-default p-0 shadow-2xl'
+                content:
+                  'z-[260] w-[min(92vw,30rem)] rounded-3xl border border-default bg-default p-0 shadow-2xl',
               }"
             >
-              <UButton
+              <button
                 type="button"
-                color="neutral"
-                variant="outline"
-                block
-                class="min-h-14 justify-between rounded-2xl border-default px-4 py-3 text-left"
+                class="relative flex w-full flex-col items-center justify-center gap-3 rounded-2xl bg-default px-2 py-2 text-center"
               >
-                <div class="flex min-w-0 items-center gap-3">
-                  <UAvatar
-                    :text="state.avatarEmoji || '🙂'"
-                    alt="Avatar do hábito"
-                    size="lg"
-                    class="shrink-0 ring ring-default"
-                  />
-
-                  <div class="min-w-0">
-                    <p class="text-xs uppercase tracking-[0.12em] text-muted">
-                      Avatar
-                    </p>
-                    <p class="truncate text-sm font-medium" :class="state.avatarEmoji ? 'text-highlighted' : 'text-muted'">
-                      {{ state.avatarEmoji ? `Selecionado: ${state.avatarEmoji}` : 'Selecionar emoji' }}
-                    </p>
-                  </div>
-                </div>
-
-                <template #trailing>
-                  <UIcon
-                    name="i-lucide-chevron-down"
-                    class="size-4 shrink-0 text-muted transition-transform duration-200"
-                    :class="{ 'rotate-180': avatarPopoverOpen }"
-                  />
-                </template>
-              </UButton>
+                <UAvatar
+                  :text="state.avatarEmoji || '🙂'"
+                  alt="Avatar do hábito"
+                  size="2xl"
+                  class="size-24 shrink-0 ring ring-default text-[32px]"
+                />
+              </button>
 
               <template #content>
                 <div class="overflow-hidden rounded-3xl">
-                  <div class="border-b border-default px-4 py-4">
-                    <p class="text-sm font-semibold text-highlighted">
-                      Selecionar avatar do hábito
-                    </p>
-                  </div>
-
                   <div class="max-h-80 overflow-y-auto p-3">
                     <div class="grid grid-cols-6 gap-2 sm:grid-cols-8">
                       <button
                         type="button"
                         class="flex h-11 items-center justify-center rounded-xl border border-default bg-elevated text-lg transition-colors hover:bg-accented"
-                        :class="!state.avatarEmoji ? 'border-primary bg-primary/10' : ''"
-                        @click="state.avatarEmoji = undefined; avatarPopoverOpen = false"
+                        :class="
+                          !state.avatarEmoji
+                            ? 'border-primary bg-primary/10'
+                            : ''
+                        "
+                        @click="
+                          state.avatarEmoji = undefined;
+                          avatarPopoverOpen = false;
+                        "
                       >
                         <UIcon name="i-lucide-x" class="size-4 text-muted" />
                       </button>
@@ -549,8 +525,15 @@ onBeforeUnmount(() => {
                         :key="emoji"
                         type="button"
                         class="flex h-11 items-center justify-center rounded-xl border border-default bg-elevated text-xl transition-colors hover:bg-accented"
-                        :class="state.avatarEmoji === emoji ? 'border-primary bg-primary/10' : ''"
-                        @click="state.avatarEmoji = emoji; avatarPopoverOpen = false"
+                        :class="
+                          state.avatarEmoji === emoji
+                            ? 'border-primary bg-primary/10'
+                            : ''
+                        "
+                        @click="
+                          state.avatarEmoji = emoji;
+                          avatarPopoverOpen = false;
+                        "
                       >
                         {{ emoji }}
                       </button>
@@ -673,7 +656,7 @@ onBeforeUnmount(() => {
             trigger:
               'gap-3 rounded-lg px-4 py-3 text-sm font-medium text-highlighted hover:bg-elevated/60',
             content: 'px-4 pb-0',
-            body: 'pt-2 pb-4'
+            body: 'pt-2 pb-4',
           }"
         >
           <template #schedule-body>
@@ -716,10 +699,7 @@ onBeforeUnmount(() => {
                 </UFormField>
               </div>
 
-              <UFormField
-                label="Calendário"
-                name="calendarId"
-              >
+              <UFormField label="Calendário" name="calendarId">
                 <USelect
                   v-model="calendarIdModel"
                   :items="calendarItems"
