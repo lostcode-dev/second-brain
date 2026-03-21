@@ -5,6 +5,7 @@ const toast = useToast()
 
 const open = ref(false)
 const sidebarCollapsed = ref(true)
+const isMobile = useMediaQuery('(max-width: 1023px)')
 
 const links = [
   [
@@ -175,6 +176,16 @@ onMounted(async () => {
     ]
   })
 })
+
+watch(
+  isMobile,
+  (mobile) => {
+    if (mobile) {
+      sidebarCollapsed.value = false
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -183,8 +194,8 @@ onMounted(async () => {
       id="default"
       v-model:open="open"
       v-model:collapsed="sidebarCollapsed"
-      collapsible
-      resizable
+      :collapsible="!isMobile"
+      :resizable="!isMobile"
       class="bg-elevated/25"
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
