@@ -257,7 +257,7 @@ function onSelectHabit(habitId: string) {
     </template>
 
     <template v-else-if="habits.length > 0 && !allDone">
-      <div class="today-tree-shell rounded-2xl border border-default/60 bg-default/50 p-2.5 sm:p-3">
+      <div class="today-tree-shell rounded-2xl sm:border border-default/60 bg-default/50 sm:p-3">
         <BaseTree
           ref="treeRef"
           v-model="treeData"
