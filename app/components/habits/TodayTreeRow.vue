@@ -161,12 +161,12 @@ const streakMeta = computed(() => {
         <button
           v-if="node.children.length"
           type="button"
-          class="inline-flex size-6 items-center justify-center rounded-md text-muted transition hover:bg-muted/60 hover:text-highlighted"
+          class="hidden sm:inline-flex size-6 items-center justify-center rounded-md text-muted transition hover:bg-muted/60 hover:text-highlighted"
           @click.stop="stat.open = !stat.open"
         >
           <UIcon :name="stat.open ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="size-3.5" />
         </button>
-        <span v-else class="inline-flex size-6 items-center justify-center text-muted">
+        <span v-else class="hidden sm:inline-flex size-6 items-center justify-center text-muted">
           <span class="h-1.5 w-1.5 rounded-full bg-primary/60" />
         </span>
 
