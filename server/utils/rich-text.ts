@@ -1,4 +1,7 @@
-import sanitizeHtml from 'sanitize-html'
+// @ts-ignore sanitize-html has no bundled types in this environment
+import sanitizeHtmlModule from 'sanitize-html'
+
+const sanitizeHtml = sanitizeHtmlModule as unknown as (dirty: string, options?: Record<string, unknown>) => string
 
 const ALLOWED_TAGS = [
   'p',
@@ -30,15 +33,15 @@ export function sanitizeRichTextHtml(value: string | null | undefined): string |
     },
     allowedSchemes: ['http', 'https', 'mailto'],
     transformTags: {
-      a: (_tagName, attribs) => ({
+      a: (_tagName: string, attribs: Record<string, string | undefined>) => ({
         tagName: 'a',
-        attribs: attribs.href
+        attribs: (attribs.href
           ? {
               href: attribs.href,
               target: '_blank',
               rel: 'noopener noreferrer nofollow'
             }
-          : {}
+          : {}) as Record<string, string>
       })
     }
   }).trim()
