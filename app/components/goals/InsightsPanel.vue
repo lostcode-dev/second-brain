@@ -27,7 +27,15 @@ defineProps<{
       </UCard>
     </template>
 
-    <template v-else-if="insights">
+    <!-- Empty state when no data available yet -->
+    <div v-else-if="!insights" class="flex flex-col items-center justify-center py-12 gap-3">
+      <UIcon name="i-lucide-bar-chart-3" class="size-12 text-dimmed" />
+      <p class="text-sm text-muted">
+        Crie metas para ver estatísticas aqui.
+      </p>
+    </div>
+
+    <template v-else>
       <!-- Stats cards -->
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <UCard>
@@ -114,7 +122,7 @@ defineProps<{
         </div>
       </UCard>
 
-      <!-- Empty insights -->
+      <!-- Empty insights when user has no goals -->
       <div v-if="insights.totalGoals === 0" class="flex flex-col items-center justify-center py-8 gap-3">
         <UIcon name="i-lucide-bar-chart-3" class="size-12 text-dimmed" />
         <p class="text-sm text-muted">

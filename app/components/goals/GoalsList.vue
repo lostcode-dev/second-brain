@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Goal } from '~/types/goals'
-import { GoalStatus } from '~/types/goals'
+import { GoalLifeCategory, GoalStatus, GoalTimeCategory } from '~/types/goals'
 
 const _props = defineProps<{
   goals: Goal[]
@@ -19,7 +19,54 @@ const emit = defineEmits<{
   'restore': [goal: Goal]
 }>()
 
-const { getLifeCategoryLabel, getTimeCategoryLabel, getStatusColor, getStatusLabel } = useGoals()
+type BadgeColor = 'success' | 'error' | 'primary' | 'secondary' | 'info' | 'warning' | 'neutral'
+
+const timeCategoryLabels: Record<string, string> = {
+  [GoalTimeCategory.Daily]: 'Diário',
+  [GoalTimeCategory.Weekly]: 'Semanal',
+  [GoalTimeCategory.Monthly]: 'Mensal',
+  [GoalTimeCategory.Quarterly]: 'Trimestral',
+  [GoalTimeCategory.Yearly]: 'Anual',
+  [GoalTimeCategory.LongTerm]: 'Longo prazo',
+}
+
+const lifeCategoryLabels: Record<string, string> = {
+  [GoalLifeCategory.Personal]: 'Pessoal',
+  [GoalLifeCategory.Career]: 'Carreira',
+  [GoalLifeCategory.Health]: 'Saúde',
+  [GoalLifeCategory.Finance]: 'Finanças',
+  [GoalLifeCategory.Spiritual]: 'Espiritual',
+  [GoalLifeCategory.Learning]: 'Aprendizado',
+  [GoalLifeCategory.Relationships]: 'Relacionamentos',
+  [GoalLifeCategory.Lifestyle]: 'Estilo de vida',
+}
+
+const statusLabels: Record<string, string> = {
+  [GoalStatus.Active]: 'Ativa',
+  [GoalStatus.Completed]: 'Concluída',
+  [GoalStatus.Archived]: 'Arquivada',
+}
+
+function getTimeCategoryLabel(value: string): string {
+  return timeCategoryLabels[value] ?? value
+}
+
+function getLifeCategoryLabel(value: string): string {
+  return lifeCategoryLabels[value] ?? value
+}
+
+function getStatusLabel(value: string): string {
+  return statusLabels[value] ?? value
+}
+
+function getStatusColor(status: string): BadgeColor {
+  switch (status) {
+    case GoalStatus.Active: return 'primary'
+    case GoalStatus.Completed: return 'success'
+    case GoalStatus.Archived: return 'neutral'
+    default: return 'neutral'
+  }
+}
 
 function getRowItems(goal: Goal) {
   const items = [
