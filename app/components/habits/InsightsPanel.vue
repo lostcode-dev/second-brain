@@ -81,43 +81,43 @@ const stats = computed(() => {
       value: `${props.insights.completionRate7d}%`,
       detail: props.insights.completionRate7d >= 70 ? 'Ritmo forte na semana' : 'Há espaço para ganhar consistência',
       icon: 'i-lucide-trending-up',
-      tone: 'primary' as const,
+      tone: 'primary' as const
     },
     {
       title: 'Taxa 30 dias',
       value: `${props.insights.completionRate30d}%`,
       detail: 'Visão consolidada do último mês',
       icon: 'i-lucide-bar-chart-3',
-      tone: 'primary' as const,
+      tone: 'primary' as const
     },
     {
       title: 'Streak médio',
       value: `${props.insights.averageStreak}d`,
       detail: props.insights.averageStreak > 0 ? 'Dias seguidos por hábito, em média' : 'Ainda sem sequência relevante',
       icon: 'i-lucide-flame',
-      tone: 'warning' as const,
+      tone: 'warning' as const
     },
     {
       title: 'Melhor dia',
       value: props.insights.bestDay ?? '—',
       detail: props.insights.bestDay ? 'Dia com mais conclusões recentes' : 'Ainda sem padrão suficiente',
       icon: 'i-lucide-calendar-check',
-      tone: 'success' as const,
+      tone: 'success' as const
     },
     {
       title: 'Dias ativos',
       value: String(activeDaysCount.value),
       detail: 'Dias com ao menos um hábito concluído no período',
       icon: 'i-lucide-calendar-range',
-      tone: 'neutral' as const,
+      tone: 'neutral' as const
     },
     {
       title: 'Conclusões',
       value: String(totalCompletedLogs.value),
       detail: 'Hábitos concluídos no recorte do mapa',
       icon: 'i-lucide-check-check',
-      tone: 'success' as const,
-    },
+      tone: 'success' as const
+    }
   ]
 })
 
@@ -136,20 +136,20 @@ const quickHighlights = computed(() => {
         : weeklyDelta.value >= 0
           ? `+${weeklyDelta.value} pts vs. semana anterior`
           : `${weeklyDelta.value} pts vs. semana anterior`,
-      icon: 'i-lucide-activity',
+      icon: 'i-lucide-activity'
     },
     {
       title: 'Pico de execução',
       value: strongest ? `${strongest.count} hábitos` : '—',
       note: strongest ? formatDayLabel(strongest.date) : 'Ainda sem atividade suficiente',
-      icon: 'i-lucide-rocket',
+      icon: 'i-lucide-rocket'
     },
     {
       title: 'Hábitos ativos',
       value: String(heatmapData.value?.totalHabits ?? 0),
       note: 'Base usada nos cálculos de consistência',
-      icon: 'i-lucide-list-checks',
-    },
+      icon: 'i-lucide-list-checks'
+    }
   ]
 })
 
@@ -164,7 +164,7 @@ const hasAnyInsightData = computed(() => {
 function formatDayLabel(dateStr: string): string {
   return new Date(`${dateStr}T12:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
-    month: 'short',
+    month: 'short'
   })
 }
 
@@ -388,7 +388,7 @@ function navigateHeatmapYear(direction: 'older' | 'newer') {
         </div>
       </UCard>
     </div>
-    
+
     <div
       v-if="!loading && !hasAnyInsightData"
       class="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-default py-12"

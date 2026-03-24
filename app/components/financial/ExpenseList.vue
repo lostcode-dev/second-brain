@@ -12,8 +12,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:page': [page: number]
-  edit: [expense: Expense]
-  delete: [expense: Expense]
+  'edit': [expense: Expense]
+  'delete': [expense: Expense]
 }>()
 
 const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.pageSize)))
@@ -29,7 +29,9 @@ const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.page
     <!-- Empty state -->
     <div v-else-if="expenses.length === 0" class="flex flex-col items-center justify-center py-12 gap-3">
       <UIcon name="i-lucide-trending-down" class="size-12 text-dimmed" />
-      <p class="text-sm text-muted">Nenhuma despesa encontrada</p>
+      <p class="text-sm text-muted">
+        Nenhuma despesa encontrada
+      </p>
     </div>
 
     <!-- List -->
@@ -44,13 +46,25 @@ const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.page
             <UIcon name="i-lucide-trending-down" class="size-5 text-red-500" />
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-medium truncate">{{ expense.description }}</p>
+            <p class="text-sm font-medium truncate">
+              {{ expense.description }}
+            </p>
             <div class="flex items-center gap-2 text-xs text-muted">
               <span>{{ new Date(expense.date).toLocaleDateString('pt-BR') }}</span>
-              <UBadge v-if="expense.category" size="xs" color="neutral" variant="subtle">
+              <UBadge
+                v-if="expense.category"
+                size="xs"
+                color="neutral"
+                variant="subtle"
+              >
                 {{ expense.category.name }}
               </UBadge>
-              <UBadge v-if="expense.recurring" size="xs" color="info" variant="subtle">
+              <UBadge
+                v-if="expense.recurring"
+                size="xs"
+                color="info"
+                variant="subtle"
+              >
                 <UIcon name="i-lucide-repeat" class="size-3 mr-1" />
                 Recorrente
               </UBadge>
@@ -69,7 +83,12 @@ const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.page
               ]
             ]"
           >
-            <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" size="xs" />
+            <UButton
+              icon="i-lucide-ellipsis-vertical"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+            />
           </UDropdownMenu>
         </div>
       </div>

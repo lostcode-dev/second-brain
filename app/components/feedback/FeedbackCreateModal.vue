@@ -131,7 +131,12 @@ function onClose() {
             label="Cancelar"
             @click="onClose"
           />
-          <UButton type="submit" label="Enviar" :loading="saving" :disabled="saving" />
+          <UButton
+            type="submit"
+            label="Enviar"
+            :loading="saving"
+            :disabled="saving"
+          />
         </div>
       </UForm>
     </template>

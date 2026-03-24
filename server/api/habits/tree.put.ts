@@ -83,7 +83,7 @@ export default eventHandler(async (event) => {
   const now = new Date().toISOString()
 
   const habitUpdateResults = await Promise.all(
-    habitIds.map((habitId) => supabase
+    habitIds.map(habitId => supabase
       .from('habits')
       .update({
         sort_order: sortOrders.get(habitId) ?? 0,
@@ -93,7 +93,7 @@ export default eventHandler(async (event) => {
       .eq('user_id', user.id))
   )
 
-  const habitUpdateError = habitUpdateResults.find((result) => result.error)
+  const habitUpdateError = habitUpdateResults.find(result => result.error)
   if (habitUpdateError?.error) {
     throw createError({ statusCode: 500, statusMessage: 'Falha ao atualizar a ordem dos hábitos', data: habitUpdateError.error.message })
   }
@@ -109,9 +109,9 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Falha ao sincronizar empilhamentos', data: stacksError.message })
   }
 
-  const expectedPairs = new Set(stackPairs.map((pair) => `${pair.triggerHabitId}:${pair.newHabitId}`))
-  const activeStacks = (existingStacks ?? []).filter((stack) => stack.archived_at === null)
-  const archivedStacks = (existingStacks ?? []).filter((stack) => stack.archived_at !== null)
+  const expectedPairs = new Set(stackPairs.map(pair => `${pair.triggerHabitId}:${pair.newHabitId}`))
+  const activeStacks = (existingStacks ?? []).filter(stack => stack.archived_at === null)
+  const archivedStacks = (existingStacks ?? []).filter(stack => stack.archived_at !== null)
 
   const stacksToArchive = activeStacks.filter((stack) => {
     const key = `${String(stack.trigger_habit_id)}:${String(stack.new_habit_id)}`
@@ -120,14 +120,14 @@ export default eventHandler(async (event) => {
 
   const stacksToCreate = stackPairs.filter((pair) => {
     const key = `${pair.triggerHabitId}:${pair.newHabitId}`
-    return !activeStacks.some((stack) => `${String(stack.trigger_habit_id)}:${String(stack.new_habit_id)}` === key)
+    return !activeStacks.some(stack => `${String(stack.trigger_habit_id)}:${String(stack.new_habit_id)}` === key)
   })
 
   if (stacksToArchive.length > 0) {
     const { error: archiveError } = await supabase
       .from('habit_stacks')
       .update({ archived_at: now })
-      .in('id', stacksToArchive.map((stack) => String(stack.id)))
+      .in('id', stacksToArchive.map(stack => String(stack.id)))
       .eq('user_id', user.id)
 
     if (archiveError) {

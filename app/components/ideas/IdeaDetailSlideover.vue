@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { IdeaDetail, IdeaList, IdeaTag } from '~/types/ideas'
-import { IDEA_PRIORITY_META, IDEA_STATUS_META, IdeaPriority, IdeaStatus } from '~/types/ideas'
+import type { IdeaDetail, IdeaList, IdeaTag, IdeaPriority } from '~/types/ideas'
+import { IDEA_PRIORITY_META, IDEA_STATUS_META, IdeaStatus } from '~/types/ideas'
 import { z } from 'zod'
 
 const props = defineProps<{
@@ -12,8 +12,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [val: boolean]
-  updated: []
-  deleted: []
+  'updated': []
+  'deleted': []
 }>()
 
 const {
@@ -79,8 +79,7 @@ watch(() => props.ideaId, async (id) => {
       editDueDate.value = d.dueDate ?? ''
       editTagIds.value = (d.tags ?? []).map((t: IdeaTag) => t.id)
     }
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }, { immediate: true })
@@ -104,8 +103,7 @@ async function save(): Promise<void> {
     const d = await fetchIdeaDetail(detail.value.id)
     detail.value = d
     emit('updated')
-  }
-  finally {
+  } finally {
     saving.value = false
   }
 }
@@ -236,7 +234,7 @@ onUnmounted(() => {
                 v-model="editTitle"
                 class="w-full text-xl font-bold bg-transparent border-none outline-none placeholder-muted text-highlighted"
                 placeholder="Título da ideia..."
-              />
+              >
 
               <!-- Properties grid (Notion-style) -->
               <div class="space-y-3">
@@ -283,7 +281,7 @@ onUnmounted(() => {
                     v-model="editDueDate"
                     type="date"
                     class="flex-1 text-sm bg-transparent border border-default rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary text-default"
-                  />
+                  >
                 </div>
 
                 <!-- Tags -->
@@ -316,7 +314,9 @@ onUnmounted(() => {
 
               <!-- Description -->
               <div>
-                <h4 class="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Descrição</h4>
+                <h4 class="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
+                  Descrição
+                </h4>
                 <textarea
                   v-model="editDescription"
                   class="w-full min-h-[120px] bg-transparent border border-default rounded-md resize-none outline-none text-sm leading-relaxed p-3 placeholder-muted text-default focus:ring-1 focus:ring-primary"

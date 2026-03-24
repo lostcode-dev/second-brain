@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Debt } from '~/types/financial'
-import { DEBT_STATUS_META, DebtStatus } from '~/types/financial'
+import type { Debt, DebtStatus } from '~/types/financial'
+import { DEBT_STATUS_META } from '~/types/financial'
 
 const props = defineProps<{
   debts: Debt[]
@@ -13,9 +13,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:page': [page: number]
-  select: [debt: Debt]
-  edit: [debt: Debt]
-  delete: [debt: Debt]
+  'select': [debt: Debt]
+  'edit': [debt: Debt]
+  'delete': [debt: Debt]
 }>()
 
 const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.pageSize)))
@@ -36,7 +36,9 @@ function getProgress(debt: Debt): number {
     <!-- Empty state -->
     <div v-else-if="debts.length === 0" class="flex flex-col items-center justify-center py-12 gap-3">
       <UIcon name="i-lucide-credit-card" class="size-12 text-dimmed" />
-      <p class="text-sm text-muted">Nenhuma dívida encontrada</p>
+      <p class="text-sm text-muted">
+        Nenhuma dívida encontrada
+      </p>
     </div>
 
     <!-- List -->
@@ -50,7 +52,9 @@ function getProgress(debt: Debt): number {
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2 min-w-0">
             <UIcon name="i-lucide-credit-card" class="size-5 text-muted shrink-0" />
-            <p class="text-sm font-medium truncate">{{ debt.name }}</p>
+            <p class="text-sm font-medium truncate">
+              {{ debt.name }}
+            </p>
             <UBadge
               :color="DEBT_STATUS_META[debt.status as DebtStatus]?.color ?? 'neutral'"
               size="xs"

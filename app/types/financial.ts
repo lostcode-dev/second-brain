@@ -12,12 +12,12 @@ export enum DebtStatus {
 
 // ─── Icon & Color Mappings ────────────────────────────────────────────────────
 
-export const TRANSACTION_TYPE_META: Record<TransactionType, { label: string; icon: string; color: 'success' | 'error' }> = {
+export const TRANSACTION_TYPE_META: Record<TransactionType, { label: string, icon: string, color: 'success' | 'error' }> = {
   [TransactionType.Income]: { label: 'Receita', icon: 'i-lucide-trending-up', color: 'success' },
   [TransactionType.Expense]: { label: 'Despesa', icon: 'i-lucide-trending-down', color: 'error' }
 }
 
-export const DEBT_STATUS_META: Record<DebtStatus, { label: string; icon: string; color: 'warning' | 'success' }> = {
+export const DEBT_STATUS_META: Record<DebtStatus, { label: string, icon: string, color: 'warning' | 'success' }> = {
   [DebtStatus.Active]: { label: 'Ativa', icon: 'i-lucide-alert-circle', color: 'warning' },
   [DebtStatus.PaidOff]: { label: 'Quitada', icon: 'i-lucide-check-circle', color: 'success' }
 }

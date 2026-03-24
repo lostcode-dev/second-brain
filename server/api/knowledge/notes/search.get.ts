@@ -34,8 +34,7 @@ export default eventHandler(async (event) => {
       const start = Math.max(0, idx - 40)
       const end = Math.min(content.length, idx + q.length + 40)
       excerpt = (start > 0 ? '...' : '') + content.slice(start, end) + (end < content.length ? '...' : '')
-    }
-    else if (content.length > 0) {
+    } else if (content.length > 0) {
       excerpt = content.slice(0, 80) + (content.length > 80 ? '...' : '')
     }
 

@@ -122,7 +122,7 @@ async function shareNative() {
       await navigator.share({
         title: `Meu hábito: ${selectedHabitName.value}`,
         text: `Construindo consistência com ${selectedHabitName.value} — Kortex`,
-        files: [file],
+        files: [file]
       })
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
@@ -149,12 +149,18 @@ async function shareNative() {
     <template #body>
       <div class="space-y-4">
         <div class="space-y-2">
-          <p class="text-sm font-medium text-highlighted">Formato</p>
-          <p class="text-sm text-muted">Quadrado 1080×1080, com foco em um único hábito.</p>
+          <p class="text-sm font-medium text-highlighted">
+            Formato
+          </p>
+          <p class="text-sm text-muted">
+            Quadrado 1080×1080, com foco em um único hábito.
+          </p>
         </div>
 
         <div class="space-y-2">
-          <p class="text-sm font-medium text-highlighted">Pré-visualização</p>
+          <p class="text-sm font-medium text-highlighted">
+            Pré-visualização
+          </p>
 
           <template v-if="loading">
             <div class="flex h-[360px] items-center justify-center rounded-lg border border-default bg-elevated/50">
@@ -183,7 +189,9 @@ async function shareNative() {
 
           <div v-else class="flex flex-col items-center justify-center gap-2 py-8">
             <UIcon name="i-lucide-image-off" class="size-8 text-muted" />
-            <p class="text-sm text-muted">Selecione um hábito para compartilhar.</p>
+            <p class="text-sm text-muted">
+              Selecione um hábito para compartilhar.
+            </p>
           </div>
         </div>
 

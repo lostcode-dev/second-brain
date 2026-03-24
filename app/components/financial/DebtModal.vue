@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  saved: []
+  'saved': []
 }>()
 
 const { createDebt, updateDebt } = useFinancial()
@@ -64,8 +64,7 @@ async function onSubmit(): Promise<void> {
     let result
     if (isEdit.value && props.debt) {
       result = await updateDebt(props.debt.id, payload)
-    }
-    else {
+    } else {
       result = await createDebt(payload)
     }
 
@@ -74,8 +73,7 @@ async function onSubmit(): Promise<void> {
       emit('update:open', false)
       resetForm()
     }
-  }
-  finally {
+  } finally {
     submitting.value = false
   }
 }
@@ -90,7 +88,12 @@ async function onSubmit(): Promise<void> {
     </template>
 
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+      <UForm
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
         <UFormField label="Nome" name="name">
           <UInput v-model="state.name" placeholder="Ex: Cartão de crédito, empréstimo..." class="w-full" />
         </UFormField>
@@ -100,7 +103,13 @@ async function onSubmit(): Promise<void> {
         </UFormField>
 
         <UFormField label="Valor total (R$)" name="totalAmount">
-          <UInput v-model.number="state.totalAmount" type="number" step="0.01" min="0" class="w-full" />
+          <UInput
+            v-model.number="state.totalAmount"
+            type="number"
+            step="0.01"
+            min="0"
+            class="w-full"
+          />
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">

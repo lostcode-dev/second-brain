@@ -35,7 +35,7 @@ export default eventHandler(async (event) => {
     : nowYear
   const availableYears = Array.from(
     { length: nowYear - earliestYear + 1 },
-    (_, index) => nowYear - index,
+    (_, index) => nowYear - index
   )
 
   // Get active habit count
@@ -120,6 +120,6 @@ export default eventHandler(async (event) => {
     weeklyRates,
     totalHabits,
     selectedYear: year,
-    availableYears,
+    availableYears
   }
 })

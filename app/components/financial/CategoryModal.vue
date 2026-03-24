@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  saved: []
+  'saved': []
 }>()
 
 const { createCategory, updateCategory, transactionTypeOptions } = useFinancial()
@@ -67,8 +67,7 @@ async function onSubmit(): Promise<void> {
         emit('saved')
         emit('update:open', false)
       }
-    }
-    else {
+    } else {
       const result = await createCategory({
         name: state.name,
         type: state.type as TransactionType,
@@ -80,8 +79,7 @@ async function onSubmit(): Promise<void> {
         emit('update:open', false)
       }
     }
-  }
-  finally {
+  } finally {
     submitting.value = false
   }
 }
@@ -96,13 +94,23 @@ async function onSubmit(): Promise<void> {
     </template>
 
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+      <UForm
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
         <UFormField label="Nome" name="name">
           <UInput v-model="state.name" placeholder="Ex: Moradia, Alimentação..." class="w-full" />
         </UFormField>
 
         <UFormField v-if="!isEdit" label="Tipo" name="type">
-          <USelect v-model="state.type" :items="transactionTypeOptions" value-key="value" class="w-full" />
+          <USelect
+            v-model="state.type"
+            :items="transactionTypeOptions"
+            value-key="value"
+            class="w-full"
+          />
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">

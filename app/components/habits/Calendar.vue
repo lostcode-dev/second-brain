@@ -35,13 +35,13 @@ function isFutureDay(dateStr: string): boolean {
   return dateStr > today.value
 }
 
-function getDayTooltip(day: { date: string; completed: boolean; note: string | null }): string {
+function getDayTooltip(day: { date: string, completed: boolean, note: string | null }): string {
   if (isFutureDay(day.date)) return ''
   if (day.note) return day.note
   return day.completed ? 'Concluído' : 'Não feito'
 }
 
-function getDayClass(day: { date: string; completed: boolean }): string {
+function getDayClass(day: { date: string, completed: boolean }): string {
   if (isFutureDay(day.date)) return 'text-dimmed opacity-40'
   return day.completed ? 'bg-primary/20 text-primary' : 'text-muted hover:bg-elevated'
 }

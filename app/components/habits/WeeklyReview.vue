@@ -89,7 +89,7 @@ const reviewPeriod = computed(() => {
       })
 
   return {
-    dateRangeLabel: `${formatter.format(startDate)} — ${formatter.format(endDate)}`,
+    dateRangeLabel: `${formatter.format(startDate)} — ${formatter.format(endDate)}`
   }
 })
 

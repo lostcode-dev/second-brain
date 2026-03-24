@@ -10,10 +10,10 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  select: [idea: Idea]
+  'select': [idea: Idea]
   'update:page': [page: number]
   'update-status': [id: string, status: IdeaStatus]
-  create: []
+  'create': []
 }>()
 
 const { deleteIdea, getStatusMeta, getPriorityMeta } = useIdeas()
@@ -64,8 +64,12 @@ const pageCount = computed(() => Math.ceil(props.total / 30))
     <div v-else-if="ideas.length === 0" class="flex flex-col items-center justify-center flex-1 gap-4 py-20">
       <UIcon name="i-lucide-lightbulb" class="size-16 text-dimmed" />
       <div class="text-center">
-        <p class="font-medium text-highlighted">Nenhuma ideia encontrada</p>
-        <p class="text-sm text-muted mt-1">Crie sua primeira ideia para organizar seus pensamentos</p>
+        <p class="font-medium text-highlighted">
+          Nenhuma ideia encontrada
+        </p>
+        <p class="text-sm text-muted mt-1">
+          Crie sua primeira ideia para organizar seus pensamentos
+        </p>
       </div>
       <UButton icon="i-lucide-plus" label="Nova ideia" @click="emit('create')" />
     </div>
@@ -75,12 +79,24 @@ const pageCount = computed(() => Math.ceil(props.total / 30))
       <table class="w-full text-sm">
         <thead class="sticky top-0 z-10">
           <tr class="border-b border-default bg-elevated/80 backdrop-blur-sm text-xs text-muted uppercase tracking-wide">
-            <th class="text-left py-2 px-3 font-medium w-8">Status</th>
-            <th class="text-left py-2 px-3 font-medium">Título</th>
-            <th class="text-left py-2 px-3 font-medium w-24">Prioridade</th>
-            <th class="text-left py-2 px-3 font-medium w-28">Lista</th>
-            <th class="text-left py-2 px-3 font-medium w-24">Data</th>
-            <th class="text-left py-2 px-3 font-medium w-20">Subtarefas</th>
+            <th class="text-left py-2 px-3 font-medium w-8">
+              Status
+            </th>
+            <th class="text-left py-2 px-3 font-medium">
+              Título
+            </th>
+            <th class="text-left py-2 px-3 font-medium w-24">
+              Prioridade
+            </th>
+            <th class="text-left py-2 px-3 font-medium w-28">
+              Lista
+            </th>
+            <th class="text-left py-2 px-3 font-medium w-24">
+              Data
+            </th>
+            <th class="text-left py-2 px-3 font-medium w-20">
+              Subtarefas
+            </th>
             <th class="text-left py-2 px-3 font-medium w-16" />
           </tr>
         </thead>

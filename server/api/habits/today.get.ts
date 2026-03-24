@@ -71,7 +71,7 @@ export default eventHandler(async (event) => {
   }
 
   // Fetch logs for the date
-  const habitIds = todayHabitsMapped.map((h) => h.id as string)
+  const habitIds = todayHabitsMapped.map(h => h.id as string)
 
   let logs: Record<string, { completed: boolean, status: string, note: string | null, id: string }> = {}
 
@@ -95,12 +95,12 @@ export default eventHandler(async (event) => {
     }
   }
 
-  const result = todayHabitsMapped.map((habit) => ({
+  const result = todayHabitsMapped.map(habit => ({
     ...habit,
     log: logs[habit.id as string] ?? null
   }))
 
-  const completedCount = result.filter((h) => (h.log as Record<string, unknown> | null)?.completed).length
+  const completedCount = result.filter(h => (h.log as Record<string, unknown> | null)?.completed).length
   const stacks = await resolveHabitStacksForDate(supabase, user.id, date)
 
   return {

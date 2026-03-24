@@ -13,10 +13,10 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:page': [page: number]
-  select: [note: KnowledgeNote]
+  'select': [note: KnowledgeNote]
   'new-note': []
-  pin: [note: KnowledgeNote]
-  delete: [note: KnowledgeNote]
+  'pin': [note: KnowledgeNote]
+  'delete': [note: KnowledgeNote]
 }>()
 
 const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.pageSize)))
@@ -74,7 +74,9 @@ function formatDate(dateStr: string): string {
                   name="i-lucide-pin"
                   class="size-3 text-primary shrink-0"
                 />
-                <p class="text-sm font-medium truncate">{{ note.title }}</p>
+                <p class="text-sm font-medium truncate">
+                  {{ note.title }}
+                </p>
               </div>
               <div class="flex items-center gap-2 mt-0.5">
                 <span class="text-xs text-muted">{{ formatDate(note.updatedAt) }}</span>

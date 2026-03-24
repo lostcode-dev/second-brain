@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { Idea } from '~/types/ideas'
-import { IdeaStatus } from '~/types/ideas'
+import type { Idea, IdeaStatus } from '~/types/ideas'
 
 definePageMeta({
   layout: 'app'
@@ -75,7 +74,9 @@ function onSearchInput(val: string): void {
     <!-- Left sidebar: Lists + Tags + Filters -->
     <div class="w-60 shrink-0 flex flex-col border-r border-default h-full">
       <div class="px-3 py-3 border-b border-default">
-        <h2 class="text-sm font-semibold text-highlighted">Ideias</h2>
+        <h2 class="text-sm font-semibold text-highlighted">
+          Ideias
+        </h2>
       </div>
 
       <div class="flex-1 overflow-y-auto p-3 space-y-5">
@@ -84,7 +85,9 @@ function onSearchInput(val: string): void {
 
         <!-- Quick filters -->
         <div>
-          <h3 class="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Filtros</h3>
+          <h3 class="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
+            Filtros
+          </h3>
           <div class="space-y-2">
             <div>
               <label class="text-xs text-muted mb-1 block">Status</label>
@@ -126,7 +129,9 @@ function onSearchInput(val: string): void {
               #{{ tag.name }}
             </button>
           </div>
-          <p v-else class="text-xs text-muted">Nenhuma tag</p>
+          <p v-else class="text-xs text-muted">
+            Nenhuma tag
+          </p>
         </div>
       </div>
     </div>

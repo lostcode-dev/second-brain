@@ -22,7 +22,7 @@ const dayOptions = [
   { label: 'Qua', value: 3 },
   { label: 'Qui', value: 4 },
   { label: 'Sex', value: 5 },
-  { label: 'Sáb', value: 6 },
+  { label: 'Sáb', value: 6 }
 ]
 
 watch(() => props.open, async (open) => {

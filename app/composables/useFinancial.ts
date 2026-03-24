@@ -195,8 +195,7 @@ export function useFinancial() {
       toast.add({ title: 'Categoria criada', description: `"${category.name}" adicionada com sucesso.`, color: 'success' })
       await refreshCategories()
       return category
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível criar a categoria: ${message}`, color: 'error' })
       return null
@@ -212,8 +211,7 @@ export function useFinancial() {
       toast.add({ title: 'Categoria atualizada', color: 'success' })
       await refreshCategories()
       return category
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível atualizar a categoria: ${message}`, color: 'error' })
       return null
@@ -226,8 +224,7 @@ export function useFinancial() {
       toast.add({ title: 'Categoria excluída', color: 'success' })
       await refreshCategories()
       return true
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível excluir a categoria: ${message}`, color: 'error' })
       return false
@@ -244,8 +241,7 @@ export function useFinancial() {
       toast.add({ title: 'Receita criada', description: `"${income.source}" adicionada com sucesso.`, color: 'success' })
       await Promise.all([refreshIncomes(), refreshDashboard()])
       return income
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível criar a receita: ${message}`, color: 'error' })
       return null
@@ -261,8 +257,7 @@ export function useFinancial() {
       toast.add({ title: 'Receita atualizada', color: 'success' })
       await Promise.all([refreshIncomes(), refreshDashboard()])
       return income
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível atualizar a receita: ${message}`, color: 'error' })
       return null
@@ -275,8 +270,7 @@ export function useFinancial() {
       toast.add({ title: 'Receita excluída', color: 'success' })
       await Promise.all([refreshIncomes(), refreshDashboard()])
       return true
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível excluir a receita: ${message}`, color: 'error' })
       return false
@@ -293,8 +287,7 @@ export function useFinancial() {
       toast.add({ title: 'Despesa criada', description: `"${expense.description}" adicionada com sucesso.`, color: 'success' })
       await Promise.all([refreshExpenses(), refreshDashboard()])
       return expense
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível criar a despesa: ${message}`, color: 'error' })
       return null
@@ -310,8 +303,7 @@ export function useFinancial() {
       toast.add({ title: 'Despesa atualizada', color: 'success' })
       await Promise.all([refreshExpenses(), refreshDashboard()])
       return expense
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível atualizar a despesa: ${message}`, color: 'error' })
       return null
@@ -324,8 +316,7 @@ export function useFinancial() {
       toast.add({ title: 'Despesa excluída', color: 'success' })
       await Promise.all([refreshExpenses(), refreshDashboard()])
       return true
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível excluir a despesa: ${message}`, color: 'error' })
       return false
@@ -342,8 +333,7 @@ export function useFinancial() {
       toast.add({ title: 'Dívida criada', description: `"${debt.name}" adicionada com sucesso.`, color: 'success' })
       await Promise.all([refreshDebts(), refreshDashboard()])
       return debt
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível criar a dívida: ${message}`, color: 'error' })
       return null
@@ -359,8 +349,7 @@ export function useFinancial() {
       toast.add({ title: 'Dívida atualizada', color: 'success' })
       await Promise.all([refreshDebts(), refreshDashboard()])
       return debt
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível atualizar a dívida: ${message}`, color: 'error' })
       return null
@@ -373,8 +362,7 @@ export function useFinancial() {
       toast.add({ title: 'Dívida excluída', color: 'success' })
       await Promise.all([refreshDebts(), refreshDashboard()])
       return true
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível excluir a dívida: ${message}`, color: 'error' })
       return false
@@ -384,8 +372,7 @@ export function useFinancial() {
   async function fetchDebt(id: string): Promise<Debt | null> {
     try {
       return await $fetch<Debt>(`/api/financial/debts/${id}`)
-    }
-    catch {
+    } catch {
       return null
     }
   }
@@ -398,8 +385,7 @@ export function useFinancial() {
       })
       toast.add({ title: 'Parcela adicionada', color: 'success' })
       return installment
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível adicionar a parcela: ${message}`, color: 'error' })
       return null
@@ -414,8 +400,7 @@ export function useFinancial() {
       toast.add({ title: installment.paid ? 'Parcela marcada como paga' : 'Parcela desmarcada', color: 'success' })
       await Promise.all([refreshDebts(), refreshDashboard()])
       return installment
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível atualizar a parcela: ${message}`, color: 'error' })
       return null
@@ -432,8 +417,7 @@ export function useFinancial() {
       toast.add({ title: 'Ativo criado', description: `"${asset.name}" adicionado com sucesso.`, color: 'success' })
       await Promise.all([refreshAssets(), refreshDashboard()])
       return asset
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível criar o ativo: ${message}`, color: 'error' })
       return null
@@ -449,8 +433,7 @@ export function useFinancial() {
       toast.add({ title: 'Ativo atualizado', color: 'success' })
       await Promise.all([refreshAssets(), refreshDashboard()])
       return asset
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível atualizar o ativo: ${message}`, color: 'error' })
       return null
@@ -463,8 +446,7 @@ export function useFinancial() {
       toast.add({ title: 'Ativo excluído', color: 'success' })
       await Promise.all([refreshAssets(), refreshDashboard()])
       return true
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       toast.add({ title: 'Erro', description: `Não foi possível excluir o ativo: ${message}`, color: 'error' })
       return false

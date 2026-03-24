@@ -1,86 +1,86 @@
 <script setup lang="ts">
-import { z } from "zod";
-import type { Expense, FinancialCategory } from "~/types/financial";
+import { z } from 'zod'
+import type { Expense, FinancialCategory } from '~/types/financial'
 
 const props = defineProps<{
-  open: boolean;
-  categories: FinancialCategory[];
-  expense?: Expense | null;
-}>();
+  open: boolean
+  categories: FinancialCategory[]
+  expense?: Expense | null
+}>()
 
 const emit = defineEmits<{
-  "update:open": [value: boolean];
-  saved: [];
-}>();
+  'update:open': [value: boolean]
+  'saved': []
+}>()
 
-const { createExpense, updateExpense } = useFinancial();
+const { createExpense, updateExpense } = useFinancial()
 
-const isEdit = computed(() => !!props.expense);
+const isEdit = computed(() => !!props.expense)
 
 const schema = z.object({
-  description: z.string().min(1, "Informe a descrição"),
+  description: z.string().min(1, 'Informe a descrição'),
   amount: z
-    .number({ error: "Informe o valor" })
-    .positive("O valor deve ser positivo"),
-  date: z.string().min(1, "Informe a data"),
+    .number({ error: 'Informe o valor' })
+    .positive('O valor deve ser positivo'),
+  date: z.string().min(1, 'Informe a data'),
   recurring: z.boolean(),
   recurringDay: z.number().int().min(1).max(31).optional(),
-  categoryId: z.string().optional(),
-});
+  categoryId: z.string().optional()
+})
 
-type FormState = z.infer<typeof schema>;
+type FormState = z.infer<typeof schema>
 
 const state = reactive<FormState>({
-  description: "",
+  description: '',
   amount: 0,
-  date: new Date().toISOString().split("T")[0]!,
+  date: new Date().toISOString().split('T')[0]!,
   recurring: false,
   recurringDay: undefined,
-  categoryId: undefined,
-});
+  categoryId: undefined
+})
 
-const submitting = ref(false);
+const submitting = ref(false)
 
 const categoryOptions = computed(() => [
-  { label: "Sem categoria", value: "" },
-  ...props.categories.map((c) => ({ label: c.name, value: c.id })),
-]);
+  { label: 'Sem categoria', value: '' },
+  ...props.categories.map(c => ({ label: c.name, value: c.id }))
+])
 
 watch(
   () => props.expense,
   (expense) => {
     if (expense) {
-      state.description = expense.description;
-      state.amount = expense.amount;
-      state.date = expense.date;
-      state.recurring = expense.recurring;
-      state.recurringDay = expense.recurringDay ?? undefined;
-      state.categoryId = expense.categoryId ?? undefined;
+      state.description = expense.description
+      state.amount = expense.amount
+      state.date = expense.date
+      state.recurring = expense.recurring
+      state.recurringDay = expense.recurringDay ?? undefined
+      state.categoryId = expense.categoryId ?? undefined
     }
   },
-  { immediate: true },
-);
+  { immediate: true }
+)
 
 watch(
   () => props.open,
   (open) => {
     if (open && !props.expense) {
-      resetForm();
+      resetForm()
     }
-  },
-);
+  }
+)
 
 function resetForm(): void {
-  state.description = "";
-  state.amount = 0;
-  state.date = new Date().toISOString().split("T")[0]!;
-  state.recurring = false;
-  state.recurringDay = undefined;
-  state.categoryId = undefined;
+  state.description = ''
+  state.amount = 0
+  state.date = new Date().toISOString().split('T')[0]!
+  state.recurring = false
+  state.recurringDay = undefined
+  state.categoryId = undefined
 }
 
 async function onSubmit(): Promise<void> {
-  submitting.value = true;
+  submitting.value = true
   try {
     const payload = {
       description: state.description,
@@ -88,23 +88,23 @@ async function onSubmit(): Promise<void> {
       date: state.date,
       recurring: state.recurring,
       recurringDay: state.recurring ? state.recurringDay : undefined,
-      categoryId: state.categoryId || undefined,
-    };
+      categoryId: state.categoryId || undefined
+    }
 
-    let result;
+    let result
     if (isEdit.value && props.expense) {
-      result = await updateExpense(props.expense.id, payload);
+      result = await updateExpense(props.expense.id, payload)
     } else {
-      result = await createExpense(payload);
+      result = await createExpense(payload)
     }
 
     if (result) {
-      emit("saved");
-      emit("update:open", false);
-      resetForm();
+      emit('saved')
+      emit('update:open', false)
+      resetForm()
     }
   } finally {
-    submitting.value = false;
+    submitting.value = false
   }
 }
 </script>

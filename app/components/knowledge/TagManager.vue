@@ -46,8 +46,7 @@ async function onSubmit(): Promise<void> {
   if (editingTag.value) {
     const success = await updateTag(editingTag.value.id, payload)
     if (success) modalOpen.value = false
-  }
-  else {
+  } else {
     const result = await createTag(payload)
     if (result) modalOpen.value = false
   }
@@ -118,7 +117,9 @@ function getColorClass(color: string | null | undefined): string {
         </div>
       </div>
     </div>
-    <p v-else class="text-xs text-muted px-2">Nenhuma tag criada</p>
+    <p v-else class="text-xs text-muted px-2">
+      Nenhuma tag criada
+    </p>
 
     <!-- Create/Edit Modal -->
     <UModal v-model:open="modalOpen">
@@ -130,7 +131,12 @@ function getColorClass(color: string | null | undefined): string {
             </h3>
           </template>
 
-          <UForm :schema="schema" :state="formState" class="space-y-4" @submit="onSubmit">
+          <UForm
+            :schema="schema"
+            :state="formState"
+            class="space-y-4"
+            @submit="onSubmit"
+          >
             <UFormField label="Nome" name="name">
               <UInput
                 v-model="formState.name"

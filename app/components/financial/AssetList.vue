@@ -12,8 +12,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:page': [page: number]
-  edit: [asset: Asset]
-  delete: [asset: Asset]
+  'edit': [asset: Asset]
+  'delete': [asset: Asset]
 }>()
 
 const totalAssetValue = computed(() =>
@@ -33,15 +33,21 @@ const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.page
     <!-- Empty state -->
     <div v-else-if="assets.length === 0" class="flex flex-col items-center justify-center py-12 gap-3">
       <UIcon name="i-lucide-landmark" class="size-12 text-dimmed" />
-      <p class="text-sm text-muted">Nenhum ativo encontrado</p>
+      <p class="text-sm text-muted">
+        Nenhum ativo encontrado
+      </p>
     </div>
 
     <!-- List -->
     <div v-else class="space-y-4">
       <!-- Total -->
       <div class="rounded-lg border border-default p-4 bg-elevated/30">
-        <p class="text-sm text-muted">Total em ativos</p>
-        <p class="text-xl font-semibold text-blue-500">{{ formatCurrency(totalAssetValue) }}</p>
+        <p class="text-sm text-muted">
+          Total em ativos
+        </p>
+        <p class="text-xl font-semibold text-blue-500">
+          {{ formatCurrency(totalAssetValue) }}
+        </p>
       </div>
 
       <div class="space-y-2">
@@ -55,8 +61,12 @@ const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.page
               <UIcon name="i-lucide-landmark" class="size-5 text-blue-500" />
             </div>
             <div class="min-w-0">
-              <p class="text-sm font-medium truncate">{{ asset.name }}</p>
-              <p v-if="asset.description" class="text-xs text-muted truncate">{{ asset.description }}</p>
+              <p class="text-sm font-medium truncate">
+                {{ asset.name }}
+              </p>
+              <p v-if="asset.description" class="text-xs text-muted truncate">
+                {{ asset.description }}
+              </p>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -71,7 +81,12 @@ const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.page
                 ]
               ]"
             >
-              <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" size="xs" />
+              <UButton
+                icon="i-lucide-ellipsis-vertical"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+              />
             </UDropdownMenu>
           </div>
         </div>

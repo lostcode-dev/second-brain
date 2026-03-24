@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { IdeaList, IdeaTag } from '~/types/ideas'
-import { IdeaPriority, IdeaStatus } from '~/types/ideas'
+import type { IdeaList, IdeaTag, IdeaPriority } from '~/types/ideas'
+import { IdeaStatus } from '~/types/ideas'
 import { z } from 'zod'
 
 const props = defineProps<{
@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [val: boolean]
-  saved: [idea: { id: string }]
+  'saved': [idea: { id: string }]
 }>()
 
 const { createIdea, statusOptions, priorityOptions } = useIdeas()
@@ -74,8 +74,7 @@ async function onSubmit(): Promise<void> {
       formState.tagIds = []
       emit('saved', idea)
     }
-  }
-  finally {
+  } finally {
     submitting.value = false
   }
 }
@@ -91,11 +90,18 @@ async function onSubmit(): Promise<void> {
         <template #header>
           <div class="flex items-center gap-2">
             <UIcon name="i-lucide-lightbulb" class="size-5 text-primary" />
-            <h3 class="text-lg font-semibold text-highlighted">Nova Ideia</h3>
+            <h3 class="text-lg font-semibold text-highlighted">
+              Nova Ideia
+            </h3>
           </div>
         </template>
 
-        <UForm :schema="schema" :state="formState" class="space-y-4" @submit="onSubmit">
+        <UForm
+          :schema="schema"
+          :state="formState"
+          class="space-y-4"
+          @submit="onSubmit"
+        >
           <UFormField label="Título" name="title">
             <UInput
               v-model="formState.title"
@@ -143,7 +149,7 @@ async function onSubmit(): Promise<void> {
                 v-model="formState.dueDate"
                 type="date"
                 class="w-full text-sm bg-transparent border border-default rounded-md px-3 py-1.5 outline-none focus:ring-1 focus:ring-primary text-default"
-              />
+              >
             </UFormField>
           </div>
 

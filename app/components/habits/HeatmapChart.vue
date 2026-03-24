@@ -49,7 +49,7 @@ const normalizedDays = computed<HeatmapDay[]>(() => {
       date: cursor.toISOString().split('T')[0]!,
       count: 0,
       total: 0,
-      level: 0,
+      level: 0
     })
     cursor.setDate(cursor.getDate() + 1)
   }
@@ -79,7 +79,7 @@ const heatmapCells = computed<CellData[]>(() => {
       y: row * TOTAL,
       day,
       color: LEVEL_COLORS[day.level] ?? LEVEL_COLORS[0]!,
-      isFuture,
+      isFuture
     })
   }
 
@@ -207,8 +207,12 @@ function formatTooltipCount(cell: CellData): string {
           top: tooltipPos.y - 40 + 'px'
         }"
       >
-        <p class="font-medium text-highlighted">{{ formatTooltipCount(tooltipCell) }}</p>
-        <p class="text-xs text-muted">{{ formatDate(tooltipCell.day.date) }}</p>
+        <p class="font-medium text-highlighted">
+          {{ formatTooltipCount(tooltipCell) }}
+        </p>
+        <p class="text-xs text-muted">
+          {{ formatDate(tooltipCell.day.date) }}
+        </p>
       </div>
     </Teleport>
   </div>

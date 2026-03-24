@@ -1,39 +1,39 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from "@nuxt/ui";
+import type { NavigationMenuItem } from '@nuxt/ui'
 
 definePageMeta({
-  layout: "app",
-});
+  layout: 'app'
+})
 
 useSeoMeta({
-  title: "Configurações",
-});
+  title: 'Configurações'
+})
 
 const links = [
   [
     {
-      label: "Geral",
-      icon: "i-lucide-user",
-      to: "/app/settings",
-      exact: true,
+      label: 'Geral',
+      icon: 'i-lucide-user',
+      to: '/app/settings',
+      exact: true
     },
     {
-      label: "Assinatura",
-      icon: "i-lucide-credit-card",
-      to: "/app/settings/subscription",
+      label: 'Assinatura',
+      icon: 'i-lucide-credit-card',
+      to: '/app/settings/subscription'
     },
     {
-      label: "Notificações",
-      icon: "i-lucide-bell",
-      to: "/app/settings/notifications",
+      label: 'Notificações',
+      icon: 'i-lucide-bell',
+      to: '/app/settings/notifications'
     },
     {
-      label: "Segurança",
-      icon: "i-lucide-shield",
-      to: "/app/settings/security",
-    },
-  ],
-] satisfies NavigationMenuItem[][];
+      label: 'Segurança',
+      icon: 'i-lucide-shield',
+      to: '/app/settings/security'
+    }
+  ]
+] satisfies NavigationMenuItem[][]
 </script>
 
 <template>

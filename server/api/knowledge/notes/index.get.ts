@@ -63,7 +63,7 @@ export default eventHandler(async (event) => {
     pinned: row.pinned as boolean,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
-    tags: [] as Array<{ id: string; name: string; color: string | null }>,
+    tags: [] as Array<{ id: string, name: string, color: string | null }>,
     linkCount: 0,
     backlinkCount: 0
   }))
@@ -78,7 +78,7 @@ export default eventHandler(async (event) => {
       .in('note_id', noteIds)
 
     if (tagLinks) {
-      const tagMap = new Map<string, Array<{ id: string; name: string; color: string | null }>>()
+      const tagMap = new Map<string, Array<{ id: string, name: string, color: string | null }>>()
       for (const link of tagLinks) {
         const noteId = link.note_id as string
         const tagRelation = link.tag as unknown

@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  updated: []
+  'updated': []
 }>()
 
 const { fetchDebt, addInstallment, toggleInstallmentPaid } = useFinancial()
@@ -41,8 +41,7 @@ async function loadDebt(id: string): Promise<void> {
   loading.value = true
   try {
     debtDetail.value = await fetchDebt(id)
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }
@@ -62,8 +61,7 @@ async function onAddInstallment(): Promise<void> {
       await loadDebt(debtDetail.value.id)
       emit('updated')
     }
-  }
-  finally {
+  } finally {
     addingInstallment.value = false
   }
 }
@@ -113,13 +111,17 @@ function getProgress(): number {
             <span class="font-medium text-green-500">{{ formatCurrency(debtDetail.totalAmount - debtDetail.remainingAmount) }}</span>
           </div>
           <UProgress :value="getProgress()" color="primary" size="sm" />
-          <p class="text-xs text-muted text-center">{{ getProgress() }}% quitado</p>
+          <p class="text-xs text-muted text-center">
+            {{ getProgress() }}% quitado
+          </p>
         </div>
 
         <!-- Installments -->
         <div>
           <div class="flex items-center justify-between mb-3">
-            <h4 class="text-sm font-medium">Parcelas</h4>
+            <h4 class="text-sm font-medium">
+              Parcelas
+            </h4>
             <UButton
               icon="i-lucide-plus"
               label="Adicionar"
@@ -134,10 +136,22 @@ function getProgress(): number {
             <UForm :schema="installmentSchema" :state="installmentState" @submit="onAddInstallment">
               <div class="grid grid-cols-2 gap-3">
                 <UFormField label="Valor (R$)" name="amount">
-                  <UInput v-model.number="installmentState.amount" type="number" step="0.01" min="0" size="sm" class="w-full" />
+                  <UInput
+                    v-model.number="installmentState.amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    size="sm"
+                    class="w-full"
+                  />
                 </UFormField>
                 <UFormField label="Vencimento" name="dueDate">
-                  <UInput v-model="installmentState.dueDate" type="date" size="sm" class="w-full" />
+                  <UInput
+                    v-model="installmentState.dueDate"
+                    type="date"
+                    size="sm"
+                    class="w-full"
+                  />
                 </UFormField>
               </div>
               <div class="flex justify-end gap-2 mt-3">
@@ -162,7 +176,9 @@ function getProgress(): number {
 
           <!-- Installment list -->
           <div v-if="!debtDetail.installments?.length" class="text-center py-4">
-            <p class="text-sm text-muted">Nenhuma parcela cadastrada</p>
+            <p class="text-sm text-muted">
+              Nenhuma parcela cadastrada
+            </p>
           </div>
           <div v-else class="space-y-2">
             <div
@@ -174,8 +190,8 @@ function getProgress(): number {
               <div class="flex items-center gap-3">
                 <UCheckbox
                   :model-value="inst.paid"
-                  @update:model-value="onTogglePaid(inst)"
                   size="sm"
+                  @update:model-value="onTogglePaid(inst)"
                 />
                 <div>
                   <p class="text-sm font-medium" :class="{ 'line-through': inst.paid }">
@@ -186,10 +202,20 @@ function getProgress(): number {
                   </p>
                 </div>
               </div>
-              <UBadge v-if="inst.paid" size="xs" color="success" variant="subtle">
+              <UBadge
+                v-if="inst.paid"
+                size="xs"
+                color="success"
+                variant="subtle"
+              >
                 Pago
               </UBadge>
-              <UBadge v-else-if="new Date(inst.dueDate) < new Date()" size="xs" color="error" variant="subtle">
+              <UBadge
+                v-else-if="new Date(inst.dueDate) < new Date()"
+                size="xs"
+                color="error"
+                variant="subtle"
+              >
                 Vencido
               </UBadge>
             </div>

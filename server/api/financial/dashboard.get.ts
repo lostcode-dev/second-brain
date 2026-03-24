@@ -86,7 +86,7 @@ export default eventHandler(async (event) => {
   const totalAssets = sumAmount(assetsResult.data, 'value')
 
   // Expenses by category
-  const categoryTotals: Record<string, { name: string; total: number }> = {}
+  const categoryTotals: Record<string, { name: string, total: number }> = {}
   for (const row of (expensesWithCategory.data ?? []) as Record<string, unknown>[]) {
     const cat = row.category as Record<string, unknown> | null
     const catId = cat?.id as string ?? '__uncategorized'

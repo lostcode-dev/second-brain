@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { FinancialDashboard } from '~/types/financial'
-import { TRANSACTION_TYPE_META, TransactionType } from '~/types/financial'
+import type { FinancialDashboard, TransactionType } from '~/types/financial'
+import { TRANSACTION_TYPE_META } from '~/types/financial'
 
 defineProps<{
   dashboard: FinancialDashboard | null
@@ -46,7 +46,9 @@ defineProps<{
       </h3>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <p class="text-xs text-muted mb-1">Mês anterior</p>
+          <p class="text-xs text-muted mb-1">
+            Mês anterior
+          </p>
           <p class="text-sm">
             <span class="text-green-500">↑ {{ formatCurrency(dashboard.monthlyComparison.previousMonthIncome) }}</span>
           </p>
@@ -55,7 +57,9 @@ defineProps<{
           </p>
         </div>
         <div>
-          <p class="text-xs text-muted mb-1">Mês atual</p>
+          <p class="text-xs text-muted mb-1">
+            Mês atual
+          </p>
           <p class="text-sm">
             <span class="text-green-500">↑ {{ formatCurrency(dashboard.monthlyComparison.currentMonthIncome) }}</span>
           </p>
@@ -87,7 +91,9 @@ defineProps<{
               class="size-4 shrink-0"
             />
             <div class="min-w-0">
-              <p class="text-sm truncate">{{ tx.description }}</p>
+              <p class="text-sm truncate">
+                {{ tx.description }}
+              </p>
               <p class="text-xs text-muted">
                 {{ tx.categoryName ?? 'Sem categoria' }} · {{ new Date(tx.date).toLocaleDateString('pt-BR') }}
               </p>

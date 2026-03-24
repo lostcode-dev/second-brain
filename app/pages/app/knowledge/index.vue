@@ -91,7 +91,9 @@ function switchToGraph(): void {
       <!-- Sidebar header -->
       <div class="px-3 py-2 border-b border-default">
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm font-semibold text-highlighted">Conhecimento</h2>
+          <h2 class="text-sm font-semibold text-highlighted">
+            Conhecimento
+          </h2>
           <div class="flex items-center gap-1">
             <UButton
               icon="i-lucide-plus"
@@ -151,11 +153,17 @@ function switchToGraph(): void {
               :class="selectedNoteId === result.id ? 'bg-elevated ring-1 ring-primary' : ''"
               @click="onSelectNote(result.id)"
             >
-              <p class="text-sm font-medium text-highlighted truncate">{{ result.title }}</p>
-              <p v-if="result.excerpt" class="text-xs text-muted truncate mt-0.5">{{ result.excerpt }}</p>
+              <p class="text-sm font-medium text-highlighted truncate">
+                {{ result.title }}
+              </p>
+              <p v-if="result.excerpt" class="text-xs text-muted truncate mt-0.5">
+                {{ result.excerpt }}
+              </p>
             </button>
           </div>
-          <p v-else class="text-xs text-muted text-center py-4">Nenhum resultado</p>
+          <p v-else class="text-xs text-muted text-center py-4">
+            Nenhum resultado
+          </p>
         </div>
 
         <!-- Notes list -->

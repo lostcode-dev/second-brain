@@ -84,7 +84,7 @@ const selectedExpense = ref<Expense | null>(null)
 const selectedDebt = ref<Debt | null>(null)
 const selectedAsset = ref<Asset | null>(null)
 
-const deleteTarget = ref<{ type: string; id: string; name: string } | null>(null)
+const deleteTarget = ref<{ type: string, id: string, name: string } | null>(null)
 
 // ─── Category type for modal ─────────────────────────────────────────────────
 const categoryDefaultType = ref<TransactionType>(TransactionType.Expense)

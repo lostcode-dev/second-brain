@@ -58,10 +58,10 @@ function buildTreeData(): HabitSortableTreeNode[] {
   if (visibleHabits.length === 0) return []
 
   const hiddenIds = new Set(collapsedIds.value)
-  const visibleHabitIds = new Set(visibleHabits.map((habit) => habit.id))
+  const visibleHabitIds = new Set(visibleHabits.map(habit => habit.id))
   const childrenByParent = new Map<string, string[]>()
   const parentsByChild = new Map<string, string>()
-  const habitById = new Map(visibleHabits.map((habit) => [habit.id, habit] as const))
+  const habitById = new Map(visibleHabits.map(habit => [habit.id, habit] as const))
 
   for (const stack of props.stacks ?? []) {
     if (!visibleHabitIds.has(stack.triggerHabitId) || !visibleHabitIds.has(stack.newHabitId)) {
@@ -98,7 +98,7 @@ function buildTreeData(): HabitSortableTreeNode[] {
 
     const childIds = childrenByParent.get(habitId) ?? []
     const children = childIds
-      .map((childId) => buildNode(childId))
+      .map(childId => buildNode(childId))
       .filter((child): child is HabitSortableTreeNode => child !== null)
 
     return {
@@ -133,7 +133,7 @@ watch(
 )
 
 function serializeTree(nodes: HabitSortableTreeNode[]): HabitTreeSyncNode[] {
-  return nodes.map((node) => ({
+  return nodes.map(node => ({
     habitId: node.habit.id,
     children: serializeTree(node.children)
   }))
@@ -160,7 +160,7 @@ function collapseAll() {
 }
 
 function onTreeOpened(stat: TreeStat) {
-  collapsedIds.value = collapsedIds.value.filter((id) => id !== stat.data.habit.id)
+  collapsedIds.value = collapsedIds.value.filter(id => id !== stat.data.habit.id)
 }
 
 function onTreeClosed(stat: TreeStat) {

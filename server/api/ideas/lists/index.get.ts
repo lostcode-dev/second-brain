@@ -17,7 +17,7 @@ export default eventHandler(async (event) => {
 
   // Count ideas per list
   const listIds = (lists ?? []).map(l => l.id)
-  let countMap: Record<string, number> = {}
+  const countMap: Record<string, number> = {}
   if (listIds.length > 0) {
     const { data: ideas } = await supabase
       .from('ideas')

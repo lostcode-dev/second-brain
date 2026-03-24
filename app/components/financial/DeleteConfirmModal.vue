@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  confirmed: []
+  'confirmed': []
 }>()
 
 const deleting = ref(false)
@@ -17,8 +17,7 @@ async function onConfirm(): Promise<void> {
   deleting.value = true
   try {
     emit('confirmed')
-  }
-  finally {
+  } finally {
     deleting.value = false
   }
 }

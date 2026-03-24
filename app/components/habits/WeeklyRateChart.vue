@@ -70,8 +70,12 @@ function onBarLeave() {
           top: tooltipData.y - 40 + 'px'
         }"
       >
-        <p class="font-medium text-highlighted">{{ tooltipData.rate.rate }}%</p>
-        <p class="text-xs text-muted">Semana de {{ tooltipData.rate.week }}</p>
+        <p class="font-medium text-highlighted">
+          {{ tooltipData.rate.rate }}%
+        </p>
+        <p class="text-xs text-muted">
+          Semana de {{ tooltipData.rate.week }}
+        </p>
       </div>
     </Teleport>
   </div>

@@ -84,8 +84,8 @@ export default eventHandler(async (event) => {
   const tagMap = await fetchHabitTagMap(supabase, habitIds)
 
   const habits = mapHabitList((data ?? []) as Record<string, unknown>[], tagMap)
-  const visibleHabitIds = new Set(habits.map((habit) => String(habit.id)))
-  const habitsById = new Map(habits.map((habit) => [String(habit.id), habit] as const))
+  const visibleHabitIds = new Set(habits.map(habit => String(habit.id)))
+  const habitsById = new Map(habits.map(habit => [String(habit.id), habit] as const))
   const childrenByParent = new Map<string, string[]>()
   const parentsByChild = new Map<string, string[]>()
 
@@ -167,7 +167,7 @@ export default eventHandler(async (event) => {
 
   return {
     data: pageIds
-      .map((habitId) => habitsById.get(habitId))
+      .map(habitId => habitsById.get(habitId))
       .filter((habit): habit is NonNullable<(typeof habits)[number]> => Boolean(habit)),
     total: rootIds.length,
     page: params.page,

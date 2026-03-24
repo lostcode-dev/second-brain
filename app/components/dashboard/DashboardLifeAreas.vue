@@ -147,7 +147,12 @@ async function seedDefaults() {
               placeholder="Nome da área"
               class="flex-1"
             />
-            <UButton type="submit" size="sm" :loading="saving" :disabled="saving">
+            <UButton
+              type="submit"
+              size="sm"
+              :loading="saving"
+              :disabled="saving"
+            >
               {{ editingId ? 'Salvar' : 'Criar' }}
             </UButton>
             <UButton

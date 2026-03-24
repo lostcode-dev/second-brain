@@ -109,11 +109,9 @@ export function useKnowledge() {
       searchResults.value = await $fetch<NoteSearchResult[]>('/api/knowledge/notes/search', {
         query: { q: searchQuery.value }
       })
-    }
-    catch {
+    } catch {
       searchResults.value = []
-    }
-    finally {
+    } finally {
       searching.value = false
     }
   }, 300)
@@ -134,8 +132,7 @@ export function useKnowledge() {
       await refreshNotes()
       await refreshGraph()
       return note
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao criar nota.', color: 'error' })
       return null
     }
@@ -150,8 +147,7 @@ export function useKnowledge() {
       toast.add({ title: 'Nota atualizada', description: 'Alterações salvas.', color: 'success' })
       await refreshNotes()
       return note
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao atualizar nota.', color: 'error' })
       return null
     }
@@ -164,8 +160,7 @@ export function useKnowledge() {
       await refreshNotes()
       await refreshGraph()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao excluir nota.', color: 'error' })
       return false
     }
@@ -174,8 +169,7 @@ export function useKnowledge() {
   async function fetchNoteDetail(id: string): Promise<NoteDetail | null> {
     try {
       return await $fetch<NoteDetail>(`/api/knowledge/notes/${id}`)
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao carregar nota.', color: 'error' })
       return null
     }
@@ -193,8 +187,7 @@ export function useKnowledge() {
       })
       await refreshNotes()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao alterar fixação.', color: 'error' })
       return false
     }
@@ -211,8 +204,7 @@ export function useKnowledge() {
       toast.add({ title: 'Vínculo criado', description: 'As notas foram vinculadas.', color: 'success' })
       await refreshGraph()
       return true
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       const message = (err as { data?: { message?: string } })?.data?.message ?? 'Falha ao vincular notas.'
       toast.add({ title: 'Erro', description: message, color: 'error' })
       return false
@@ -225,8 +217,7 @@ export function useKnowledge() {
       toast.add({ title: 'Vínculo removido', color: 'success' })
       await refreshGraph()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao remover vínculo.', color: 'error' })
       return false
     }
@@ -243,8 +234,7 @@ export function useKnowledge() {
       toast.add({ title: 'Tag criada', description: `"${tag.name}" criada.`, color: 'success' })
       await refreshTags()
       return tag
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao criar tag.', color: 'error' })
       return null
     }
@@ -259,8 +249,7 @@ export function useKnowledge() {
       toast.add({ title: 'Tag atualizada', color: 'success' })
       await refreshTags()
       return tag
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao atualizar tag.', color: 'error' })
       return null
     }
@@ -272,8 +261,7 @@ export function useKnowledge() {
       toast.add({ title: 'Tag excluída', color: 'success' })
       await refreshTags()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Falha ao excluir tag.', color: 'error' })
       return false
     }

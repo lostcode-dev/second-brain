@@ -248,8 +248,7 @@ function onMouseDown(e: MouseEvent): void {
 
   if (node) {
     dragging.value = node
-  }
-  else {
+  } else {
     panning.value = true
     panStart.x = e.clientX
     panStart.y = e.clientY
@@ -269,13 +268,11 @@ function onMouseMove(e: MouseEvent): void {
     dragging.value.vx = 0
     dragging.value.vy = 0
     draw()
-  }
-  else if (panning.value) {
+  } else if (panning.value) {
     camera.x = panStart.camX + (e.clientX - panStart.x)
     camera.y = panStart.camY + (e.clientY - panStart.y)
     draw()
-  }
-  else {
+  } else {
     const node = findNodeAt(world.x, world.y)
     if (node !== hoveredNode.value) {
       hoveredNode.value = node
@@ -351,7 +348,9 @@ const typeLegend = computed(() =>
     <div v-if="loading" class="flex items-center justify-center h-full">
       <div class="text-center space-y-2">
         <UIcon name="i-lucide-loader-2" class="size-8 animate-spin text-muted" />
-        <p class="text-sm text-muted">Carregando grafo...</p>
+        <p class="text-sm text-muted">
+          Carregando grafo...
+        </p>
       </div>
     </div>
 
@@ -361,7 +360,9 @@ const typeLegend = computed(() =>
       class="flex flex-col items-center justify-center h-full gap-4"
     >
       <UIcon name="i-lucide-network" class="size-16 text-dimmed" />
-      <p class="text-muted text-sm">Crie notas e vínculos para visualizar o grafo</p>
+      <p class="text-muted text-sm">
+        Crie notas e vínculos para visualizar o grafo
+      </p>
     </div>
 
     <!-- Canvas -->

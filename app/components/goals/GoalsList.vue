@@ -27,7 +27,7 @@ const timeCategoryLabels: Record<string, string> = {
   [GoalTimeCategory.Monthly]: 'Mensal',
   [GoalTimeCategory.Quarterly]: 'Trimestral',
   [GoalTimeCategory.Yearly]: 'Anual',
-  [GoalTimeCategory.LongTerm]: 'Longo prazo',
+  [GoalTimeCategory.LongTerm]: 'Longo prazo'
 }
 
 const lifeCategoryLabels: Record<string, string> = {
@@ -38,13 +38,13 @@ const lifeCategoryLabels: Record<string, string> = {
   [GoalLifeCategory.Spiritual]: 'Espiritual',
   [GoalLifeCategory.Learning]: 'Aprendizado',
   [GoalLifeCategory.Relationships]: 'Relacionamentos',
-  [GoalLifeCategory.Lifestyle]: 'Estilo de vida',
+  [GoalLifeCategory.Lifestyle]: 'Estilo de vida'
 }
 
 const statusLabels: Record<string, string> = {
   [GoalStatus.Active]: 'Ativa',
   [GoalStatus.Completed]: 'Concluída',
-  [GoalStatus.Archived]: 'Arquivada',
+  [GoalStatus.Archived]: 'Arquivada'
 }
 
 function getTimeCategoryLabel(value: string): string {

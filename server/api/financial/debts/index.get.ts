@@ -42,7 +42,7 @@ export default eventHandler(async (event) => {
   // Fetch installment counts for each debt
   const debtIds = (data ?? []).map((d: Record<string, unknown>) => d.id as string)
 
-  let installmentCounts: Record<string, { total: number; paid: number }> = {}
+  const installmentCounts: Record<string, { total: number, paid: number }> = {}
 
   if (debtIds.length > 0) {
     const { data: installments } = await supabase

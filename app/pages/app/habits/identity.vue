@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import * as z from "zod";
-import type { FormSubmitEvent } from "@nuxt/ui";
-import type { Identity } from "~/types/habits";
+import * as z from 'zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
+import type { Identity } from '~/types/habits'
 
 definePageMeta({
-  layout: "app",
-});
+  layout: 'app'
+})
 
 useSeoMeta({
-  title: "Identidades",
-});
+  title: 'Identidades'
+})
 
 const {
   identities,
@@ -17,96 +17,96 @@ const {
   refreshIdentities,
   createIdentity,
   updateIdentity,
-  archiveIdentity,
-} = useHabits();
+  archiveIdentity
+} = useHabits()
 
 const formSchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio").max(200),
-  description: z.string().max(500).optional(),
-});
+  name: z.string().min(1, 'Nome e obrigatorio').max(200),
+  description: z.string().max(500).optional()
+})
 
-type FormSchema = z.output<typeof formSchema>;
+type FormSchema = z.output<typeof formSchema>
 
-const FORM_ID = "identity-page-form";
+const FORM_ID = 'identity-page-form'
 
-const formOpen = ref(false);
-const submitting = ref(false);
-const archivingId = ref<string | null>(null);
-const editingIdentity = ref<Identity | null>(null);
+const formOpen = ref(false)
+const submitting = ref(false)
+const archivingId = ref<string | null>(null)
+const editingIdentity = ref<Identity | null>(null)
 
 const formState = reactive<Partial<FormSchema>>({
-  name: "",
-  description: "",
-});
+  name: '',
+  description: ''
+})
 
 const sortedIdentities = computed(() =>
   [...(identities.value ?? [])].sort((a, b) =>
-    a.name.localeCompare(b.name, "pt-BR"),
-  ),
-);
+    a.name.localeCompare(b.name, 'pt-BR')
+  )
+)
 
-const headerDescription =
-  "Crie identidades para conectar seus habitos a pessoa que voce quer se tornar.";
+const headerDescription
+  = 'Crie identidades para conectar seus habitos a pessoa que voce quer se tornar.'
 
-if (identitiesStatus.value === "idle") {
-  await refreshIdentities();
+if (identitiesStatus.value === 'idle') {
+  await refreshIdentities()
 }
 
 function openCreateForm() {
-  editingIdentity.value = null;
-  formState.name = "";
-  formState.description = "";
-  formOpen.value = true;
+  editingIdentity.value = null
+  formState.name = ''
+  formState.description = ''
+  formOpen.value = true
 }
 
 function openEditForm(identity: Identity) {
-  editingIdentity.value = identity;
-  formState.name = identity.name;
-  formState.description = identity.description ?? "";
-  formOpen.value = true;
+  editingIdentity.value = identity
+  formState.name = identity.name
+  formState.description = identity.description ?? ''
+  formOpen.value = true
 }
 
 function closeForm() {
-  formOpen.value = false;
-  editingIdentity.value = null;
-  formState.name = "";
-  formState.description = "";
+  formOpen.value = false
+  editingIdentity.value = null
+  formState.name = ''
+  formState.description = ''
 }
 
 async function onSubmit(event: FormSubmitEvent<FormSchema>) {
-  if (submitting.value) return;
-  submitting.value = true;
+  if (submitting.value) return
+  submitting.value = true
 
   try {
     const payload = {
       name: event.data.name,
       description: event.data.description?.trim()
         ? event.data.description.trim()
-        : undefined,
-    };
+        : undefined
+    }
 
     const result = editingIdentity.value
       ? await updateIdentity(editingIdentity.value.id, {
           name: payload.name,
-          description: payload.description ?? null,
+          description: payload.description ?? null
         })
-      : await createIdentity(payload);
+      : await createIdentity(payload)
 
     if (result) {
-      closeForm();
+      closeForm()
     }
   } finally {
-    submitting.value = false;
+    submitting.value = false
   }
 }
 
 async function onArchive(identity: Identity) {
-  archivingId.value = identity.id;
+  archivingId.value = identity.id
 
   try {
-    await archiveIdentity(identity.id, identity.name);
+    await archiveIdentity(identity.id, identity.name)
   } finally {
-    archivingId.value = null;
+    archivingId.value = null
   }
 }
 </script>
@@ -249,7 +249,7 @@ async function onArchive(identity: Identity) {
     "
     :ui="{
       overlay: 'z-[240] bg-elevated/80',
-      content: 'z-[250] w-[calc(100vw-2rem)] max-w-xl overflow-visible',
+      content: 'z-[250] w-[calc(100vw-2rem)] max-w-xl overflow-visible'
     }"
     @update:open="formOpen = $event"
   >

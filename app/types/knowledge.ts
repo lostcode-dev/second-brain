@@ -10,7 +10,7 @@ export enum NoteType {
 
 // ─── Icon & Color Mappings ────────────────────────────────────────────────────
 
-export const NOTE_TYPE_META: Record<NoteType, { label: string; icon: string; color: 'primary' | 'info' | 'warning' | 'success' | 'neutral' }> = {
+export const NOTE_TYPE_META: Record<NoteType, { label: string, icon: string, color: 'primary' | 'info' | 'warning' | 'success' | 'neutral' }> = {
   [NoteType.Note]: { label: 'Nota', icon: 'i-lucide-file-text', color: 'primary' },
   [NoteType.Idea]: { label: 'Ideia', icon: 'i-lucide-lightbulb', color: 'warning' },
   [NoteType.Concept]: { label: 'Conceito', icon: 'i-lucide-shapes', color: 'info' },

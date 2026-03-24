@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { Goal } from "~/types/goals";
-import { GoalStatus } from "~/types/goals";
+import type { Goal } from '~/types/goals'
+import { GoalStatus } from '~/types/goals'
 
 definePageMeta({
-  layout: "app",
-});
+  layout: 'app'
+})
 
 useSeoMeta({
-  title: "Metas",
-});
+  title: 'Metas'
+})
 
 const {
   listData,
@@ -28,127 +28,128 @@ const {
   fetchGoal,
   timeCategoryOptions,
   lifeCategoryOptions,
-  statusOptions,
-} = useGoals();
+  statusOptions
+} = useGoals()
 
 // ─── Active tab ───────────────────────────────────────────────────────────────
-const activeTab = ref("active");
+const activeTab = ref('active')
 
 const tabs = [
-  { label: "Ativas", value: "active", icon: "i-lucide-target" },
-  { label: "Todas", value: "all", icon: "i-lucide-list" },
-  { label: "Insights", value: "insights", icon: "i-lucide-bar-chart-3" },
-];
+  { label: 'Ativas', value: 'active', icon: 'i-lucide-target' },
+  { label: 'Todas', value: 'all', icon: 'i-lucide-list' },
+  { label: 'Insights', value: 'insights', icon: 'i-lucide-bar-chart-3' }
+]
 
 function ensureLoaded(
-  status: Ref<"idle" | "pending" | "success" | "error">,
-  refresh: () => Promise<unknown>,
+  status: Ref<'idle' | 'pending' | 'success' | 'error'>,
+  refresh: () => Promise<unknown>
 ) {
-  if (status.value === "idle") {
-    void refresh();
+  if (status.value === 'idle') {
+    void refresh()
   }
 }
 
 watch(
   activeTab,
   (tab) => {
-    if (tab === "active") {
-      listStatus.value = GoalStatus.Active;
-      ensureLoaded(listFetchStatus, refreshList);
-    } else if (tab === "all") {
-      listStatus.value = "";
-      ensureLoaded(listFetchStatus, refreshList);
+    if (tab === 'active') {
+      listStatus.value = GoalStatus.Active
+      ensureLoaded(listFetchStatus, refreshList)
+    } else if (tab === 'all') {
+      listStatus.value = ''
+      ensureLoaded(listFetchStatus, refreshList)
     }
-    if (tab === "insights") {
-      ensureLoaded(insightsStatus, refreshInsights);
+    if (tab === 'insights') {
+      ensureLoaded(insightsStatus, refreshInsights)
     }
-    listPage.value = 1;
+    listPage.value = 1
   },
-  { immediate: true },
-);
+  { immediate: true }
+)
 
 // ─── Modals ───────────────────────────────────────────────────────────────────
-const createModalOpen = ref(false);
-const editModalOpen = ref(false);
-const archiveModalOpen = ref(false);
-const detailSlideoverOpen = ref(false);
-const selectedGoal = ref<Goal | null>(null);
+const createModalOpen = ref(false)
+const editModalOpen = ref(false)
+const archiveModalOpen = ref(false)
+const detailSlideoverOpen = ref(false)
+const selectedGoal = ref<Goal | null>(null)
 
-const ALL_FILTER_VALUE = "__all__";
+const ALL_FILTER_VALUE = '__all__'
 
 const listTimeCategoryModel = computed({
   get: () => listTimeCategory.value || ALL_FILTER_VALUE,
   set: (value: string) => {
-    listTimeCategory.value = value === ALL_FILTER_VALUE ? "" : value;
-  },
-});
+    listTimeCategory.value = value === ALL_FILTER_VALUE ? '' : value
+  }
+})
 
 const listLifeCategoryModel = computed({
   get: () => listLifeCategory.value || ALL_FILTER_VALUE,
   set: (value: string) => {
-    listLifeCategory.value = value === ALL_FILTER_VALUE ? "" : value;
-  },
-});
+    listLifeCategory.value = value === ALL_FILTER_VALUE ? '' : value
+  }
+})
 
 const listStatusModel = computed({
   get: () => listStatus.value || ALL_FILTER_VALUE,
   set: (value: string) => {
-    listStatus.value = value === ALL_FILTER_VALUE ? "" : value;
-  },
-});
+    listStatus.value = value === ALL_FILTER_VALUE ? '' : value
+  }
+})
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 async function onSelectGoal(goalId: string) {
-  const goal = await fetchGoal(goalId);
+  const goal = await fetchGoal(goalId)
   if (goal) {
-    selectedGoal.value = goal;
-    detailSlideoverOpen.value = true;
+    selectedGoal.value = goal
+    detailSlideoverOpen.value = true
   }
 }
 
 function onEditGoal(goal: Goal) {
-  selectedGoal.value = goal;
-  editModalOpen.value = true;
+  selectedGoal.value = goal
+  editModalOpen.value = true
 }
 
 function onArchiveGoal(goal: Goal) {
-  selectedGoal.value = goal;
-  archiveModalOpen.value = true;
+  selectedGoal.value = goal
+  archiveModalOpen.value = true
 }
 
 async function onCompleteGoal(goal: Goal) {
-  await completeGoal(goal.id, goal.title);
+  await completeGoal(goal.id, goal.title)
 }
 
 async function onRestoreGoal(goal: Goal) {
-  await restoreGoal(goal.id);
+  await restoreGoal(goal.id)
 }
 
 function onGoalArchived() {
-  detailSlideoverOpen.value = false;
-  selectedGoal.value = null;
+  detailSlideoverOpen.value = false
+  selectedGoal.value = null
 }
 
 function onGoalUpdated() {
-  refreshList();
+  refreshList()
 }
 
 // ─── Filter options ───────────────────────────────────────────────────────────
 const timeCategoryFilterOptions = computed(() => [
-  { label: "Todos", value: ALL_FILTER_VALUE },
-  ...timeCategoryOptions,
-]);
+  { label: 'Todos', value: ALL_FILTER_VALUE },
+  ...timeCategoryOptions
+])
 
 const lifeCategoryFilterOptions = computed(() => [
-  { label: "Todas", value: ALL_FILTER_VALUE },
-  ...lifeCategoryOptions,
-]);
+  { label: 'Todas', value: ALL_FILTER_VALUE },
+  ...lifeCategoryOptions
+])
 
 const statusFilterOptions = computed(() => [
-  { label: "Todas", value: ALL_FILTER_VALUE },
-  ...statusOptions,
-]);
+  { label: 'Todas', value: ALL_FILTER_VALUE },
+  ...statusOptions
+])
 </script>
+
 <template>
   <UDashboardPanel id="goals">
     <template #header>

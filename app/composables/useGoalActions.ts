@@ -6,7 +6,7 @@ import type {
   GoalTask,
   LinkHabitPayload,
   UpdateGoalPayload,
-  UpdateGoalTaskPayload,
+  UpdateGoalTaskPayload
 } from '~/types/goals'
 import { GoalLifeCategory, GoalStatus, GoalTimeCategory } from '~/types/goals'
 
@@ -18,7 +18,7 @@ export const timeCategoryOptions = [
   { label: 'Mensal', value: GoalTimeCategory.Monthly },
   { label: 'Trimestral', value: GoalTimeCategory.Quarterly },
   { label: 'Anual', value: GoalTimeCategory.Yearly },
-  { label: 'Longo prazo', value: GoalTimeCategory.LongTerm },
+  { label: 'Longo prazo', value: GoalTimeCategory.LongTerm }
 ]
 
 export const lifeCategoryOptions = [
@@ -29,13 +29,13 @@ export const lifeCategoryOptions = [
   { label: 'Espiritual', value: GoalLifeCategory.Spiritual },
   { label: 'Aprendizado', value: GoalLifeCategory.Learning },
   { label: 'Relacionamentos', value: GoalLifeCategory.Relationships },
-  { label: 'Estilo de vida', value: GoalLifeCategory.Lifestyle },
+  { label: 'Estilo de vida', value: GoalLifeCategory.Lifestyle }
 ]
 
 export const statusOptions = [
   { label: 'Ativa', value: GoalStatus.Active },
   { label: 'Concluída', value: GoalStatus.Completed },
-  { label: 'Arquivada', value: GoalStatus.Archived },
+  { label: 'Arquivada', value: GoalStatus.Archived }
 ]
 
 export function useGoalActions() {
@@ -45,7 +45,7 @@ export function useGoalActions() {
     try {
       const goal = await $fetch<Goal>('/api/goals', {
         method: 'POST',
-        body: payload,
+        body: payload
       })
       toast.add({ title: 'Meta criada', description: `"${goal.title}" adicionada com sucesso.`, color: 'success' })
       return goal
@@ -59,7 +59,7 @@ export function useGoalActions() {
     try {
       const goal = await $fetch<Goal>(`/api/goals/${id}`, {
         method: 'PUT',
-        body: payload,
+        body: payload
       })
       toast.add({ title: 'Meta atualizada', description: `"${goal.title}" salva com sucesso.`, color: 'success' })
       return goal
@@ -95,7 +95,7 @@ export function useGoalActions() {
     try {
       await $fetch(`/api/goals/${id}`, {
         method: 'PUT',
-        body: { status: GoalStatus.Completed },
+        body: { status: GoalStatus.Completed }
       })
       toast.add({ title: 'Meta concluída!', description: `"${title}" foi marcada como concluída.`, color: 'success' })
       return true
@@ -118,7 +118,7 @@ export function useGoalActions() {
     try {
       const task = await $fetch<GoalTask>(`/api/goals/${goalId}/tasks`, {
         method: 'POST',
-        body: payload,
+        body: payload
       })
       toast.add({ title: 'Tarefa criada', description: `"${task.title}" adicionada.`, color: 'success' })
       return task
@@ -132,7 +132,7 @@ export function useGoalActions() {
     try {
       return await $fetch<GoalTask>(`/api/goals/tasks/${taskId}`, {
         method: 'PUT',
-        body: payload,
+        body: payload
       })
     } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível atualizar a tarefa.', color: 'error' })
@@ -155,7 +155,7 @@ export function useGoalActions() {
     try {
       const link = await $fetch<GoalHabitLink>(`/api/goals/${goalId}/habits`, {
         method: 'POST',
-        body: payload,
+        body: payload
       })
       toast.add({ title: 'Hábito vinculado', description: 'Hábito associado à meta.', color: 'success' })
       return link
@@ -215,6 +215,6 @@ export function useGoalActions() {
     getLifeCategoryLabel,
     getTimeCategoryLabel,
     getStatusColor,
-    getStatusLabel,
+    getStatusLabel
   }
 }

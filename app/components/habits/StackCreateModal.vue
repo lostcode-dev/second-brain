@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  created: []
+  'created': []
 }>()
 
 const { createStack } = useHabits()
@@ -22,7 +22,7 @@ const schema = z
     triggerHabitId: z.string().uuid('Selecione o hábito gatilho'),
     newHabitId: z.string().uuid('Selecione o hábito seguinte')
   })
-  .refine((data) => data.triggerHabitId !== data.newHabitId, {
+  .refine(data => data.triggerHabitId !== data.newHabitId, {
     message: 'O hábito gatilho e o seguinte devem ser diferentes',
     path: ['newHabitId']
   })
@@ -48,8 +48,8 @@ watch(
 
 const habitItems = computed(() =>
   props.habits
-    .filter((h) => h.id !== props.initialTriggerHabitId)
-    .map((h) => ({ label: h.name, value: h.id }))
+    .filter(h => h.id !== props.initialTriggerHabitId)
+    .map(h => ({ label: h.name, value: h.id }))
 )
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -85,7 +85,12 @@ function onClose() {
     @update:open="onClose"
   >
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+      <UForm
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
         <UFormField v-if="!props.initialTriggerHabitId" label="Depois de..." name="triggerHabitId">
           <USelect
             v-model="(state.triggerHabitId as string)"
@@ -98,7 +103,12 @@ function onClose() {
         </UFormField>
 
         <UFormField v-else label="Depois de...">
-          <UInput :model-value="props.initialTriggerHabitName ?? ''" icon="i-lucide-zap" disabled class="w-full" />
+          <UInput
+            :model-value="props.initialTriggerHabitName ?? ''"
+            icon="i-lucide-zap"
+            disabled
+            class="w-full"
+          />
         </UFormField>
 
         <div class="flex items-center gap-2 text-muted">

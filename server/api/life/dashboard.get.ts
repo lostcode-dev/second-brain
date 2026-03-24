@@ -29,7 +29,7 @@ export default eventHandler(async (event) => {
   const supabase = getSupabaseAdminClient()
 
   // ─── Habits ───────────────────────────────────────────────────────────────
-  type DashboardHabitItem = { id: string; name: string; frequency: string; difficulty: string; completed: boolean; streakCurrent: number }
+  type DashboardHabitItem = { id: string, name: string, frequency: string, difficulty: string, completed: boolean, streakCurrent: number }
 
   let dashboardHabits: DashboardHabitItem[]
 

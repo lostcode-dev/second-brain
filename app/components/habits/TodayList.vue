@@ -26,8 +26,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  toggle: [habitId: string, completed: boolean]
-  select: [habitId: string]
+  'toggle': [habitId: string, completed: boolean]
+  'select': [habitId: string]
   'log-with-note': [habitId: string, status: HabitLogStatus, note: string]
   'navigate-date': [direction: 'prev' | 'next']
 }>()
@@ -51,7 +51,7 @@ function submitNote(status: HabitLogStatus) {
 }
 
 const statusButtons = computed(() =>
-  Object.values(HabitLogStatus).map((s) => ({
+  Object.values(HabitLogStatus).map(s => ({
     status: s,
     ...LOG_STATUS_META[s]
   }))
@@ -99,10 +99,10 @@ function buildTreeData(): TodayTreeNode[] {
   if (visibleHabits.length === 0) return []
 
   const hiddenIds = new Set(collapsedIds.value)
-  const visibleHabitIds = new Set(visibleHabits.map((habit) => habit.id))
+  const visibleHabitIds = new Set(visibleHabits.map(habit => habit.id))
   const childrenByParent = new Map<string, string[]>()
   const parentsByChild = new Map<string, string>()
-  const habitById = new Map(visibleHabits.map((habit) => [habit.id, habit] as const))
+  const habitById = new Map(visibleHabits.map(habit => [habit.id, habit] as const))
 
   for (const stack of props.stacks ?? []) {
     if (!visibleHabitIds.has(stack.triggerHabitId) || !visibleHabitIds.has(stack.newHabitId)) {
@@ -139,7 +139,7 @@ function buildTreeData(): TodayTreeNode[] {
 
     const childIds = childrenByParent.get(habitId) ?? []
     const children = childIds
-      .map((childId) => buildNode(childId))
+      .map(childId => buildNode(childId))
       .filter((child): child is TodayTreeNode => child !== null)
 
     return {
@@ -174,7 +174,7 @@ watch(
 )
 
 function onTreeOpened(stat: TreeStat) {
-  collapsedIds.value = collapsedIds.value.filter((id) => id !== stat.data.id)
+  collapsedIds.value = collapsedIds.value.filter(id => id !== stat.data.id)
 }
 
 function onTreeClosed(stat: TreeStat) {
@@ -207,7 +207,13 @@ function onSelectHabit(habitId: string) {
         <p class="text-sm font-medium text-highlighted capitalize">
           {{ formattedDate }}
         </p>
-        <UBadge v-if="isToday" label="Hoje" variant="subtle" color="primary" size="xs" />
+        <UBadge
+          v-if="isToday"
+          label="Hoje"
+          variant="subtle"
+          color="primary"
+          size="xs"
+        />
       </div>
       <UButton
         icon="i-lucide-chevron-right"

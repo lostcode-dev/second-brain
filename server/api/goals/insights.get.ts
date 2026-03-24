@@ -38,12 +38,12 @@ export default eventHandler(async (event) => {
   }
 
   const lifeCategoryStats = nonArchived.reduce<Record<string, { count: number, totalProgress: number }>>((acc, g: Record<string, unknown>) => {
-      const cat = g.life_category as string
-      if (!acc[cat]) acc[cat] = { count: 0, totalProgress: 0 }
-      acc[cat].count++
-      acc[cat].totalProgress += g.progress as number
-      return acc
-    }, {})
+    const cat = g.life_category as string
+    if (!acc[cat]) acc[cat] = { count: 0, totalProgress: 0 }
+    acc[cat].count++
+    acc[cat].totalProgress += g.progress as number
+    return acc
+  }, {})
 
   const byLifeCategory = Object.entries(lifeCategoryStats).map(([category, stats]) => ({
     category,
@@ -63,12 +63,12 @@ export default eventHandler(async (event) => {
   }
 
   const timeCategoryStats = nonArchived.reduce<Record<string, { count: number, totalProgress: number }>>((acc, g: Record<string, unknown>) => {
-      const cat = g.time_category as string
-      if (!acc[cat]) acc[cat] = { count: 0, totalProgress: 0 }
-      acc[cat].count++
-      acc[cat].totalProgress += g.progress as number
-      return acc
-    }, {})
+    const cat = g.time_category as string
+    if (!acc[cat]) acc[cat] = { count: 0, totalProgress: 0 }
+    acc[cat].count++
+    acc[cat].totalProgress += g.progress as number
+    return acc
+  }, {})
 
   const byTimeCategory = Object.entries(timeCategoryStats).map(([category, stats]) => ({
     category,

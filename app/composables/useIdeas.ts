@@ -92,8 +92,7 @@ export function useIdeas() {
       toast.add({ title: 'Ideia criada', description: idea.title, color: 'success' })
       refreshIdeas()
       return idea
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível criar a ideia', color: 'error' })
       return null
     }
@@ -105,8 +104,7 @@ export function useIdeas() {
       toast.add({ title: 'Ideia atualizada', color: 'success' })
       refreshIdeas()
       return idea
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível atualizar a ideia', color: 'error' })
       return null
     }
@@ -118,8 +116,7 @@ export function useIdeas() {
       toast.add({ title: 'Ideia excluída', color: 'success' })
       refreshIdeas()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível excluir a ideia', color: 'error' })
       return false
     }
@@ -128,8 +125,7 @@ export function useIdeas() {
   async function fetchIdeaDetail(id: string): Promise<IdeaDetail | null> {
     try {
       return await $fetch<IdeaDetail>(`/api/ideas/${id}`)
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível buscar detalhes', color: 'error' })
       return null
     }
@@ -142,8 +138,7 @@ export function useIdeas() {
       await $fetch(`/api/ideas/${id}`, { method: 'PUT', body: { status } })
       refreshIdeas()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível atualizar status', color: 'error' })
       return false
     }
@@ -156,8 +151,7 @@ export function useIdeas() {
       const endpoint: string = `/api/ideas/${ideaId}/subtasks`
       await $fetch(endpoint, { method: 'POST', body: payload })
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível criar subtarefa', color: 'error' })
       return false
     }
@@ -167,8 +161,7 @@ export function useIdeas() {
     try {
       await $fetch(`/api/ideas/subtasks/${subtaskId}`, { method: 'PUT', body: payload })
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível atualizar subtarefa', color: 'error' })
       return false
     }
@@ -178,8 +171,7 @@ export function useIdeas() {
     try {
       await $fetch(`/api/ideas/subtasks/${subtaskId}`, { method: 'DELETE' })
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível excluir subtarefa', color: 'error' })
       return false
     }
@@ -193,8 +185,7 @@ export function useIdeas() {
       toast.add({ title: 'Lista criada', description: list.name, color: 'success' })
       refreshLists()
       return list
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível criar a lista', color: 'error' })
       return null
     }
@@ -206,8 +197,7 @@ export function useIdeas() {
       toast.add({ title: 'Lista atualizada', color: 'success' })
       refreshLists()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível atualizar a lista', color: 'error' })
       return false
     }
@@ -219,8 +209,7 @@ export function useIdeas() {
       toast.add({ title: 'Lista excluída', color: 'success' })
       refreshLists()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível excluir a lista', color: 'error' })
       return false
     }
@@ -234,8 +223,7 @@ export function useIdeas() {
       toast.add({ title: 'Tag criada', description: tag.name, color: 'success' })
       refreshTags()
       return tag
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível criar a tag', color: 'error' })
       return null
     }
@@ -247,8 +235,7 @@ export function useIdeas() {
       toast.add({ title: 'Tag excluída', color: 'success' })
       refreshTags()
       return true
-    }
-    catch {
+    } catch {
       toast.add({ title: 'Erro', description: 'Não foi possível excluir a tag', color: 'error' })
       return false
     }

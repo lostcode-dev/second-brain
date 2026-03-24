@@ -8,9 +8,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  select: [idea: Idea]
+  'select': [idea: Idea]
   'update-status': [id: string, status: IdeaStatus]
-  create: []
+  'create': []
 }>()
 
 const { getPriorityMeta } = useIdeas()
@@ -186,7 +186,9 @@ function onDragEnd(): void {
 
           <!-- Empty column -->
           <div v-if="col.ideas.length === 0" class="py-8 text-center">
-            <p class="text-xs text-muted">Vazio</p>
+            <p class="text-xs text-muted">
+              Vazio
+            </p>
           </div>
         </div>
       </div>

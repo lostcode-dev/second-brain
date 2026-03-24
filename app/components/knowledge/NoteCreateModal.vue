@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  saved: [note: KnowledgeNote]
+  'saved': [note: KnowledgeNote]
 }>()
 
 const { createNote, noteTypeOptions } = useKnowledge()
@@ -51,8 +51,7 @@ async function onSubmit(): Promise<void> {
       emit('update:open', false)
       emit('saved', note as KnowledgeNote)
     }
-  }
-  finally {
+  } finally {
     submitting.value = false
   }
 }
@@ -61,17 +60,34 @@ async function onSubmit(): Promise<void> {
 <template>
   <UModal :open="open" @update:open="emit('update:open', $event)">
     <template #header>
-      <h3 class="text-lg font-semibold">Nova nota</h3>
+      <h3 class="text-lg font-semibold">
+        Nova nota
+      </h3>
     </template>
 
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+      <UForm
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
         <UFormField label="Título" name="title">
-          <UInput v-model="state.title" placeholder="Ex: Ideias sobre produtividade..." class="w-full" autofocus />
+          <UInput
+            v-model="state.title"
+            placeholder="Ex: Ideias sobre produtividade..."
+            class="w-full"
+            autofocus
+          />
         </UFormField>
 
         <UFormField label="Tipo" name="type">
-          <USelect v-model="state.type" :items="noteTypeOptions" value-key="value" class="w-full" />
+          <USelect
+            v-model="state.type"
+            :items="noteTypeOptions"
+            value-key="value"
+            class="w-full"
+          />
         </UFormField>
 
         <UFormField label="Conteúdo (opcional)" name="content">

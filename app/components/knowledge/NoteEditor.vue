@@ -8,8 +8,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  updated: []
-  deleted: []
+  'updated': []
+  'deleted': []
   'navigate-note': [noteId: string]
 }>()
 
@@ -82,8 +82,7 @@ watch(() => props.noteId, async (id) => {
       editType.value = detail.type as NoteType
       editTagIds.value = (detail.tags ?? []).map((t: KnowledgeTag) => t.id)
     }
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }, { immediate: true })
@@ -104,8 +103,7 @@ async function saveNote(): Promise<void> {
     const detail = await fetchNoteDetail(noteDetail.value.id)
     noteDetail.value = detail
     emit('updated')
-  }
-  finally {
+  } finally {
     saving.value = false
   }
 }
@@ -171,7 +169,9 @@ onUnmounted(() => {
     <!-- No note selected -->
     <div v-if="!noteId" class="flex flex-col items-center justify-center h-full gap-4">
       <UIcon name="i-lucide-file-text" class="size-16 text-dimmed" />
-      <p class="text-muted text-sm">Selecione ou crie uma nota para começar</p>
+      <p class="text-muted text-sm">
+        Selecione ou crie uma nota para começar
+      </p>
     </div>
 
     <!-- Loading -->
@@ -190,11 +190,21 @@ onUnmounted(() => {
           <UBadge size="xs" :color="typeMeta.color" variant="subtle">
             {{ typeMeta.label }}
           </UBadge>
-          <UBadge v-if="dirty" size="xs" color="warning" variant="subtle">
+          <UBadge
+            v-if="dirty"
+            size="xs"
+            color="warning"
+            variant="subtle"
+          >
             <UIcon name="i-lucide-circle-dot" class="size-2.5 mr-0.5" />
             Não salvo
           </UBadge>
-          <UBadge v-if="saving" size="xs" color="info" variant="subtle">
+          <UBadge
+            v-if="saving"
+            size="xs"
+            color="info"
+            variant="subtle"
+          >
             <UIcon name="i-lucide-loader-2" class="size-2.5 mr-0.5 animate-spin" />
             Salvando...
           </UBadge>
@@ -226,7 +236,7 @@ onUnmounted(() => {
             v-model="editTitle"
             class="w-full text-2xl font-bold bg-transparent border-none outline-none placeholder-muted text-highlighted"
             placeholder="Título da nota..."
-          />
+          >
 
           <!-- Meta row -->
           <div class="flex flex-wrap items-center gap-2">
@@ -325,7 +335,9 @@ onUnmounted(() => {
                   />
                 </div>
               </div>
-              <p v-else class="text-xs text-muted">Sem vínculos</p>
+              <p v-else class="text-xs text-muted">
+                Sem vínculos
+              </p>
             </div>
 
             <!-- Backlinks -->
@@ -344,7 +356,9 @@ onUnmounted(() => {
                   {{ bl.sourceNote?.title ?? 'Nota excluída' }}
                 </button>
               </div>
-              <p v-else class="text-xs text-muted">Nenhuma nota referencia esta</p>
+              <p v-else class="text-xs text-muted">
+                Nenhuma nota referencia esta
+              </p>
             </div>
           </div>
         </div>

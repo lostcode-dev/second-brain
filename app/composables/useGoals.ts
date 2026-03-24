@@ -1,7 +1,7 @@
 import { useDebounceFn } from '@vueuse/core'
 import type {
   GoalInsights,
-  GoalListResponse,
+  GoalListResponse
 } from '~/types/goals'
 import { useGoalActions } from '~/composables/useGoalActions'
 
@@ -77,6 +77,6 @@ export function useGoals() {
     insightsStatus,
     refreshInsights,
     // Actions & Helpers
-    ...actions,
+    ...actions
   }
 }

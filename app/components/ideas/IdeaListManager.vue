@@ -49,8 +49,7 @@ async function onSubmit(): Promise<void> {
   if (editingList.value) {
     const success = await updateList(editingList.value.id, payload)
     if (success) modalOpen.value = false
-  }
-  else {
+  } else {
     const result = await createList(payload)
     if (result) modalOpen.value = false
   }
@@ -147,7 +146,12 @@ function getColorClass(color: string | null | undefined): string {
             </h3>
           </template>
 
-          <UForm :schema="schema" :state="formState" class="space-y-4" @submit="onSubmit">
+          <UForm
+            :schema="schema"
+            :state="formState"
+            class="space-y-4"
+            @submit="onSubmit"
+          >
             <UFormField label="Nome" name="name">
               <UInput
                 v-model="formState.name"
